@@ -1,10 +1,12 @@
 package com.quickpark.parkinglot.contoller;
 
+import com.quickpark.parkinglot.DTO.BookRequest;
+import com.quickpark.parkinglot.entities.Ticket;
 import com.quickpark.parkinglot.response.DisplayResponse;
 import com.quickpark.parkinglot.service.IParkingService;
+//import com.quickpark.parkinglot.DTO.ParkedVehicle;
 import com.quickpark.parkinglot.service.ParkingService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class ParkingController {
@@ -25,5 +27,13 @@ public class ParkingController {
         return parkingService.getFreeParkingSpots();
     }
 
+    @PostMapping(path = "/parking-lot/park" , consumes = "application/json")
+    public Ticket ParkVehicle(@RequestBody BookRequest bookRequest) {
+        return parkingService.ParkVehicle(bookRequest);
+    }
 
+    @DeleteMapping(path = "/parking-lot/unpark" , consumes = "application/json")
+    public Ticket UnparkVehicle(@RequestBody Ticket ticket) {
+        return parkingService.UnparkVehicle(ticket);
+    }
 }

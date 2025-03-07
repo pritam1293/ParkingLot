@@ -2,7 +2,7 @@ package com.quickpark.parkinglot.entities;
 
 public class CompactParkingSpot extends ParkingSpot{
 
-    public CompactParkingSpot() {
-        super("compact",45);
+    public CompactParkingSpot(int location) {
+        super("compact",140,location);
     }
 }

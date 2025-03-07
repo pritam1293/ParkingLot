@@ -1,15 +1,15 @@
 package com.quickpark.parkinglot.entities;
 
 public class DisplayBoard {
-    private int freeMini;
-    private int freeCompact;
-    private int freeLarge;
+    private int freeMiniParkingSpots;
+    private int freeCompactParkingSpots;
+    private int freeLargeParkingSpots;
     private static DisplayBoard displayBoard;
 
     private DisplayBoard() {
-        this.freeMini = 0;
-        this.freeCompact = 0;
-        this.freeLarge = 0;
+        this.freeMiniParkingSpots = 0;
+        this.freeCompactParkingSpots = 0;
+        this.freeLargeParkingSpots = 0;
     }
 
     public static DisplayBoard getInstance() {
@@ -19,38 +19,39 @@ public class DisplayBoard {
         return DisplayBoard.displayBoard;
     }
 
-    public int getFreeMini() {
-        return freeMini;
+    public int getFreeMiniParkingSpots() {
+        return freeMiniParkingSpots;
     }
 
-    public void setFreeMini(int freeMini) {
-        this.freeMini = freeMini;
+    public void setFreeMiniParkingSpots(int freeMini) {
+        this.freeMiniParkingSpots = freeMini;
     }
 
-    public int getFreeCompact() {
-        return freeCompact;
+    public int getFreeCompactParkingSpots() {
+        return freeCompactParkingSpots;
     }
 
-    public void setFreeCompact(int freeCompact) {
-        this.freeCompact = freeCompact;
+    public void setFreeCompactParkingSpots(int freeCompactParkingSpots) {
+        this.freeCompactParkingSpots = freeCompactParkingSpots;
     }
 
-    public int getFreeLarge() {
-        return freeLarge;
+    public int getFreeLargeParkingSpots() {
+        return freeLargeParkingSpots;
     }
 
-    public void setFreeLarge(int freeLarge) {
-        this.freeLarge = freeLarge;
+    public void setFreeLargeParkingSpots(int freeLargeParkingSpots) {
+        this.freeLargeParkingSpots = freeLargeParkingSpots;
     }
 
-    public void addFreeParkingSpot(String type){
-        if(type.equals("large")) {
-            this.freeLarge += 1;
-        } else if(type.equals("mini")) {
-            this.freeMini += 1;
+    public void addFreeParkingSpot(ParkingSpot parkingSpot){
+        if(parkingSpot.getType().equals("large") && !parkingSpot.isBooked()) {
+            this.freeLargeParkingSpots += 1;
         }
-        else {
-            this.freeCompact += 1;
+        else if(parkingSpot.getType().equals("mini") && !parkingSpot.isBooked()) {
+            this.freeMiniParkingSpots += 1;
+        }
+        else if(parkingSpot.getType().equals("compact") && !parkingSpot.isBooked()) {
+            this.freeCompactParkingSpots += 1;
         }
     }
 }
