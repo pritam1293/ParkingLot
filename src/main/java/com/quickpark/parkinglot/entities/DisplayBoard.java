@@ -43,15 +43,17 @@ public class DisplayBoard {
         this.freeLargeParkingSpots = freeLargeParkingSpots;
     }
 
-    public void addFreeParkingSpot(ParkingSpot parkingSpot){
-        if(parkingSpot.getType().equals("large") && !parkingSpot.isBooked()) {
-            this.freeLargeParkingSpots += 1;
+    public void changeFreeParkingSpot(ParkingSpot parkingSpot){
+        if(parkingSpot.getType().equals("large")) {
+            this.freeLargeParkingSpots += parkingSpot.isBooked() ? -1 : 1;
         }
         else if(parkingSpot.getType().equals("mini") && !parkingSpot.isBooked()) {
-            this.freeMiniParkingSpots += 1;
+            this.freeMiniParkingSpots += parkingSpot.isBooked() ? -1 : 1;;
         }
         else if(parkingSpot.getType().equals("compact") && !parkingSpot.isBooked()) {
-            this.freeCompactParkingSpots += 1;
+            this.freeCompactParkingSpots += parkingSpot.isBooked() ? -1 : 1;;
         }
     }
+
+//    public void removerFreeParkingSpot()
 }

@@ -56,6 +56,6 @@ public class ParkingLot {
     }
 
     private void setFreeParkingSpots() {
-        parkingSpotList.forEach(parkingSpot -> displayBoard.addFreeParkingSpot(parkingSpot));
+        parkingSpotList.forEach(parkingSpot -> displayBoard.changeFreeParkingSpot(parkingSpot));
     }
 }

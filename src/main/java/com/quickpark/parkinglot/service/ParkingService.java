@@ -38,10 +38,10 @@ public class ParkingService implements IParkingService{
                 parkingSpot.setBooked(true);
                 break;
             }
-            System.out.println(parkingSpot.toString());
         }
         if(freeParkingSpot == null) return null;
 
+        displayBoard.changeFreeParkingSpot(freeParkingSpot);
         String id = freeParkingSpot.getType() + "-" +Integer.toString(freeParkingSpot.getLocation());
         return new Ticket(id, LocalDateTime.now(),null, bookRequest.getVehicleNo(), freeParkingSpot);
     }
@@ -51,6 +51,7 @@ public class ParkingService implements IParkingService{
         ticket.setExitTime(LocalDateTime.now());
         ParkingSpot parkingSpot = ticket.getParkingSpot();
         parkingSpot.setBooked(false);
+        displayBoard.changeFreeParkingSpot(ticket.getParkingSpot());
         return ticket;
     }
 }
