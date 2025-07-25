@@ -7,7 +7,6 @@ public class ParkingLot {
 
     private DisplayBoard displayBoard;
     private List<ParkingSpot> parkingSpotList;
-    private List<Gate> gateList;
 
     public ParkingLot() {
         this.displayBoard = DisplayBoard.getInstance();
@@ -18,7 +17,6 @@ public class ParkingLot {
             parkingSpotList.add(new CompactParkingSpot(3 * i + 3));
         }
         this.setFreeParkingSpots();
-        this.gateList = new ArrayList<Gate>();
     }
 
     public DisplayBoard getDisplayBoard() {
@@ -35,14 +33,6 @@ public class ParkingLot {
 
     public void setParkingSpotList(List<ParkingSpot> parkingSpotList) {
         this.parkingSpotList = parkingSpotList;
-    }
-
-    public List<Gate> getGateList() {
-        return gateList;
-    }
-
-    public void setGateList(List<Gate> gateList) {
-        this.gateList = gateList;
     }
 
     private void setFreeParkingSpots() {
