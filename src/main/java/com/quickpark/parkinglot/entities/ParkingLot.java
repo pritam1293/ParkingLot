@@ -15,7 +15,7 @@ public class ParkingLot {
         this.entrance = new Entrance();
         this.exit = new Exit();
         this.parkingSpotList = new ArrayList<ParkingSpot>();
-        for(int i=0;i<5;i++) {
+        for(int i=0;i<15;i++) {
             parkingSpotList.add(new MiniParkingSpot(3*i + 1));
             parkingSpotList.add(new LargeParkingSpot(3*i + 2));
             parkingSpotList.add(new CompactParkingSpot(3*i + 3));

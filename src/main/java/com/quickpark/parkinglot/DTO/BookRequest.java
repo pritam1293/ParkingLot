@@ -24,4 +24,11 @@ public class BookRequest {
     public void setVehicleNo(String vehicleNo) {
         this.vehicleNo = vehicleNo;
     }
+    @Override
+    public String toString() {
+        return "BookRequest{" +
+                "type='" + type + '\'' +
+                ", vehicleNo='" + vehicleNo + '\'' +
+                '}';
+    }
 }

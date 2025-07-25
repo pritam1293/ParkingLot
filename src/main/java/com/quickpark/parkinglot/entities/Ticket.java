@@ -1,24 +1,27 @@
 package com.quickpark.parkinglot.entities;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+import java.time.LocalDate;
 
 public class Ticket {
     private String id;
-    private LocalDateTime entryTime;
-    private LocalDateTime exitTime;
+    private LocalTime entryTime;
+    private LocalTime exitTime;
+    private LocalDate entryDate;
+    private LocalDate exitDate;
     private String vehicleNo;
     private ParkingSpot parkingSpot;
 
-    public Ticket(String id, LocalDateTime entryTime, LocalDateTime exitTime, String vehicleNo, ParkingSpot parkingSpot) {
+    public Ticket(String id, LocalTime entryTime, LocalTime exitTime, LocalDate entryDate, LocalDate exitDate, String vehicleNo, ParkingSpot parkingSpot) {
         this.id = id;
         this.entryTime = entryTime;
         this.exitTime = exitTime;
+        this.entryDate = entryDate;
+        this.exitDate = exitDate;
         this.vehicleNo = vehicleNo;
         this.parkingSpot = parkingSpot;
     }
-    //getter-setter
-    //Date.now()
-
 
     public String getId() {
         return id;
@@ -28,20 +31,36 @@ public class Ticket {
         this.id = id;
     }
 
-    public LocalDateTime getEntryTime() {
+    public LocalTime getEntryTime() {
         return entryTime;
     }
 
-    public void setEntryTime(LocalDateTime entryTime) {
+    public void setEntryTime(LocalTime entryTime) {
         this.entryTime = entryTime;
     }
 
-    public LocalDateTime getExitTime() {
+    public LocalTime getExitTime() {
         return exitTime;
     }
 
-    public void setExitTime(LocalDateTime exitTime) {
+    public void setExitTime(LocalTime exitTime) {
         this.exitTime = exitTime;
+    }
+
+    public LocalDate getEntryDate() {
+        return entryDate;
+    }
+
+    public LocalDate getExitDate() {
+        return exitDate;
+    }
+
+    public void setExitDate(LocalDate exitDate) {
+        this.exitDate = exitDate;
+    }
+
+    public void setEntryDate(LocalDate entryDate) {
+        this.entryDate = entryDate;
     }
 
     public String getVehicleNo() {

@@ -1,6 +1,7 @@
 package com.quickpark.parkinglot.contoller;
 
 import com.quickpark.parkinglot.DTO.BookRequest;
+import com.quickpark.parkinglot.DTO.FreeRequest;
 import com.quickpark.parkinglot.entities.Ticket;
 import com.quickpark.parkinglot.response.DisplayResponse;
 import com.quickpark.parkinglot.service.IParkingService;
@@ -32,8 +33,8 @@ public class ParkingController {
         return parkingService.ParkVehicle(bookRequest);
     }
 
-    @DeleteMapping(path = "/parking-lot/unpark" , consumes = "application/json")
-    public Ticket UnparkVehicle(@RequestBody Ticket ticket) {
-        return parkingService.UnparkVehicle(ticket);
+    @DeleteMapping(path = "/parking-lot/unpark" , consumes = "text/plain")
+    public FreeRequest UnparkVehicle(@RequestBody String ticketId) {
+        return parkingService.UnparkVehicle(ticketId);
     }
 }

@@ -1,6 +1,6 @@
 package com.quickpark.parkinglot;
 
-import com.quickpark.parkinglot.entities.ParkingLot;
+// import com.quickpark.parkinglot.entities.ParkingLot;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
