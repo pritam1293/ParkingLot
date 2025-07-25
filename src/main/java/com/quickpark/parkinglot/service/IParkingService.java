@@ -11,5 +11,7 @@ public interface IParkingService {
 
     public Ticket ParkVehicle(BookRequest bookRequest);
 
-    FreeRequest UnparkVehicle(String ticketId);
+    public FreeRequest UnparkVehicle(String ticketId);
+
+    public Ticket UpdateParkedVehicle(String ticketId, String vehicleNo);
 }

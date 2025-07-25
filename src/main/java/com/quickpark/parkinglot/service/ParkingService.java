@@ -123,4 +123,13 @@ public class ParkingService implements IParkingService{
         // Using UUID ensures uniqueness
         return UUID.randomUUID().toString().replace("-", "").substring(0, 10);
     }
+
+    @Override
+    public Ticket UpdateParkedVehicle(String ticketId, String vehicleNo) {
+        if(ticketId == null || !ticketMap.containsKey(ticketId)) {
+            return null; // Ticket not found
+        }
+        ticketMap.get(ticketId).setVehicleNo(vehicleNo);
+        return ticketMap.get(ticketId);
+    }
 }
