@@ -5,38 +5,20 @@ import java.util.List;
 
 public class ParkingLot {
 
-    private Entrance entrance;
-    private Exit exit;
     private DisplayBoard displayBoard;
     private List<ParkingSpot> parkingSpotList;
+    private List<Gate> gateList;
 
     public ParkingLot() {
         this.displayBoard = DisplayBoard.getInstance();
-        this.entrance = new Entrance();
-        this.exit = new Exit();
         this.parkingSpotList = new ArrayList<ParkingSpot>();
-        for(int i=0;i<15;i++) {
-            parkingSpotList.add(new MiniParkingSpot(3*i + 1));
-            parkingSpotList.add(new LargeParkingSpot(3*i + 2));
-            parkingSpotList.add(new CompactParkingSpot(3*i + 3));
+        for(int i = 0; i < 10; i++) {
+            parkingSpotList.add(new MiniParkingSpot(3 * i + 1));
+            parkingSpotList.add(new LargeParkingSpot(3 * i + 2));
+            parkingSpotList.add(new CompactParkingSpot(3 * i + 3));
         }
         this.setFreeParkingSpots();
-    }
-
-    public Entrance getEntrance() {
-        return entrance;
-    }
-
-    public void setEntrance(Entrance entrance) {
-        this.entrance = entrance;
-    }
-
-    public Exit getExit() {
-        return exit;
-    }
-
-    public void setExit(Exit exit) {
-        this.exit = exit;
+        this.gateList = new ArrayList<Gate>();
     }
 
     public DisplayBoard getDisplayBoard() {
@@ -53,6 +35,14 @@ public class ParkingLot {
 
     public void setParkingSpotList(List<ParkingSpot> parkingSpotList) {
         this.parkingSpotList = parkingSpotList;
+    }
+
+    public List<Gate> getGateList() {
+        return gateList;
+    }
+
+    public void setGateList(List<Gate> gateList) {
+        this.gateList = gateList;
     }
 
     private void setFreeParkingSpots() {

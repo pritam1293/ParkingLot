@@ -1,6 +1,5 @@
 package com.quickpark.parkinglot.service;
 
-//import com.quickpark.parkinglot.DTO.ParkedVehicle;
 import com.quickpark.parkinglot.DTO.BookRequest;
 import com.quickpark.parkinglot.DTO.FreeRequest;
 import com.quickpark.parkinglot.entities.Ticket;
