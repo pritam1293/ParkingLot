@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ParkinglotApplication {
 
 	public static void main(String[] args) {
-//		new ParkingLot();
 		SpringApplication.run(ParkinglotApplication.class, args);
 	}
 

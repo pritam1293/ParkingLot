@@ -78,12 +78,12 @@ public class ParkingService implements IParkingService{
         if (ticket == null) return null;
         ticket.setExitTime(LocalTime.now().truncatedTo(ChronoUnit.SECONDS));
         ticket.setExitDate(LocalDate.now());
-        ParkingSpot parkingSpot = ticket.getParkingSpot();
-        parkingSpot.setBooked(false);
-        displayBoard.changeFreeParkingSpot(parkingSpot);
+        // ParkingSpot parkingSpot = ticket.getParkingSpot();
+        ticket.getParkingSpot().setBooked(false);
+        displayBoard.changeFreeParkingSpot(ticket.getParkingSpot());
 
         long totalTime = countTime(ticket);
-        long cost = calculateCost(ticket);
+        long cost = calculateCost(ticket, totalTime);
         System.out.println("");
         System.out.println("Total time parked (in minutes): " + totalTime);
         System.out.println("Total cost: " + cost);
@@ -105,11 +105,16 @@ public class ParkingService implements IParkingService{
         if (exitTime == null) {
             exitTime = LocalTime.now().truncatedTo(ChronoUnit.SECONDS);
         }
-        return ChronoUnit.MINUTES.between(entryTime, exitTime);
+        LocalDate entryDate = ticket.getEntryDate();
+        LocalDate exitDate = ticket.getExitDate();
+        if (exitDate == null) {
+            exitDate = LocalDate.now();
+        }
+        long minutes = ChronoUnit.MINUTES.between(entryTime, exitTime);
+        return minutes + ChronoUnit.DAYS.between(entryDate, exitDate) * 1440; // 1440 minutes in a day
     }
 
-    private long calculateCost(Ticket ticket) {
-        long totalTime = countTime(ticket);
+    private long calculateCost(Ticket ticket, long totalTime) {
         int costPerMinute = ticket.getParkingSpot().getCost();
         return totalTime * costPerMinute;
     }
