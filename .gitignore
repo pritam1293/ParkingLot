@@ -35,7 +35,7 @@ build/
 
 ### Custom ###
 .gitattributes
-.mvn
+.mvn/
 mvnw
 mvnw.cmd
 pom.xml
