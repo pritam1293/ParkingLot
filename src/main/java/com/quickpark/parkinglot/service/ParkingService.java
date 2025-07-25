@@ -40,6 +40,20 @@ public class ParkingService implements IParkingService{
 
     @Override
     public Ticket ParkVehicle(BookRequest bookRequest) {
+        if (bookRequest == null || bookRequest.getType() == null || bookRequest.getVehicleNo() == null) {
+            return null;
+        }
+
+        //make sure that the variables are not leading or trailing with spaces and also no extra spaces in between
+        bookRequest.setType(bookRequest.getType().trim().replaceAll("\\s+", " "));
+        bookRequest.setVehicleNo(bookRequest.getVehicleNo().trim().replaceAll("\\s+", " "));
+
+        for (Map.Entry<String, Ticket> entry : ticketMap.entrySet()) {
+            if (entry.getValue().getVehicleNo().equals(bookRequest.getVehicleNo())) {
+                return null; // a vehicle with this number is already parked
+            }
+        }
+
         ParkingSpot freeParkingSpot = null;
         for(ParkingSpot parkingSpot : parkingLot.getParkingSpotList()) {
             if(bookRequest.getType().equals(parkingSpot.getType()) && !parkingSpot.isBooked()) {
@@ -74,8 +88,18 @@ public class ParkingService implements IParkingService{
 
     @Override
     public FreeRequest UnparkVehicle(String ticketId) {
+        if (ticketId == null) {
+            return null; // invalid ticket ID
+        }
+
+        //make sure that the ticketId is not leading or trailing with spaces and also no extra spaces in between
+        ticketId = ticketId.trim().replaceAll("\\s+", " ");
+        if (!ticketMap.containsKey(ticketId)) {
+            return null; // Ticket not found
+        }
+
         Ticket ticket = ticketMap.get(ticketId);
-        if (ticket == null) return null;
+
         ticket.setExitTime(LocalTime.now().truncatedTo(ChronoUnit.SECONDS));
         ticket.setExitDate(LocalDate.now());
         // ParkingSpot parkingSpot = ticket.getParkingSpot();
@@ -84,10 +108,12 @@ public class ParkingService implements IParkingService{
 
         long totalTime = countTime(ticket);
         long cost = calculateCost(ticket, totalTime);
+
         System.out.println("");
         System.out.println("Total time parked (in minutes): " + totalTime);
         System.out.println("Total cost: " + cost);
         System.out.println("");
+
         FreeRequest freeRequest = new FreeRequest(
                 ticket.getParkingSpot().getType(),
                 ticket.getVehicleNo(),
@@ -131,5 +157,10 @@ public class ParkingService implements IParkingService{
         }
         ticketMap.get(ticketId).setVehicleNo(vehicleNo);
         return ticketMap.get(ticketId);
+    }
+
+    @Override
+    public java.util.List<Ticket> getParkedVehicles() {
+        return new java.util.ArrayList<>(ticketMap.values());
     }
 }

@@ -13,4 +13,6 @@ public interface IParkingService {
     public FreeRequest UnparkVehicle(String ticketId);
 
     public Ticket UpdateParkedVehicle(String ticketId, String vehicleNo);
+
+    public java.util.List<Ticket> getParkedVehicles();
 }

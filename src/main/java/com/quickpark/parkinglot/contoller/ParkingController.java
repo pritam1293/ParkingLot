@@ -9,6 +9,7 @@ import com.quickpark.parkinglot.service.ParkingService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 
@@ -39,7 +40,7 @@ public class ParkingController {
             return ResponseEntity.ok(ticket);
         } 
         else {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Parking failed, no free spots available");
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Parking failed, no free spots available or a vehicle is already parked with the same number");
         }
     }
 
@@ -63,5 +64,10 @@ public class ParkingController {
         else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Update failed, invalid ticket ID or the vehicle is not parked");
         }
+    }
+
+    @GetMapping("/quickpark/admin/parked-vehicles")
+    public List<Ticket> getParkedVehicles() {
+        return parkingService.getParkedVehicles();
     }
 }
