@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unpark Vehicle - QuickPark</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navigation Header -->
+  <header class="header">
+    <div class="nav-container">
+      <h1 class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">🚗 QuickPark</h1>
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="park.html" class="nav-link">Park</a>
+        <a href="unpark.html" class="nav-link active">Unpark</a>
+        <a href="status.html" class="nav-link">Status</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main style="padding-top: 90px;">
+    <!-- Page Header -->
+    <section class="section-header" style="padding: 40px 0; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">
+      <div class="container">
+        <h1 class="hero-title" style="font-size: 2.5rem; margin-bottom: 1rem;">🚗 Unpark Your Vehicle</h1>
+        <p class="hero-subtitle" style="font-size: 1.2rem; opacity: 0.9;">Retrieve your vehicle quickly and calculate parking fees</p>
+      </div>
+    </section>
+
+    <!-- Quick Stats Section -->
+    <section class="section" style="padding: 40px 0; background: #f8f9fa;">
+      <div class="container">
+        <h2 class="section-title" style="text-align: center; margin-bottom: 2rem;">Parking Summary</h2>
+        <div class="quick-stats">
+          <div class="stat-card">
+            <div class="stat-icon">⏰</div>
+            <div class="stat-info">
+              <div class="stat-number">24/7</div>
+              <div class="stat-label">Service Hours</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-info">
+              <div class="stat-number">Pay</div>
+              <div class="stat-label">On Exit</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Unpark Form Section -->
+    <section class="section">
+      <div class="container">
+        <div class="unpark-container">
+          <div class="unpark-form-wrapper">
+            <div class="unpark-header">
+              <h2>Retrieve Your Vehicle</h2>
+              <p>Enter your ticket ID to calculate fees and release your vehicle</p>
+            </div>
+
+            <form id="unparkForm" class="unpark-form">
+              <div class="form-group">
+                <label for="ticketId">
+                  <span>🎫</span> Ticket ID
+                </label>
+                <input 
+                  type="text" 
+                  id="ticketId" 
+                  placeholder="Enter your ticket ID (e.g., OD01AB8907)" 
+                  required
+                  pattern="[A-Za-z0-9]+"
+                  title="Please enter a valid ticket ID"
+                  maxlength="10"
+                >
+                <small>Enter the ticket ID you received when parking</small>
+              </div>
+
+              <div class="ticket-help">
+                <div class="help-card">
+                  <h4>📋 Before You Proceed</h4>
+                  <ul>
+                    <li>🎫 Have your ticket ID ready</li>
+                    <li>🚗 Ensure your vehicle is accessible</li>
+                    <li>💳 Payment will be calculated automatically</li>
+                    <li>📱 Digital receipt will be provided</li>
+                  </ul>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary unpark-btn">
+                <span>🚗</span> Retrieve Vehicle
+              </button>
+            </form>
+
+            <div id="unparkResponse" class="response"></div>
+          </div>
+
+          <!-- Ticket Details (Initially Hidden) -->
+          <div id="ticketDetails" class="ticket-details" style="display: none;">
+            <div class="details-header">
+              <h3>🎫 Ticket Information</h3>
+              <p>Review your parking session details</p>
+            </div>
+            <div class="details-content">
+              <div class="detail-row">
+                <span class="label">Ticket ID:</span>
+                <span class="value" id="detailTicketId">--</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Vehicle Number:</span>
+                <span class="value" id="detailVehicle">--</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Vehicle Type:</span>
+                <span class="value" id="detailType">--</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Parking Spot:</span>
+                <span class="value" id="detailSpot">--</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Entry Time:</span>
+                <span class="value" id="detailEntry">--</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Exit Time:</span>
+                <span class="value" id="detailExit">--</span>
+              </div>
+              <div class="detail-row total-row">
+                <span class="label">Duration:</span>
+                <span class="value" id="detailDuration">--</span>
+              </div>
+              <div class="detail-row total-row">
+                <span class="label">Total Fee:</span>
+                <span class="value fee-amount" id="detailFee">--</span>
+              </div>
+            </div>
+            <div class="details-actions">
+              <button class="btn btn-primary" onclick="confirmUnpark()">
+                <span>✅</span> Confirm & Pay
+              </button>
+              <button class="btn btn-secondary" onclick="printReceipt()">
+                <span>🖨️</span> Print Receipt
+              </button>
+              <button class="btn btn-outline" onclick="resetUnparkForm()">
+                <span>🔄</span> Check Another
+              </button>
+            </div>
+          </div>
+
+          <!-- Success Message (Initially Hidden) -->
+          <div id="unparkSuccess" class="unpark-success" style="display: none;">
+            <div class="success-header">
+              <h3>✅ Vehicle Released Successfully!</h3>
+              <p>Thank you for using QuickPark</p>
+            </div>
+            <div class="success-content">
+              <div class="success-message">
+                <p>Your vehicle has been successfully released from parking spot <span id="successSpot">--</span>.</p>
+                <p>Total parking fee: <strong id="successFee">--</strong></p>
+                <p>Duration: <strong id="successDuration">--</strong></p>
+              </div>
+              <div class="success-actions">
+                <button class="btn btn-outline" onclick="window.location.href='index.html'">
+                  <span>🏠</span> Back to Home
+                </button>
+                <button class="btn btn-secondary" onclick="printFinalReceipt()">
+                  <span>🖨️</span> Print Final Receipt
+                </button>
+                <button class="btn btn-primary" onclick="window.location.href='park.html'">
+                  <span>🅿️</span> Park Another Vehicle
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Information Section -->
+    <section class="section section-alt">
+      <div class="container">
+        <h2 class="section-title">Parking Rates & Information</h2>
+        <div class="pricing-grid">
+          <div class="pricing-card">
+            <div class="pricing-header">
+              <div class="pricing-icon">🛵</div>
+              <h3>Mini Vehicles</h3>
+            </div>
+            <div class="pricing-details">
+              <div class="price">₹20.00 <span>/hour</span></div>
+              <ul>
+                <li>Motorcycles</li>
+                <li>Scooters</li>
+                <li>Small cars</li>
+                <li>First 30 min free</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="pricing-card featured">
+            <div class="pricing-header">
+              <div class="pricing-icon">🚗</div>
+              <h3>Compact Vehicles</h3>
+              <div class="popular-badge">Most Popular</div>
+            </div>
+            <div class="pricing-details">
+              <div class="price">₹35.00 <span>/hour</span></div>
+              <ul>
+                <li>Standard cars</li>
+                <li>Sedans</li>
+                <li>Hatchbacks</li>
+                <li>First 30 min free</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="pricing-card">
+            <div class="pricing-header">
+              <div class="pricing-icon">🚙</div>
+              <h3>Large Vehicles</h3>
+            </div>
+            <div class="pricing-details">
+              <div class="price">₹50.00 <span>/hour</span></div>
+              <ul>
+                <li>SUVs</li>
+                <li>Trucks</li>
+                <li>Vans</li>
+                <li>First 30 min free</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div class="pricing-notes">
+          <h4>📝 Important Notes:</h4>
+          <ul>
+            <li>✅ First 30 minutes are free for all vehicle types</li>
+            <li>💳 Payment accepted: Cash, Credit/Debit Cards, Digital Wallets</li>
+            <li>🕐 Billing is calculated per hour or fraction thereof</li>
+            <li>📱 Digital receipts available via email</li>
+            <li>🆘 Lost ticket fee: $10.00 (maximum daily rate applies)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Help & FAQ Section -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">Need Help?</h2>
+        <div class="faq-grid">
+          <div class="faq-card">
+            <div class="faq-icon">❓</div>
+            <h3>Lost Your Ticket?</h3>
+            <p>Don't worry! Contact our support team with your vehicle number and approximate entry time. A flat fee of $10.00 applies.</p>
+            <button class="btn btn-outline" onclick="window.location.href='tel:+15551234567'">
+              <span>📞</span> Call Support
+            </button>
+          </div>
+          
+          <div class="faq-card">
+            <div class="faq-icon">💰</div>
+            <h3>Payment Methods</h3>
+            <p>We accept all major credit cards, debit cards, cash, and popular digital payment methods including Apple Pay and Google Pay.</p>
+          </div>
+          
+          <div class="faq-card">
+            <div class="faq-icon">🕐</div>
+            <h3>Extended Parking</h3>
+            <p>Maximum parking duration is 7 days. For longer stays, please contact our office to arrange special rates and extended parking options.</p>
+          </div>
+          
+          <div class="faq-card">
+            <div class="faq-icon">🚗</div>
+            <h3>Vehicle Issues</h3>
+            <p>If you're unable to start your vehicle or need assistance, our security team is available 24/7 to help with jump starts and other services.</p>
+            <button class="btn btn-outline" onclick="window.location.href='tel:+15551234567'">
+              <span>🆘</span> Emergency Help
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>QuickPark</h3>
+          <p>Smart parking solutions for the modern world.</p>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="park.html">Park Vehicle</a></li>
+            <li><a href="unpark.html">Unpark Vehicle</a></li>
+            <li><a href="status.html">Parking Status</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 QuickPark. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickPark - Smart Parking Solutions</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- Navigation Header -->
+  <header class="header">
+    <div class="nav-container">
+      <h1 class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">🚗 QuickPark</h1>
+      <nav class="nav-menu">
+        <a href="#home" class="nav-link active">Home</a>
+        <a href="#park" class="nav-link">Park</a>
+        <a href="#unpark" class="nav-link">Unpark</a>
+        <a href="#status" class="nav-link">Status</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="home" class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Welcome to QuickPark</h1>
+      <p class="hero-subtitle">Smart Parking Solutions for Modern Cities</p>
+      <p class="hero-description">Find, reserve, and manage your parking spot with ease. Available 24/7 with real-time
+        updates and instant ticket generation.</p>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-number" id="totalSpots">150</div>
+          <div class="stat-label">Total Spots</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number" id="availableSpots">--</div>
+          <div class="stat-label">Available Now</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">24/7</div>
+          <div class="stat-label">Service</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Park Vehicle Section -->
+  <section id="park" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">🅿️ Park Your Vehicle</h2>
+        <p class="section-subtitle">Quick and secure parking with instant ticket generation</p>
+      </div>
+      <div class="section-content">
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🚗</div>
+            <h3>Mini Vehicles</h3>
+            <p>Compact cars, motorcycles, and small vehicles</p>
+            <div class="availability">
+              <span id="miniAvailable">--</span> spots available
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🚙</div>
+            <h3>Compact Vehicles</h3>
+            <p>Standard cars and medium-sized vehicles</p>
+            <div class="availability">
+              <span id="compactAvailable">--</span> spots available
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🚛</div>
+            <h3>Large Vehicles</h3>
+            <p>SUVs, trucks, and oversized vehicles</p>
+            <div class="availability">
+              <span id="largeAvailable">--</span> spots available
+            </div>
+          </div>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-primary" onclick="location.href='park.html'">
+            <span>🅿️</span> Park Vehicle Now
+          </button>
+          <div class="quick-info">
+            <p><strong>How it works:</strong> Enter your vehicle details → Get instant ticket → Park securely</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Unpark Vehicle Section -->
+  <section id="unpark" class="section section-alt">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">🚗 Unpark Your Vehicle</h2>
+        <p class="section-subtitle">Retrieve your vehicle quickly using your ticket ID</p>
+      </div>
+      <div class="section-content">
+        <div class="unpark-info">
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-icon">🎫</div>
+              <h4>Have Your Ticket Ready</h4>
+              <p>Use the ticket ID provided when you parked</p>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">⚡</div>
+              <h4>Instant Processing</h4>
+              <p>Quick verification and vehicle release</p>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">💰</div>
+              <h4>Calculate Fees</h4>
+              <p>Automatic fee calculation based on parking duration</p>
+            </div>
+          </div>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-secondary" onclick="location.href='unpark.html'">
+            <span>🚗</span> Unpark Vehicle Now
+          </button>
+          <div class="quick-info">
+            <p><strong>Need help?</strong> Contact our support team if you've lost your ticket</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Parking Status Section -->
+  <section id="status" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">📊 Real-Time Parking Status</h2>
+        <p class="section-subtitle">Live updates on parking availability across all zones</p>
+      </div>
+      <div class="section-content">
+        <div class="status-dashboard">
+          <div class="status-overview">
+            <div class="status-card">
+              <div class="status-header">
+                <h3>Mini Spots</h3>
+                <div class="status-indicator" id="miniIndicator"></div>
+              </div>
+              <div class="status-numbers">
+                <span class="available-count" id="miniCount">--</span>
+                <span class="total-count">/ 50</span>
+              </div>
+              <div class="status-bar">
+                <div class="status-fill" id="miniFill"></div>
+              </div>
+            </div>
+
+            <div class="status-card">
+              <div class="status-header">
+                <h3>Compact Spots</h3>
+                <div class="status-indicator" id="compactIndicator"></div>
+              </div>
+              <div class="status-numbers">
+                <span class="available-count" id="compactCount">--</span>
+                <span class="total-count">/ 75</span>
+              </div>
+              <div class="status-bar">
+                <div class="status-fill" id="compactFill"></div>
+              </div>
+            </div>
+
+            <div class="status-card">
+              <div class="status-header">
+                <h3>Large Spots</h3>
+                <div class="status-indicator" id="largeIndicator"></div>
+              </div>
+              <div class="status-numbers">
+                <span class="available-count" id="largeCount">--</span>
+                <span class="total-count">/ 25</span>
+              </div>
+              <div class="status-bar">
+                <div class="status-fill" id="largeFill"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="status-legend">
+            <div class="legend-item">
+              <div class="legend-color available"></div>
+              <span>Available</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color limited"></div>
+              <span>Limited</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color full"></div>
+              <span>Full</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-actions">
+          <button class="btn btn-outline" onclick="location.href='status.html'">
+            <span>📊</span> View Detailed Status
+          </button>
+          <button class="btn btn-refresh" onclick="refreshStatus()">
+            <span>🔄</span> Refresh Status
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section">
+    <div class="container">
+      <h2 class="section-title">Why Choose QuickPark?</h2>
+      <div class="features-grid">
+        <div class="feature">
+          <div class="feature-icon">⚡</div>
+          <h3>Instant Booking</h3>
+          <p>Park your vehicle in seconds with our quick booking system</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🔒</div>
+          <h3>Secure Parking</h3>
+          <p>24/7 security monitoring and safe parking environment</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">📱</div>
+          <h3>Easy Management</h3>
+          <p>Manage your parking sessions with our user-friendly interface</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">💰</div>
+          <h3>Affordable Rates</h3>
+          <p>Competitive pricing with transparent fee structure</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="contact-section">
+    <div class="container">
+      <h2 class="section-title">Contact Us</h2>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <div class="contact-item">
+            <div class="contact-icon">📧</div>
+            <div>
+              <h4>Email</h4>
+              <p>support@quickpark.com</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">📞</div>
+            <div>
+              <h4>Phone</h4>
+              <p>+91 86585 35505</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">📍</div>
+            <div>
+              <h4>Address</h4>
+              <p>123 Smart City Avenue<br>Tech District, TC 12345</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">🕒</div>
+            <div>
+              <h4>Hours</h4>
+              <p>24/7 Automated Service<br>Support: 9 AM - 6 PM</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>QuickPark</h3>
+          <p>Smart parking solutions for the modern world. Making parking simple, secure, and efficient.</p>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#park">Park Vehicle</a></li>
+            <li><a href="#unpark">Unpark Vehicle</a></li>
+            <li><a href="#status">Parking Status</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="park.html">Vehicle Parking</a></li>
+            <li><a href="unpark.html">Vehicle Retrieval</a></li>
+            <li><a href="status.html">Real-time Status</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 QuickPark. All rights reserved. | Privacy Policy | Terms of Service</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
