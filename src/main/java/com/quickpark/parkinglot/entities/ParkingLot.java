@@ -11,10 +11,14 @@ public class ParkingLot {
     public ParkingLot() {
         this.displayBoard = DisplayBoard.getInstance();
         this.parkingSpotList = new ArrayList<ParkingSpot>();
-        for(int i = 0; i < 10; i++) {
-            parkingSpotList.add(new MiniParkingSpot(3 * i + 1));
-            parkingSpotList.add(new LargeParkingSpot(3 * i + 2));
-            parkingSpotList.add(new CompactParkingSpot(3 * i + 3));
+        for(int i = 0; i < 50; i++) {
+            parkingSpotList.add(new MiniParkingSpot(i + 1));
+        }
+        for(int i = 0; i < 75; i++) {
+            parkingSpotList.add(new CompactParkingSpot(i + 51));
+        }
+        for(int i = 0; i < 25; i++) {
+            parkingSpotList.add(new LargeParkingSpot(i + 126));
         }
         this.setFreeParkingSpots();
     }

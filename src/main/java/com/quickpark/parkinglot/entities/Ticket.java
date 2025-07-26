@@ -6,6 +6,8 @@ import java.time.LocalDate;
 
 public class Ticket {
     private String id;
+    private String ownerName;
+    private String ownerContact;
     private LocalTime entryTime;
     private LocalTime exitTime;
     private LocalDate entryDate;
@@ -13,8 +15,10 @@ public class Ticket {
     private String vehicleNo;
     private ParkingSpot parkingSpot;
 
-    public Ticket(String id, LocalTime entryTime, LocalTime exitTime, LocalDate entryDate, LocalDate exitDate, String vehicleNo, ParkingSpot parkingSpot) {
+    public Ticket(String id, String ownerName, String ownerContact, LocalTime entryTime, LocalTime exitTime, LocalDate entryDate, LocalDate exitDate, String vehicleNo, ParkingSpot parkingSpot) {
         this.id = id;
+        this.ownerName = ownerName;
+        this.ownerContact = ownerContact;
         this.entryTime = entryTime;
         this.exitTime = exitTime;
         this.entryDate = entryDate;
@@ -30,7 +34,18 @@ public class Ticket {
     public void setId(String id) {
         this.id = id;
     }
-
+    public String getOwnerName() {
+        return ownerName;
+    }
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
+    public String getOwnerContact() {
+        return ownerContact;
+    }
+    public void setOwnerContact(String ownerContact) {
+        this.ownerContact = ownerContact;
+    }
     public LocalTime getEntryTime() {
         return entryTime;
     }
@@ -77,5 +92,20 @@ public class Ticket {
 
     public void setParkingSpot(ParkingSpot parkingSpot) {
         this.parkingSpot = parkingSpot;
+    }
+
+    @Override
+    public String toString() {
+        return "Ticket{" +
+                "id='" + id + '\'' +
+                ", ownerName='" + ownerName + '\'' +
+                ", ownerContact='" + ownerContact + '\'' +
+                ", entryTime=" + entryTime +
+                ", exitTime=" + exitTime +
+                ", entryDate=" + entryDate +
+                ", exitDate=" + exitDate +
+                ", vehicleNo='" + vehicleNo + '\'' +
+                ", parkingSpot=" + parkingSpot +
+                '}';
     }
 }

@@ -1,18 +1,35 @@
 package com.quickpark.parkinglot.DTO;
 
 public class FreeRequest {
+    private String ownerName;
+    private String ownerContact;
     private String type;
     private String vehicleNo;
     private String ticketId;
     private long totalCost;
     private long totalTime;
 
-    public FreeRequest(String type, String vehicleNo, String ticketId, long totalCost, long totalTime) {
+    public FreeRequest(String ownerName, String ownerContact, String type, String vehicleNo, String ticketId, long totalCost, long totalTime) {
+        this.ownerName = ownerName;
+        this.ownerContact = ownerContact;
         this.type = type;
         this.vehicleNo = vehicleNo;
         this.ticketId = ticketId;
         this.totalCost = totalCost;
         this.totalTime = totalTime;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
+    public String getOwnerContact() {
+        return ownerContact;
+    }
+    public void setOwnerContact(String ownerContact) {
+        this.ownerContact = ownerContact;
     }
     public String getType() {
         return type;
@@ -47,7 +64,9 @@ public class FreeRequest {
     @Override
     public String toString() {
         return "FreeRequest{" +
-                "type='" + type + '\'' +
+                "ownerName='" + ownerName + '\'' +
+                ", ownerContact='" + ownerContact + '\'' +
+                ", type='" + type + '\'' +
                 ", vehicleNo='" + vehicleNo + '\'' +
                 ", ticketId='" + ticketId + '\'' +
                 ", totalCost=" + totalCost +

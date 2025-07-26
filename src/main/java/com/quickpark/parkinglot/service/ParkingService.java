@@ -40,14 +40,22 @@ public class ParkingService implements IParkingService{
 
     @Override
     public Ticket ParkVehicle(BookRequest bookRequest) {
-        if (bookRequest == null || bookRequest.getType() == null || bookRequest.getVehicleNo() == null) {
+        if (bookRequest == null || bookRequest.getType() == null || bookRequest.getVehicleNo() == null || bookRequest.getType().isEmpty() || bookRequest.getVehicleNo().isEmpty() || bookRequest.getOwnerName() == null || bookRequest.getOwnerContact() == null || bookRequest.getOwnerName().isEmpty() || bookRequest.getOwnerContact().isEmpty()) {
             return null;
         }
 
         //make sure that the variables are not leading or trailing with spaces and also no extra spaces in between
         bookRequest.setType(bookRequest.getType().trim().replaceAll("\\s+", " "));
         bookRequest.setVehicleNo(bookRequest.getVehicleNo().trim().replaceAll("\\s+", " "));
+        bookRequest.setOwnerName(bookRequest.getOwnerName().trim().replaceAll("\\s+", " "));
+        bookRequest.setOwnerContact(bookRequest.getOwnerContact().trim().replaceAll("\\s+", " "));
 
+        //check if the contact number is valid (e.g., not empty, contains only digits, etc.) and has length of exactly 10
+        if (!bookRequest.getOwnerContact().matches("\\d{10}")) {
+            return null; // invalid contact number
+        }
+
+        // Check if a vehicle with the same number is already parked
         for (Map.Entry<String, Ticket> entry : ticketMap.entrySet()) {
             if (entry.getValue().getVehicleNo().equals(bookRequest.getVehicleNo())) {
                 return null; // a vehicle with this number is already parked
@@ -68,6 +76,8 @@ public class ParkingService implements IParkingService{
         String id = generateRandomId();
         Ticket ticket = new Ticket(
                 id,
+                bookRequest.getOwnerName(),
+                bookRequest.getOwnerContact(),
                 LocalTime.now().truncatedTo(ChronoUnit.SECONDS), // Entry time
                 null, // Exit time will be set later
                 LocalDate.now(), // Entry date
@@ -115,6 +125,8 @@ public class ParkingService implements IParkingService{
         System.out.println("");
 
         FreeRequest freeRequest = new FreeRequest(
+                ticket.getOwnerName(),
+                ticket.getOwnerContact(),
                 ticket.getParkingSpot().getType(),
                 ticket.getVehicleNo(),
                 ticket.getId(),
@@ -141,8 +153,11 @@ public class ParkingService implements IParkingService{
     }
 
     private long calculateCost(Ticket ticket, long totalTime) {
+        totalTime = Math.max(0, totalTime - 30); //first 30 minutes are free
+        double totalTimeinHours = totalTime / 60.0; // Convert to hours
         int costPerMinute = ticket.getParkingSpot().getCost();
-        return totalTime * costPerMinute;
+        double totalCost = totalTimeinHours * costPerMinute;
+        return Math.round(totalCost); // Round to nearest integer
     }
 
     private String generateRandomId() {
@@ -151,12 +166,18 @@ public class ParkingService implements IParkingService{
     }
 
     @Override
-    public Ticket UpdateParkedVehicle(String ticketId, String vehicleNo) {
+    public Ticket UpdateParkedVehicle(String ticketId, BookRequest bookRequest) {
         if(ticketId == null || !ticketMap.containsKey(ticketId)) {
             return null; // Ticket not found
         }
-        ticketMap.get(ticketId).setVehicleNo(vehicleNo);
-        return ticketMap.get(ticketId);
+        if (bookRequest == null || bookRequest.getVehicleNo() == null || bookRequest.getVehicleNo().isEmpty() || bookRequest.getOwnerName() == null || bookRequest.getOwnerContact() == null || bookRequest.getOwnerName().isEmpty() || bookRequest.getOwnerContact().isEmpty()) {
+            return null; // Invalid request data
+        }
+        Ticket ticket = ticketMap.get(ticketId);
+        ticket.setVehicleNo(bookRequest.getVehicleNo());
+        ticket.setOwnerName(bookRequest.getOwnerName());
+        ticket.setOwnerContact(bookRequest.getOwnerContact());
+        return ticket;
     }
 
     @Override

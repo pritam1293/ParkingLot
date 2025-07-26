@@ -12,7 +12,7 @@ public interface IParkingService {
 
     public FreeRequest UnparkVehicle(String ticketId);
 
-    public Ticket UpdateParkedVehicle(String ticketId, String vehicleNo);
+    public Ticket UpdateParkedVehicle(String ticketId, BookRequest bookRequest);
 
     public java.util.List<Ticket> getParkedVehicles();
 }
