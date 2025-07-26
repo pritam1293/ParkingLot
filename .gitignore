@@ -34,10 +34,3 @@ build/
 
 
 ### Custom ###
-.gitattributes
-.mvn/
-mvnw
-mvnw.cmd
-pom.xml
-src/test/java/com/quickpark/parkinglot/
-src/main/resources/
