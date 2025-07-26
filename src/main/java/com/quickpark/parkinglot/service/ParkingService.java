@@ -8,25 +8,60 @@ import com.quickpark.parkinglot.entities.ParkingSpot;
 import com.quickpark.parkinglot.entities.Ticket;
 import com.quickpark.parkinglot.response.DisplayResponse;
 
+//mongodb imports
+import com.quickpark.parkinglot.repository.TicketRepository;
+import org.springframework.stereotype.Service;
+
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+@Service
 public class ParkingService implements IParkingService{
 
     DisplayBoard displayBoard;
     ParkingLot parkingLot;
 
-    private Map<String, Ticket> ticketMap;// Key = ticketId, Value = Ticket object
+    private final TicketRepository ticketRepository;
+    // private Map<String, Ticket> ticketMap;// Key = ticketId, Value = Ticket object
 
-    public ParkingService() {
+    public ParkingService(TicketRepository ticketRepository) {
         this.displayBoard = DisplayBoard.getInstance();
         this.parkingLot = new ParkingLot();
-        this.ticketMap = new HashMap<>();
+        // this.ticketMap = new HashMap<>();
+        this.ticketRepository = ticketRepository;
+        
+        // Initialize display board from MongoDB on startup
+        initializeDisplayBoardFromDatabase();
+    }
+    
+    private void initializeDisplayBoardFromDatabase() {
+        // Get all active tickets from MongoDB
+        java.util.List<Ticket> activeTickets = ticketRepository.findByCompletedFalse();
+        
+        // Count occupied spots by type
+        int occupiedMini = 0, occupiedCompact = 0, occupiedLarge = 0;
+        
+        for (Ticket ticket : activeTickets) {
+            String spotType = ticket.getParkingSpot().getType();
+            switch (spotType) {
+                case "mini": occupiedMini++; break;
+                case "compact": occupiedCompact++; break;
+                case "large": occupiedLarge++; break;
+            }
+        }
+        
+        // Set available spots (total - occupied)
+        displayBoard.setFreeMiniParkingSpots(50 - occupiedMini);      // Assuming 50 mini spots
+        displayBoard.setFreeCompactParkingSpots(75 - occupiedCompact); // Assuming 75 compact spots  
+        displayBoard.setFreeLargeParkingSpots(25 - occupiedLarge);     // Assuming 25 large spots
+        
+        System.out.println("Display board initialized from database:");
+        System.out.println("Mini: " + (50 - occupiedMini) + " available");
+        System.out.println("Compact: " + (75 - occupiedCompact) + " available");
+        System.out.println("Large: " + (25 - occupiedLarge) + " available");
     }
 
     @Override
@@ -55,11 +90,17 @@ public class ParkingService implements IParkingService{
             return null; // invalid contact number
         }
 
-        // Check if a vehicle with the same number is already parked
-        for (Map.Entry<String, Ticket> entry : ticketMap.entrySet()) {
-            if (entry.getValue().getVehicleNo().equals(bookRequest.getVehicleNo())) {
-                return null; // a vehicle with this number is already parked
-            }
+        // // Check if a vehicle with the same number is already parked
+        // for (Map.Entry<String, Ticket> entry : ticketMap.entrySet()) {
+        //     if (entry.getValue().getVehicleNo().equals(bookRequest.getVehicleNo())) {
+        //         return null; // a vehicle with this number is already parked
+        //     }
+        // }
+
+        // Check if a vehicle with the same number is already parked (not completed)
+        Ticket existingTicket = ticketRepository.findByVehicleNoAndCompletedFalse(bookRequest.getVehicleNo());
+        if (existingTicket != null) {
+            return null; // a vehicle with this number is already parked (active)
         }
 
         ParkingSpot freeParkingSpot = null;
@@ -79,18 +120,20 @@ public class ParkingService implements IParkingService{
                 bookRequest.getOwnerName(),
                 bookRequest.getOwnerContact(),
                 LocalTime.now().truncatedTo(ChronoUnit.SECONDS), // Entry time
-                null, // Exit time will be set later
+                null, // Exit time will be set at the time exit
                 LocalDate.now(), // Entry date
-                null, // Exit date will be set later
+                null, // Exit date will be set at the time exit
                 bookRequest.getVehicleNo(),
                 freeParkingSpot
         );
         // Store the ticket in the map
-        ticketMap.put(id, ticket);
+        // ticketMap.put(id, ticket);
+        ticketRepository.save(ticket);
 
         System.out.println("");
-        int size = ticketMap.size();
-        System.out.println("Current number of tickets: " + size);
+        System.out.println("Vehicle parked successfully with ticket ID: " + id);
+        // int size = ticketMap.size();
+        // System.out.println("Current number of tickets: " + size);
         System.out.println("");
         
         return ticket;
@@ -104,11 +147,17 @@ public class ParkingService implements IParkingService{
 
         //make sure that the ticketId is not leading or trailing with spaces and also no extra spaces in between
         ticketId = ticketId.trim().replaceAll("\\s+", " ");
-        if (!ticketMap.containsKey(ticketId)) {
-            return null; // Ticket not found
-        }
 
-        Ticket ticket = ticketMap.get(ticketId);
+        // if (!ticketMap.containsKey(ticketId) ) {
+        //     return null; // Ticket not found
+        // }
+
+        // Ticket ticket = ticketMap.get(ticketId);
+        Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+
+        if (ticket == null || ticket.isCompleted()) {
+            return null; // Ticket not found or already completed
+        }
 
         ticket.setExitTime(LocalTime.now().truncatedTo(ChronoUnit.SECONDS));
         ticket.setExitDate(LocalDate.now());
@@ -133,7 +182,10 @@ public class ParkingService implements IParkingService{
                 cost,
                 totalTime
         );
-        ticketMap.remove(ticketId);
+
+        ticket.setCompleted(true);
+        ticketRepository.save(ticket);
+        // ticketMap.remove(ticketId);
         return freeRequest;
     }
 
@@ -167,21 +219,44 @@ public class ParkingService implements IParkingService{
 
     @Override
     public Ticket UpdateParkedVehicle(String ticketId, BookRequest bookRequest) {
-        if(ticketId == null || !ticketMap.containsKey(ticketId)) {
+        if(ticketId == null || !ticketRepository.existsById(ticketId)) {
             return null; // Ticket not found
         }
         if (bookRequest == null || bookRequest.getVehicleNo() == null || bookRequest.getVehicleNo().isEmpty() || bookRequest.getOwnerName() == null || bookRequest.getOwnerContact() == null || bookRequest.getOwnerName().isEmpty() || bookRequest.getOwnerContact().isEmpty()) {
             return null; // Invalid request data
         }
-        Ticket ticket = ticketMap.get(ticketId);
-        ticket.setVehicleNo(bookRequest.getVehicleNo());
-        ticket.setOwnerName(bookRequest.getOwnerName());
-        ticket.setOwnerContact(bookRequest.getOwnerContact());
+
+        //make sure that the variables are not leading or trailing with spaces and also no extra spaces in between
+        bookRequest.setType(bookRequest.getType().trim().replaceAll("\\s+", " "));
+        bookRequest.setVehicleNo(bookRequest.getVehicleNo().trim().replaceAll("\\s+", " "));
+        bookRequest.setOwnerName(bookRequest.getOwnerName().trim().replaceAll("\\s+", " "));
+        bookRequest.setOwnerContact(bookRequest.getOwnerContact().trim().replaceAll("\\s+", " "));
+        
+        Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+        if (ticket != null) {
+            ticket.setVehicleNo(bookRequest.getVehicleNo());
+            ticket.setOwnerName(bookRequest.getOwnerName());
+            ticket.setOwnerContact(bookRequest.getOwnerContact());
+            ticketRepository.save(ticket);
+        }
         return ticket;
     }
 
     @Override
-    public java.util.List<Ticket> getParkedVehicles() {
-        return new java.util.ArrayList<>(ticketMap.values());
+    public java.util.List<Ticket> getActiveParkedVehicles() {
+        // Return only currently parked vehicles (not completed)
+        return ticketRepository.findByCompletedFalse();
+    }
+
+    @Override
+    public java.util.List<Ticket> getCompletedParkedVehicles() {
+        // Return only completed vehicles
+        return ticketRepository.findByCompletedTrue();
+    }
+
+    @Override
+    public java.util.List<Ticket> getAllParkedVehicles() {
+        // Return all parked vehicles (both active and completed)
+        return ticketRepository.findAll();
     }
 }

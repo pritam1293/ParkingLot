@@ -1,10 +1,13 @@
 package com.quickpark.parkinglot.entities;
 
 import java.time.LocalTime;
-
 import java.time.LocalDate;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.annotation.Id;
 
+@Document(collection = "tickets")
 public class Ticket {
+    @Id
     private String id;
     private String ownerName;
     private String ownerContact;
@@ -13,6 +16,7 @@ public class Ticket {
     private LocalDate entryDate;
     private LocalDate exitDate;
     private String vehicleNo;
+    private boolean completed; // New field to track completion status
     private ParkingSpot parkingSpot;
 
     public Ticket(String id, String ownerName, String ownerContact, LocalTime entryTime, LocalTime exitTime, LocalDate entryDate, LocalDate exitDate, String vehicleNo, ParkingSpot parkingSpot) {
@@ -25,6 +29,7 @@ public class Ticket {
         this.exitDate = exitDate;
         this.vehicleNo = vehicleNo;
         this.parkingSpot = parkingSpot;
+        this.completed = false; // Initialize as not complete
     }
 
     public String getId() {
@@ -34,18 +39,23 @@ public class Ticket {
     public void setId(String id) {
         this.id = id;
     }
+
     public String getOwnerName() {
         return ownerName;
     }
+
     public void setOwnerName(String ownerName) {
         this.ownerName = ownerName;
     }
+
     public String getOwnerContact() {
         return ownerContact;
     }
+
     public void setOwnerContact(String ownerContact) {
         this.ownerContact = ownerContact;
     }
+
     public LocalTime getEntryTime() {
         return entryTime;
     }
@@ -86,6 +96,14 @@ public class Ticket {
         this.vehicleNo = vehicleNo;
     }
 
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
     public ParkingSpot getParkingSpot() {
         return parkingSpot;
     }
@@ -105,6 +123,7 @@ public class Ticket {
                 ", entryDate=" + entryDate +
                 ", exitDate=" + exitDate +
                 ", vehicleNo='" + vehicleNo + '\'' +
+                ", completed=" + completed +
                 ", parkingSpot=" + parkingSpot +
                 '}';
     }

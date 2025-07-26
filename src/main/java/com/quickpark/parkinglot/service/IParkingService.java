@@ -14,5 +14,9 @@ public interface IParkingService {
 
     public Ticket UpdateParkedVehicle(String ticketId, BookRequest bookRequest);
 
-    public java.util.List<Ticket> getParkedVehicles();
+    public java.util.List<Ticket> getActiveParkedVehicles();
+
+    public java.util.List<Ticket> getCompletedParkedVehicles();
+
+    public java.util.List<Ticket> getAllParkedVehicles();
 }

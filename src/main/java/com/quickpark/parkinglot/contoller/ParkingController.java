@@ -5,7 +5,6 @@ import com.quickpark.parkinglot.DTO.FreeRequest;
 import com.quickpark.parkinglot.entities.Ticket;
 import com.quickpark.parkinglot.response.DisplayResponse;
 import com.quickpark.parkinglot.service.IParkingService;
-import com.quickpark.parkinglot.service.ParkingService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,10 +22,10 @@ import org.springframework.http.HttpStatus;
 @RestController
 public class ParkingController {
 
-    IParkingService parkingService;
+    private final IParkingService parkingService;
 
-    public ParkingController() {
-        this.parkingService = new ParkingService();
+    public ParkingController(IParkingService parkingService) {
+        this.parkingService = parkingService;
     }
 
     @GetMapping("/quickpark/home")
@@ -64,13 +63,6 @@ public class ParkingController {
 
     @PutMapping(path = "/quickpark/update-ticket/{ticketId}" , consumes = "application/json")
     public ResponseEntity<?> UpdateParkedVehicle(@PathVariable String ticketId, @RequestBody BookRequest bookRequest) {
-        
-        // System.out.println("");
-        // System.out.println("PUT request received at URL: /quickpark/update-ticket/" + ticketId);
-        // System.out.println("Request method: PUT");
-        // System.out.println(bookRequest);
-        // System.out.println("");
-        
         Ticket updatedTicket = parkingService.UpdateParkedVehicle(ticketId, bookRequest);
         if (updatedTicket != null) {
             return ResponseEntity.ok(updatedTicket);
@@ -80,8 +72,18 @@ public class ParkingController {
         }
     }
 
-    @GetMapping("/quickpark/admin/parked-vehicles")
-    public List<Ticket> getParkedVehicles() {
-        return parkingService.getParkedVehicles();
+    @GetMapping("/quickpark/admin/active-vehicles")
+    public List<Ticket> getActiveParkedVehicles() {
+        return parkingService.getActiveParkedVehicles();
+    }
+
+    @GetMapping("/quickpark/admin/completed-vehicles")
+    public List<Ticket> getCompletedParkedVehicles() {
+        return parkingService.getCompletedParkedVehicles();
+    }
+
+    @GetMapping("/quickpark/admin/all-vehicles")
+    public List<Ticket> getAllParkedVehicles() {
+        return parkingService.getAllParkedVehicles();
     }
 }
