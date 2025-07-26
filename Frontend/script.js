@@ -673,8 +673,8 @@ async function unparkVehicle() {
         const apiUrl = baseUrl + 'unpark';
         console.log('Making unpark API call:');
         console.log('Method: DELETE');
-        console.log('URL:', apiUrl);
-        console.log('Full URL:', `http://localhost:8080/quickpark/unpark`);
+        // console.log('URL:', apiUrl);
+        // console.log('Full URL:', `http://localhost:8080/quickpark/unpark`);
         console.log('Request body:', ticketId);
 
         const response = await fetch(apiUrl, {
