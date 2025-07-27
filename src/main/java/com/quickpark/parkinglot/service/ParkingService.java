@@ -33,6 +33,7 @@ public class ParkingService implements IParkingService{
         // this.ticketMap = new HashMap<>();
         this.ticketRepository = ticketRepository;
         changeStatusFromDatabase();
+        printFreeParkingSpots(); // Debugging line to print free parking spots
     }
 
     // private void initializeDisplayBoardFromDatabase() {
@@ -40,6 +41,16 @@ public class ParkingService implements IParkingService{
     //     int occupiedCompact = 0;
     //     int occupiedLarge = 0;
     // }
+
+    private void printFreeParkingSpots() {
+        System.out.println("");
+        for(ParkingSpot spot : parkingLot.getParkingSpotList()) {
+            if (!spot.isBooked()) {
+                System.out.println("Free Spot - Location: " + spot.getLocation() + ", Type: " + spot.getType());
+            }
+        }
+        System.out.println("");
+    }
 
     private void changeStatusFromDatabase() {
         List<Ticket> activeTickets = ticketRepository.findByCompletedFalse();
