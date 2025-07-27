@@ -32,36 +32,6 @@ public class ParkingService implements IParkingService{
         this.parkingLot = new ParkingLot();
         // this.ticketMap = new HashMap<>();
         this.ticketRepository = ticketRepository;
-        
-        // Initialize display board from MongoDB on startup
-        initializeDisplayBoardFromDatabase();
-    }
-    
-    private void initializeDisplayBoardFromDatabase() {
-        // Get all active tickets from MongoDB
-        java.util.List<Ticket> activeTickets = ticketRepository.findByCompletedFalse();
-        
-        // Count occupied spots by type
-        int occupiedMini = 0, occupiedCompact = 0, occupiedLarge = 0;
-        
-        for (Ticket ticket : activeTickets) {
-            String spotType = ticket.getParkingSpot().getType();
-            switch (spotType) {
-                case "mini": occupiedMini++; break;
-                case "compact": occupiedCompact++; break;
-                case "large": occupiedLarge++; break;
-            }
-        }
-        
-        // Set available spots (total - occupied)
-        displayBoard.setFreeMiniParkingSpots(50 - occupiedMini);      // Assuming 50 mini spots
-        displayBoard.setFreeCompactParkingSpots(75 - occupiedCompact); // Assuming 75 compact spots  
-        displayBoard.setFreeLargeParkingSpots(25 - occupiedLarge);     // Assuming 25 large spots
-        
-        System.out.println("Display board initialized from database:");
-        System.out.println("Mini: " + (50 - occupiedMini) + " available");
-        System.out.println("Compact: " + (75 - occupiedCompact) + " available");
-        System.out.println("Large: " + (25 - occupiedLarge) + " available");
     }
 
     @Override
