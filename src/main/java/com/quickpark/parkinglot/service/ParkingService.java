@@ -33,7 +33,10 @@ public class ParkingService implements IParkingService{
         // this.ticketMap = new HashMap<>();
         this.ticketRepository = ticketRepository;
         changeStatusFromDatabase();
-        printFreeParkingSpots(); // Debugging line to print free parking spots
+        System.out.println("");
+        System.out.println("MongoDB connected successfully and parking lot state synchronized!");
+        System.out.println("");
+        // printFreeParkingSpots(); // Debugging line to print free parking spots
     }
 
     // private void initializeDisplayBoardFromDatabase() {
@@ -42,15 +45,15 @@ public class ParkingService implements IParkingService{
     //     int occupiedLarge = 0;
     // }
 
-    private void printFreeParkingSpots() {
-        System.out.println("");
-        for(ParkingSpot spot : parkingLot.getParkingSpotList()) {
-            if (!spot.isBooked()) {
-                System.out.println("Free Spot - Location: " + spot.getLocation() + ", Type: " + spot.getType());
-            }
-        }
-        System.out.println("");
-    }
+    // private void printFreeParkingSpots() {
+    //     System.out.println("");
+    //     for(ParkingSpot spot : parkingLot.getParkingSpotList()) {
+    //         if (!spot.isBooked()) {
+    //             System.out.println("Free Spot - Location: " + spot.getLocation() + ", Type: " + spot.getType());
+    //         }
+    //     }
+    //     System.out.println("");
+    // }
 
     private void changeStatusFromDatabase() {
         List<Ticket> activeTickets = ticketRepository.findByCompletedFalse();
