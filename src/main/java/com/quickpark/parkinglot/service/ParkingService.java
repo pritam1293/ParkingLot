@@ -14,9 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Service
 public class ParkingService implements IParkingService{
@@ -32,6 +32,30 @@ public class ParkingService implements IParkingService{
         this.parkingLot = new ParkingLot();
         // this.ticketMap = new HashMap<>();
         this.ticketRepository = ticketRepository;
+        changeStatusFromDatabase();
+    }
+
+    // private void initializeDisplayBoardFromDatabase() {
+    //     int occupiedMini = 0;
+    //     int occupiedCompact = 0;
+    //     int occupiedLarge = 0;
+    // }
+
+    private void changeStatusFromDatabase() {
+        List<Ticket> activeTickets = ticketRepository.findByCompletedFalse();
+        for(Ticket ticket : activeTickets) {
+            ParkingSpot parkingSpotFromDB = ticket.getParkingSpot();
+            String occupiedType = parkingSpotFromDB.getType();
+            int occupiedLocation = parkingSpotFromDB.getLocation();
+
+            for(ParkingSpot parkingSpot : parkingLot.getParkingSpotList()) {
+                if(parkingSpot.getType().equals(occupiedType) && parkingSpot.getLocation() == occupiedLocation) {
+                    parkingSpot.setBooked(true);
+                    displayBoard.changeFreeParkingSpot(parkingSpot);
+                    break;
+                }
+            }
+        }
     }
 
     @Override
