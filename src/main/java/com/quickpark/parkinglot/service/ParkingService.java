@@ -87,16 +87,16 @@ public class ParkingService implements IParkingService{
             return null;
         }
 
-        //make sure that the variables are not leading or trailing with spaces and also no extra spaces in between
-        bookRequest.setType(bookRequest.getType().trim().replaceAll("\\s+", " "));
-        bookRequest.setVehicleNo(bookRequest.getVehicleNo().trim().replaceAll("\\s+", " "));
-        bookRequest.setOwnerName(bookRequest.getOwnerName().trim().replaceAll("\\s+", " "));
-        bookRequest.setOwnerContact(bookRequest.getOwnerContact().trim().replaceAll("\\s+", " "));
+        // //make sure that the variables are not leading or trailing with spaces and also no extra spaces in between
+        // bookRequest.setType(bookRequest.getType().trim().replaceAll("\\s+", " "));
+        // bookRequest.setVehicleNo(bookRequest.getVehicleNo().trim().replaceAll("\\s+", " "));
+        // bookRequest.setOwnerName(bookRequest.getOwnerName().trim().replaceAll("\\s+", " "));
+        // bookRequest.setOwnerContact(bookRequest.getOwnerContact().trim().replaceAll("\\s+", " "));
 
         //check if the contact number is valid (e.g., not empty, contains only digits, etc.) and has length of exactly 10
-        if (!bookRequest.getOwnerContact().matches("\\d{10}")) {
-            return null; // invalid contact number
-        }
+        // if (!bookRequest.getOwnerContact().matches("\\d{10}")) {
+        //     return null; // invalid contact number
+        // }
 
         // // Check if a vehicle with the same number is already parked
         // for (Map.Entry<String, Ticket> entry : ticketMap.entrySet()) {
@@ -154,7 +154,7 @@ public class ParkingService implements IParkingService{
         }
 
         //make sure that the ticketId is not leading or trailing with spaces and also no extra spaces in between
-        ticketId = ticketId.trim().replaceAll("\\s+", " ");
+        // ticketId = ticketId.trim().replaceAll("\\s+", " ");
 
         // if (!ticketMap.containsKey(ticketId) ) {
         //     return null; // Ticket not found
@@ -227,18 +227,18 @@ public class ParkingService implements IParkingService{
 
     @Override
     public Ticket UpdateParkedVehicle(String ticketId, BookRequest bookRequest) {
-        if(ticketId == null || !ticketRepository.existsById(ticketId)) {
-            return null; // Ticket not found
-        }
-        if (bookRequest == null || bookRequest.getVehicleNo() == null || bookRequest.getVehicleNo().isEmpty() || bookRequest.getOwnerName() == null || bookRequest.getOwnerContact() == null || bookRequest.getOwnerName().isEmpty() || bookRequest.getOwnerContact().isEmpty()) {
-            return null; // Invalid request data
-        }
+        // if(ticketId == null || !ticketRepository.existsById(ticketId)) {
+        //     return null; // Ticket not found
+        // }
+        // if (bookRequest == null || bookRequest.getVehicleNo() == null || bookRequest.getVehicleNo().isEmpty() || bookRequest.getOwnerName() == null || bookRequest.getOwnerContact() == null || bookRequest.getOwnerName().isEmpty() || bookRequest.getOwnerContact().isEmpty()) {
+        //     return null; // Invalid request data
+        // }
 
         //make sure that the variables are not leading or trailing with spaces and also no extra spaces in between
-        bookRequest.setType(bookRequest.getType().trim().replaceAll("\\s+", " "));
-        bookRequest.setVehicleNo(bookRequest.getVehicleNo().trim().replaceAll("\\s+", " "));
-        bookRequest.setOwnerName(bookRequest.getOwnerName().trim().replaceAll("\\s+", " "));
-        bookRequest.setOwnerContact(bookRequest.getOwnerContact().trim().replaceAll("\\s+", " "));
+        // bookRequest.setType(bookRequest.getType().trim().replaceAll("\\s+", " "));
+        // bookRequest.setVehicleNo(bookRequest.getVehicleNo().trim().replaceAll("\\s+", " "));
+        // bookRequest.setOwnerName(bookRequest.getOwnerName().trim().replaceAll("\\s+", " "));
+        // bookRequest.setOwnerContact(bookRequest.getOwnerContact().trim().replaceAll("\\s+", " "));
         
         Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
         if (ticket != null) {

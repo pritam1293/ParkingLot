@@ -46,7 +46,7 @@ public class ParkingController {
             return ResponseEntity.ok(ticket);
         } 
         else {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Parking failed, not a valid data entry or no free spots available or a vehicle is already parked with the same number");
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Parking failed, no free spots available or a vehicle is already parked with the same number");
         }
     }
 
@@ -68,7 +68,7 @@ public class ParkingController {
             return ResponseEntity.ok(updatedTicket);
         } 
         else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Update failed, invalid ticket ID or the vehicle is not parked or invalid request data");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Update failed, invalid ticket ID or invalid request data");
         }
     }
 
