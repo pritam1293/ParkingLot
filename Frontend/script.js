@@ -143,18 +143,49 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+function validateVehicleDetails(vehicleNo, ownerName, ownerContact) {
+    const pattern = /^[A-Z]{2}\d{2}[A-Z]+\d{4}$/;
+    if( !pattern.test(vehicleNo)) {
+        return false; // Invalid vehicle number format
+    }
+    if (ownerName.length < 3 || ownerName.length > 50) {
+        return false; // Invalid owner name length
+    }
+    const contactPattern = /^[0-9]{10}$/;
+    if (!contactPattern.test(ownerContact)) {
+        return false; // Invalid owner contact format
+    }
+    return true; // All validations passed
+}
+
+
 async function parkVehicle() {
     // Get form values
-    const type = document.getElementById('vehicleType').value;
-    const vehicleNo = document.getElementById('vehicleNumber').value;
-    const ownerName = document.getElementById('ownerName').value;
-    const ownerContact = document.getElementById('ownerContact').value;
+    let type = document.getElementById('vehicleType').value;
+    let vehicleNo = document.getElementById('vehicleNumber').value;
+    let ownerName = document.getElementById('ownerName').value;
+    let ownerContact = document.getElementById('ownerContact').value;
     const responseDiv = document.getElementById('response');
 
     if (!type || !vehicleNo || !ownerName || !ownerContact) {
         responseDiv.innerHTML = `
             <div class="alert alert-error">
                 ❌ Please fill in all required fields.
+            </div>
+        `;
+        return;
+    }
+
+    //remove trailing and leading and in-between spaces
+    vehicleNo = vehicleNo.trim().replace(/\s+/g, '');
+    ownerName = ownerName.trim().replace(/\s+/g, ' ');
+    ownerContact = ownerContact.trim().replace(/\s+/g, '');
+
+    //validate details
+    if (!validateVehicleDetails(vehicleNo, ownerName, ownerContact)) {
+        responseDiv.innerHTML = `
+            <div class="alert alert-error">
+                ❌ Please provide valid vehicle and personal details.
             </div>
         `;
         return;
@@ -469,16 +500,30 @@ function toggleEditForm(ticketId) {
 
 // Function to update vehicle details
 async function updateVehicleDetails(ticketId) {
-    const type = document.getElementById(`editVehicleType-${ticketId}`).value;
-    const vehicleNo = document.getElementById(`editVehicleNumber-${ticketId}`).value;
-    const ownerName = document.getElementById(`editOwnerName-${ticketId}`).value;
-    const ownerContact = document.getElementById(`editOwnerContact-${ticketId}`).value;
+    let type = document.getElementById(`editVehicleType-${ticketId}`).value;
+    let vehicleNo = document.getElementById(`editVehicleNumber-${ticketId}`).value;
+    let ownerName = document.getElementById(`editOwnerName-${ticketId}`).value;
+    let ownerContact = document.getElementById(`editOwnerContact-${ticketId}`).value;
     const responseDiv = document.getElementById(`updateResponse-${ticketId}`);
 
     if (!type || !vehicleNo || !ownerName || !ownerContact) {
         responseDiv.innerHTML = `
             <div class="alert alert-error" style="padding: 10px; font-size: 0.9em;">
                 ❌ Please fill in all required fields.
+            </div>
+        `;
+        return;
+    }
+
+    // remove trailing and leading and in-between spaces
+    vehicleNo = vehicleNo.trim().replace(/\s+/g, '');
+    ownerName = ownerName.trim().replace(/\s+/g, ' ');
+    ownerContact = ownerContact.trim().replace(/\s+/g, '');
+
+    if (!validateVehicleDetails(vehicleNo, ownerName, ownerContact)) {
+        responseDiv.innerHTML = `
+            <div class="alert alert-error" style="padding: 10px; font-size: 0.9em;">
+                ❌ Please provide valid vehicle and personal details.
             </div>
         `;
         return;
@@ -650,7 +695,7 @@ async function unparkVehicle() {
     const ticketId = document.getElementById('ticketId').value.trim();
     const responseDiv = document.getElementById('unparkResponse');
 
-    if (!ticketId) {
+    if (!ticketId || ticketId.length !== 10) {
         responseDiv.innerHTML = `
             <div class="alert alert-error">
                 ❌ Please enter a valid ticket ID.
