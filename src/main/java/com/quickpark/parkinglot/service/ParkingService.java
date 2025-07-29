@@ -39,12 +39,6 @@ public class ParkingService implements IParkingService{
         // printFreeParkingSpots(); // Debugging line to print free parking spots
     }
 
-    // private void initializeDisplayBoardFromDatabase() {
-    //     int occupiedMini = 0;
-    //     int occupiedCompact = 0;
-    //     int occupiedLarge = 0;
-    // }
-
     // private void printFreeParkingSpots() {
     //     System.out.println("");
     //     for(ParkingSpot spot : parkingLot.getParkingSpotList()) {
@@ -87,17 +81,6 @@ public class ParkingService implements IParkingService{
             return null;
         }
 
-        // //make sure that the variables are not leading or trailing with spaces and also no extra spaces in between
-        // bookRequest.setType(bookRequest.getType().trim().replaceAll("\\s+", " "));
-        // bookRequest.setVehicleNo(bookRequest.getVehicleNo().trim().replaceAll("\\s+", " "));
-        // bookRequest.setOwnerName(bookRequest.getOwnerName().trim().replaceAll("\\s+", " "));
-        // bookRequest.setOwnerContact(bookRequest.getOwnerContact().trim().replaceAll("\\s+", " "));
-
-        //check if the contact number is valid (e.g., not empty, contains only digits, etc.) and has length of exactly 10
-        // if (!bookRequest.getOwnerContact().matches("\\d{10}")) {
-        //     return null; // invalid contact number
-        // }
-
         // // Check if a vehicle with the same number is already parked
         // for (Map.Entry<String, Ticket> entry : ticketMap.entrySet()) {
         //     if (entry.getValue().getVehicleNo().equals(bookRequest.getVehicleNo())) {
@@ -134,14 +117,11 @@ public class ParkingService implements IParkingService{
                 bookRequest.getVehicleNo(),
                 freeParkingSpot
         );
-        // Store the ticket in the map
         // ticketMap.put(id, ticket);
         ticketRepository.save(ticket);
 
         System.out.println("");
         System.out.println("Vehicle parked successfully with ticket ID: " + id);
-        // int size = ticketMap.size();
-        // System.out.println("Current number of tickets: " + size);
         System.out.println("");
         
         return ticket;
@@ -153,13 +133,6 @@ public class ParkingService implements IParkingService{
             return null; // invalid ticket ID
         }
 
-        //make sure that the ticketId is not leading or trailing with spaces and also no extra spaces in between
-        // ticketId = ticketId.trim().replaceAll("\\s+", " ");
-
-        // if (!ticketMap.containsKey(ticketId) ) {
-        //     return null; // Ticket not found
-        // }
-
         // Ticket ticket = ticketMap.get(ticketId);
         Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
 
@@ -169,7 +142,6 @@ public class ParkingService implements IParkingService{
 
         ticket.setExitTime(LocalTime.now().truncatedTo(ChronoUnit.SECONDS));
         ticket.setExitDate(LocalDate.now());
-        // ParkingSpot parkingSpot = ticket.getParkingSpot();
         ticket.getParkingSpot().setBooked(false);
         displayBoard.changeFreeParkingSpot(ticket.getParkingSpot());
 
@@ -227,19 +199,6 @@ public class ParkingService implements IParkingService{
 
     @Override
     public Ticket UpdateParkedVehicle(String ticketId, BookRequest bookRequest) {
-        // if(ticketId == null || !ticketRepository.existsById(ticketId)) {
-        //     return null; // Ticket not found
-        // }
-        // if (bookRequest == null || bookRequest.getVehicleNo() == null || bookRequest.getVehicleNo().isEmpty() || bookRequest.getOwnerName() == null || bookRequest.getOwnerContact() == null || bookRequest.getOwnerName().isEmpty() || bookRequest.getOwnerContact().isEmpty()) {
-        //     return null; // Invalid request data
-        // }
-
-        //make sure that the variables are not leading or trailing with spaces and also no extra spaces in between
-        // bookRequest.setType(bookRequest.getType().trim().replaceAll("\\s+", " "));
-        // bookRequest.setVehicleNo(bookRequest.getVehicleNo().trim().replaceAll("\\s+", " "));
-        // bookRequest.setOwnerName(bookRequest.getOwnerName().trim().replaceAll("\\s+", " "));
-        // bookRequest.setOwnerContact(bookRequest.getOwnerContact().trim().replaceAll("\\s+", " "));
-        
         Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
         if (ticket != null) {
             ticket.setVehicleNo(bookRequest.getVehicleNo());
