@@ -77,9 +77,9 @@ public class ParkingService implements IParkingService{
 
     @Override
     public Ticket ParkVehicle(BookRequest bookRequest) {
-        if (bookRequest == null || bookRequest.getType() == null || bookRequest.getVehicleNo() == null || bookRequest.getType().isEmpty() || bookRequest.getVehicleNo().isEmpty() || bookRequest.getOwnerName() == null || bookRequest.getOwnerContact() == null || bookRequest.getOwnerName().isEmpty() || bookRequest.getOwnerContact().isEmpty()) {
-            return null;
-        }
+        // if (bookRequest == null || bookRequest.getType() == null || bookRequest.getVehicleNo() == null || bookRequest.getType().isEmpty() || bookRequest.getVehicleNo().isEmpty() || bookRequest.getOwnerName() == null || bookRequest.getOwnerContact() == null || bookRequest.getOwnerName().isEmpty() || bookRequest.getOwnerContact().isEmpty()) {
+        //     return null;
+        // }
 
         // // Check if a vehicle with the same number is already parked
         // for (Map.Entry<String, Ticket> entry : ticketMap.entrySet()) {
