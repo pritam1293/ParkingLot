@@ -1,66 +1,64 @@
 package com.quickpark.parkinglot.service;
+
 import com.quickpark.parkinglot.entities.Gate;
-import java.util.ArrayList;
 import java.util.List;
+import com.quickpark.parkinglot.repository.GateRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class GateService implements IGateService {
-    private List<Gate> gates;
+    private final GateRepository gateRepository;
 
-    public GateService() {
-        this.gates = new ArrayList<>();
+    public GateService(GateRepository gateRepository) {
+        this.gateRepository = gateRepository;
     }
 
     @Override
     public Gate addGate(Gate gate) {
-        if (gate == null || gate.getId() <= 0 || gate.getName() == null || gate.getType() == null || gate.getGuardName() == null) {
-            return null;
+        if (gateRepository.existsById(gate.getId())) {
+            return null; // Gate with the same ID already exists
         }
-
-        for (Gate existingGate : gates) {
-            if (existingGate.getId() == gate.getId()) {
-                return null;
-            }
-        }
-
-        //make sure the variables are not leading or trailing with spaces and also no extra spaces in between
-        gate.setName(gate.getName().trim().replaceAll("\\s+", " "));
-        gate.setType(gate.getType().trim().replaceAll("\\s+", " "));
-        gate.setGuardName(gate.getGuardName().trim().replaceAll("\\s+", " "));
-
-        gates.add(gate);
         System.out.println("");
         System.out.println("Gate added: " + gate);
         System.out.println("");
-        return gate;
+        return gateRepository.save(gate);
     }
 
     @Override
-    public Gate updateGate(int id, Gate gate) {
-        if (gate == null || id <= 0 || gate.getName() == null || gate.getType() == null || gate.getGuardName() == null) {
+    public Gate updateGate(String id, Gate gate) {
+        if (!gateRepository.existsById(id)) {
             return null;
         }
-
-        //make sure the variables are not leading or trailing with spaces and also no extra spaces in between
-        gate.setName(gate.getName().trim().replaceAll("\\s+", " "));
-        gate.setType(gate.getType().trim().replaceAll("\\s+", " "));
-        gate.setGuardName(gate.getGuardName().trim().replaceAll("\\s+", " "));
-
-        for (Gate existingGate : gates) {
-            if (existingGate.getId() == id) {
-                existingGate.setName(gate.getName());
-                existingGate.setType(gate.getType());
-                existingGate.setGuardName(gate.getGuardName());
-                System.out.println("");
-                System.out.println("Gate updated: " + existingGate);
-                System.out.println("");
-                return existingGate;
-            }
-        }
-        return null;
+        gate.setId(id);
+        System.out.println("");
+        System.out.println("Gate updated: " + gate);
+        System.out.println("");
+        return gateRepository.save(gate);
     }
 
     @Override
-    public List<Gate> getGates() {
-        return new ArrayList<>(gates); // Return a copy of the list to avoid external modification
+    public Gate getGateById(String id) {
+        return gateRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<Gate> getAllActiveGates() {
+        return gateRepository.findAllByStatus(true);
+    }
+
+    @Override
+    public long countActiveGates() {
+        List<Gate> activeGates = getAllActiveGates();
+        return activeGates.size();
+    }
+
+    @Override
+    public List<Gate> getAllInactiveGates() {
+        return gateRepository.findAllByStatus(false);
+    }
+
+    @Override
+    public List<Gate> getAllGates() {
+        return gateRepository.findAll();
     }
 }

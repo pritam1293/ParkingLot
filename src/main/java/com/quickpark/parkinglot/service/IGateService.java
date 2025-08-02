@@ -6,7 +6,15 @@ import java.util.List;
 public interface IGateService {
     public Gate addGate(Gate gate);
 
-    public Gate updateGate(int id, Gate gate);
+    public Gate updateGate(String id, Gate gate);
 
-    public List<Gate> getGates();
+    public Gate getGateById(String id);
+
+    public List<Gate> getAllActiveGates();
+
+    public long countActiveGates();
+
+    public List<Gate> getAllInactiveGates();
+
+    public List<Gate> getAllGates();
 }

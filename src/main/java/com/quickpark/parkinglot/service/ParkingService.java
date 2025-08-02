@@ -17,6 +17,9 @@ import java.util.UUID;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
 
 @Service
 public class ParkingService implements IParkingService{
@@ -25,18 +28,26 @@ public class ParkingService implements IParkingService{
     ParkingLot parkingLot;
 
     private final TicketRepository ticketRepository;
+    private Map<String, String> adminCredentials; // Store admin credentials
     // private Map<String, Ticket> ticketMap;// Key = ticketId, Value = Ticket object
 
     public ParkingService(TicketRepository ticketRepository) {
         this.displayBoard = DisplayBoard.getInstance();
         this.parkingLot = new ParkingLot();
         // this.ticketMap = new HashMap<>();
+        this.adminCredentials = new HashMap<>();
         this.ticketRepository = ticketRepository;
         changeStatusFromDatabase();
         System.out.println("");
         System.out.println("MongoDB connected successfully and parking lot state synchronized!");
         System.out.println("");
+        updateAdminCredentials();
         // printFreeParkingSpots(); // Debugging line to print free parking spots
+    }
+
+    private void updateAdminCredentials() {
+        adminCredentials.put("admin", "admin123");
+        adminCredentials.put("user", "user123");
     }
 
     // private void printFreeParkingSpots() {
@@ -210,6 +221,11 @@ public class ParkingService implements IParkingService{
     }
 
     @Override
+    public boolean validateAdminCredentials(String username, String password) {
+        return adminCredentials.containsKey(username) && adminCredentials.get(username).equals(password);
+    }
+
+    @Override
     public java.util.List<Ticket> getActiveParkedVehicles() {
         // Return only currently parked vehicles (not completed)
         return ticketRepository.findByCompletedFalse();
@@ -222,8 +238,82 @@ public class ParkingService implements IParkingService{
     }
 
     @Override
-    public java.util.List<Ticket> getAllParkedVehicles() {
+    public java.util.List<Ticket> getAllVehicles() {
         // Return all parked vehicles (both active and completed)
         return ticketRepository.findAll();
+    }
+
+    @Override
+    public long countCompletedVehiclesToday() {
+        LocalDate today = LocalDate.now();
+        List<Ticket> completedTickets = ticketRepository.findByCompletedTrue();
+        long count = 0;
+        for (Ticket ticket : completedTickets) {
+            if (ticket.getExitDate() != null && ticket.getExitDate().equals(today)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    @Override
+    public long countRevenueToday() {
+        LocalDate today = LocalDate.now();
+        List<Ticket> completedTickets = ticketRepository.findByCompletedTrue();
+        long totalRevenue = 0;
+        for (Ticket ticket : completedTickets) {
+            if (ticket.getExitDate() != null && ticket.getExitDate().equals(today)) {
+                totalRevenue += calculateCost(ticket, countTime(ticket));
+            }
+        }
+        return totalRevenue;
+    }
+
+    @Override
+    public long countRevenueThisWeek() {
+        LocalDate today = LocalDate.now();
+        LocalDate startOfWeek = today.minusDays(today.getDayOfWeek().getValue() - 1); // Monday is the start of the week
+        List<Ticket> completedTickets = ticketRepository.findByCompletedTrue();
+        long totalRevenue = 0;
+        // System.out.println("");
+        // System.out.println("Calculating revenue for the week starting from: " + startOfWeek);
+        // System.out.println("Today: " + today);
+        for (Ticket ticket : completedTickets) {
+            if (ticket.getExitDate() != null && !ticket.getExitDate().isBefore(startOfWeek) && !ticket.getExitDate().isAfter(today)) {
+                totalRevenue += calculateCost(ticket, countTime(ticket));
+                System.out.println("Ticket ID: " + ticket.getId() + ", Exit Date: " + ticket.getExitDate());
+            }
+        }
+        // System.out.println("");
+        return totalRevenue;
+    }
+
+    @Override
+    public long countRevenueThisMonth() {
+        LocalDate today = LocalDate.now();
+        LocalDate startOfMonth = today.withDayOfMonth(1);
+        List<Ticket> completedTickets = ticketRepository.findByCompletedTrue();
+        long totalRevenue = 0;
+        // System.out.println("");
+        // System.out.println("Calculating revenue for the month starting from: " + startOfMonth);
+        // System.out.println("Today: " + today);
+        for (Ticket ticket : completedTickets) {
+            if (ticket.getExitDate() != null && !ticket.getExitDate().isBefore(startOfMonth) && !ticket.getExitDate().isAfter(today)) {
+                totalRevenue += calculateCost(ticket, countTime(ticket));
+            }
+        }
+        // System.out.println("");
+        return totalRevenue;
+    }
+
+    @Override
+    public Map<String, Long> getParkingUtilizationStats() {
+        List<Ticket> allTickets = getAllVehicles();
+        Map<String, Long> stats = new HashMap<>();
+        for(Ticket ticket : allTickets) {
+            String type = ticket.getParkingSpot().getType();
+            stats.put(type, stats.getOrDefault(type, 0L) + 1);
+        }
+        return stats;
     }
 }

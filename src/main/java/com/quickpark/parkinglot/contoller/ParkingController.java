@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 
@@ -72,6 +73,11 @@ public class ParkingController {
         }
     }
 
+    @GetMapping("quickpark/admin/validate-admin/{username}/{password}")
+    public boolean validateAdmin(@PathVariable String username, @PathVariable String password) {
+        return parkingService.validateAdminCredentials(username, password);
+    }
+
     @GetMapping("/quickpark/admin/active-vehicles")
     public List<Ticket> getActiveParkedVehicles() {
         return parkingService.getActiveParkedVehicles();
@@ -84,6 +90,31 @@ public class ParkingController {
 
     @GetMapping("/quickpark/admin/all-vehicles")
     public List<Ticket> getAllParkedVehicles() {
-        return parkingService.getAllParkedVehicles();
+        return parkingService.getAllVehicles();
+    }
+
+    @GetMapping("/quickpark/admin/unparked-today")
+    public long countCompletedVehiclesToday() {
+        return parkingService.countCompletedVehiclesToday();
+    }
+
+    @GetMapping("/quickpark/admin/revenue-today")
+    public long countRevenueToday() {
+        return parkingService.countRevenueToday();
+    }
+
+    @GetMapping("/quickpark/admin/revenue-week")
+    public long countRevenueThisWeek() {
+        return parkingService.countRevenueThisWeek();
+    }
+
+    @GetMapping("/quickpark/admin/revenue-month")
+    public long countRevenueThisMonth() {
+        return parkingService.countRevenueThisMonth();
+    }
+
+    @GetMapping("/quickpark/admin/parking-statistics")
+    public Map<String, Long> getParkingStatistics() {
+        return parkingService.getParkingUtilizationStats();
     }
 }
