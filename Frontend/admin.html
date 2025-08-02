@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - QuickPark</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- Navigation Header -->
+  <header class="header">
+    <div class="nav-container">
+      <h1 class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">🚗 QuickPark Admin</h1>
+      
+      <!-- Hamburger Menu Button -->
+      <button class="hamburger-menu" id="hamburgerMenu" onclick="toggleMobileMenu()">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+      
+      <nav class="nav-menu" id="navMenu">
+        <a href="#vehicles" class="nav-link active" onclick="scrollToSection('vehicles')">Vehicles</a>
+        <a href="#gates" class="nav-link" onclick="scrollToSection('gates')">Gates</a>
+        <a href="#analytics" class="nav-link" onclick="scrollToSection('analytics')">Analytics</a>
+        <a href="index.html" class="nav-link">Back to Home</a>
+        <!-- Mobile logout option (hidden on desktop) -->
+        <a href="#" class="nav-link mobile-logout" onclick="logout()">🚪 Logout</a>
+      </nav>
+      
+      <!-- Desktop admin info (hidden on mobile) -->
+      <div class="admin-info desktop-only">
+        <span>👤 Admin</span>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Dashboard Overview -->
+  <section class="admin-overview">
+    <div class="container">
+      <h1 class="page-title">Admin Dashboard</h1>
+      <div class="overview-stats">
+        <div class="stat-card">
+          <div class="stat-icon">🚗</div>
+          <div class="stat-info">
+            <h3 id="totalParkedVehicles">--</h3>
+            <p>Currently Parked</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-info">
+            <h3 id="totalCompletedVehicles">--</h3>
+            <p>Completed Today</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🚪</div>
+          <div class="stat-info">
+            <h3 id="totalGates">--</h3>
+            <p>Active Gates</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-info">
+            <h3 id="todayRevenue">₹--</h3>
+            <p>Today's Revenue</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vehicle Management Section -->
+  <section id="vehicles" class="admin-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Vehicle Management</h2>
+        <div class="section-controls">
+          <button class="btn btn-outline" onclick="refreshVehicleData()">🔄 Refresh</button>
+          <select id="vehicleFilter" onchange="filterVehicles()">
+            <option value="parked">Currently Parked</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Currently Parked Vehicles -->
+      <div class="subsection" id="parkedVehiclesSection">
+        <h3>Currently Parked Vehicles</h3>
+        <div class="table-container">
+          <table class="admin-table" id="parkedVehiclesTable">
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Vehicle No</th>
+                <th>Owner Name</th>
+                <th>Contact</th>
+                <th>Vehicle Type</th>
+                <th>Location</th>
+                <th>Entry Time</th>
+                <th>Duration</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="parkedVehiclesBody">
+              <tr>
+                <td colspan="9" class="loading-row">Loading parked vehicles...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Completed Vehicles -->
+      <div class="subsection" id="completedVehiclesSection">
+        <h3>Completed Vehicles</h3>
+        <div class="table-container">
+          <table class="admin-table" id="completedVehiclesTable">
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Vehicle No</th>
+                <th>Owner Name</th>
+                <th>Vehicle Type</th>
+                <th>Location</th>
+                <th>Entry Time</th>
+                <th>Exit Time</th>
+                <th>Duration</th>
+                <th>Cost</th>
+              </tr>
+            </thead>
+            <tbody id="completedVehiclesBody">
+              <tr>
+                <td colspan="9" class="loading-row">Loading completed vehicles...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gate Management Section -->
+  <section id="gates" class="admin-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Gate Management</h2>
+        <div class="section-controls">
+          <button class="btn btn-outline" onclick="refreshGateData()">🔄 Refresh</button>
+        </div>
+      </div>
+
+      <!-- Add New Gate Section -->
+      <div class="subsection">
+        <div class="subsection-header">
+          <h3>Add New Gate</h3>
+          <button class="btn btn-primary" onclick="toggleAddGateForm()">➕ Add Gate</button>
+        </div>
+        
+        <!-- Add Gate Form -->
+        <div class="form-container" id="addGateForm" style="display: none;">
+          <form id="gateForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="gateId">Gate ID</label>
+                <input type="text" id="gateId" name="gateId" required placeholder="e.g., GATE001">
+              </div>
+              <div class="form-group">
+                <label for="gateName">Gate Name</label>
+                <input type="text" id="gateName" name="gateName" required placeholder="e.g., North Gate">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="gateType">Gate Type</label>
+                <select id="gateType" name="gateType" required>
+                  <option value="">Select Type</option>
+                  <option value="entry">Entry Gate</option>
+                  <option value="exit">Exit Gate</option>
+                  <option value="both">Entry/Exit Gate</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="guardName">Guard Name</label>
+                <input type="text" id="guardName" name="guardName" required placeholder="Guard's Name">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="gateStatus">Status</label>
+                <select id="gateStatus" name="gateStatus" required>
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Add Gate</button>
+              <button type="button" class="btn btn-secondary" onclick="resetGateForm()">Reset</button>
+            </div>
+          </form>
+          <div id="addGateResponse"></div>
+        </div>
+      </div>
+
+      <!-- Edit Gate Form -->
+      <div class="form-container" id="editGateForm" style="display: none;">
+        <h3>Edit Gate</h3>
+        <form id="editGateFormElement">
+          <input type="hidden" id="editGateId" name="editGateId">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="editGateName">Gate Name</label>
+              <input type="text" id="editGateName" name="editGateName" required placeholder="e.g., North Gate">
+            </div>
+            <div class="form-group">
+              <label for="editGateType">Gate Type</label>
+              <select id="editGateType" name="editGateType" required>
+                <option value="entry">Entry Gate</option>
+                <option value="exit">Exit Gate</option>
+                <option value="both">Entry/Exit Gate</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="editGuardName">Guard Name</label>
+              <input type="text" id="editGuardName" name="editGuardName" required placeholder="Guard's Name">
+            </div>
+            <div class="form-group">
+              <label for="editGateStatus">Status</label>
+              <select id="editGateStatus" name="editGateStatus" required>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Update Gate</button>
+            <button type="button" class="btn btn-secondary" onclick="hideEditGateForm()">Cancel</button>
+          </div>
+        </form>
+        <div id="editGateResponse"></div>
+      </div>
+
+      <!-- Active Gates Section -->
+      <div class="subsection">
+        <div class="subsection-header">
+          <h3>Active Gates</h3>
+          <button class="btn btn-success" onclick="loadActiveGates()">📋 View Active Gates</button>
+        </div>
+        
+        <div id="activeGatesSection" style="display: none;">
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Gate ID</th>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Guard Name</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="activeGatesBody">
+                <tr>
+                  <td colspan="6" class="loading-row">Click "View Active Gates" to load data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inactive Gates Section -->
+      <div class="subsection">
+        <div class="subsection-header">
+          <h3>Inactive Gates</h3>
+          <button class="btn btn-warning" onclick="loadInactiveGates()">📋 View Inactive Gates</button>
+        </div>
+        
+        <div id="inactiveGatesSection" style="display: none;">
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Gate ID</th>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Guard Name</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="inactiveGatesBody">
+                <tr>
+                  <td colspan="6" class="loading-row">Click "View Inactive Gates" to load data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Analytics Section -->
+  <section id="analytics" class="admin-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Analytics & Reports</h2>
+        <div class="section-controls">
+          <button class="btn btn-outline" onclick="refreshAnalytics()">🔄 Refresh</button>
+        </div>
+      </div>
+
+      <div class="analytics-grid">
+        <div class="analytics-card">
+          <h4>Parking Utilization So Far</h4>
+          <div class="utilization-chart">
+            <div class="chart-item">
+              <span class="chart-label">Mini Spots</span>
+              <div class="chart-bar">
+                <div class="chart-fill" id="miniUtilization" style="width: 0%"></div>
+              </div>
+              <span class="chart-value" id="miniUtilizationText">0%</span>
+            </div>
+            <div class="chart-item">
+              <span class="chart-label">Compact Spots</span>
+              <div class="chart-bar">
+                <div class="chart-fill" id="compactUtilization" style="width: 0%"></div>
+              </div>
+              <span class="chart-value" id="compactUtilizationText">0%</span>
+            </div>
+            <div class="chart-item">
+              <span class="chart-label">Large Spots</span>
+              <div class="chart-bar">
+                <div class="chart-fill" id="largeUtilization" style="width: 0%"></div>
+              </div>
+              <span class="chart-value" id="largeUtilizationText">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="analytics-card">
+          <h4>Revenue Summary</h4>
+          <div class="revenue-stats">
+            <div class="revenue-item">
+              <span class="revenue-label">Today</span>
+              <span class="revenue-value" id="todayRevenueAnalytics">₹0</span>
+            </div>
+            <div class="revenue-item">
+              <span class="revenue-label">This Week</span>
+              <span class="revenue-value" id="weekRevenue">₹0</span>
+            </div>
+            <div class="revenue-item">
+              <span class="revenue-label">This Month</span>
+              <span class="revenue-value" id="monthRevenue">₹0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Success/Error Messages -->
+  <div id="messageContainer" class="message-container"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

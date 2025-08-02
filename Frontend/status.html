@@ -11,11 +11,21 @@
   <header class="header">
     <div class="nav-container">
       <h1 class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">🚗 QuickPark</h1>
-      <nav class="nav-menu">
+      
+      <!-- Hamburger Menu Button -->
+      <button class="hamburger-menu" id="hamburgerMenu" onclick="toggleMobileMenu()">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+      
+      <nav class="nav-menu" id="navMenu">
         <a href="index.html" class="nav-link">Home</a>
         <a href="park.html" class="nav-link">Park</a>
         <a href="unpark.html" class="nav-link">Unpark</a>
         <a href="status.html" class="nav-link active">Status</a>
+        <a href="admin-login.html" class="nav-link">Admin</a>
+        <a href="index.html#contact" class="nav-link">Contact</a>
       </nav>
     </div>
   </header>
