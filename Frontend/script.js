@@ -980,17 +980,6 @@ function updateDisplayedTicketInfo(ticketId, newDetails) {
 
 // Unpark Vehicle Functions
 
-// Add form submission handler for unpark form when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    const unparkForm = document.getElementById('unparkForm');
-    if (unparkForm) {
-        unparkForm.addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent default form submission
-            unparkVehicle(); // Call our custom function
-        });
-    }
-});
-
 async function unparkVehicle() {
     const ticketId = document.getElementById('ticketId').value.trim();
     const responseDiv = document.getElementById('unparkResponse');
@@ -1560,15 +1549,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize mobile menu functionality
     initializeMobileMenu();
-    
-    // Initialize park form if it exists
-    const parkForm = document.getElementById('parkForm');
-    if (parkForm) {
-        parkForm.addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent default form submission
-            parkVehicle(); // Call our custom function
-        });
-    }
     
     // Initialize unpark form if it exists
     const unparkForm = document.getElementById('unparkForm');
