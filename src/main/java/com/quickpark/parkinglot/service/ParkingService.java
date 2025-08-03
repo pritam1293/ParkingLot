@@ -88,17 +88,6 @@ public class ParkingService implements IParkingService{
 
     @Override
     public Ticket ParkVehicle(BookRequest bookRequest) {
-        // if (bookRequest == null || bookRequest.getType() == null || bookRequest.getVehicleNo() == null || bookRequest.getType().isEmpty() || bookRequest.getVehicleNo().isEmpty() || bookRequest.getOwnerName() == null || bookRequest.getOwnerContact() == null || bookRequest.getOwnerName().isEmpty() || bookRequest.getOwnerContact().isEmpty()) {
-        //     return null;
-        // }
-
-        // // Check if a vehicle with the same number is already parked
-        // for (Map.Entry<String, Ticket> entry : ticketMap.entrySet()) {
-        //     if (entry.getValue().getVehicleNo().equals(bookRequest.getVehicleNo())) {
-        //         return null; // a vehicle with this number is already parked
-        //     }
-        // }
-
         // Check if a vehicle with the same number is already parked (not completed)
         Ticket existingTicket = ticketRepository.findByVehicleNoAndCompletedFalse(bookRequest.getVehicleNo());
         if (existingTicket != null) {
@@ -281,7 +270,7 @@ public class ParkingService implements IParkingService{
         for (Ticket ticket : completedTickets) {
             if (ticket.getExitDate() != null && !ticket.getExitDate().isBefore(startOfWeek) && !ticket.getExitDate().isAfter(today)) {
                 totalRevenue += calculateCost(ticket, countTime(ticket));
-                System.out.println("Ticket ID: " + ticket.getId() + ", Exit Date: " + ticket.getExitDate());
+                // System.out.println("Ticket ID: " + ticket.getId() + ", Exit Date: " + ticket.getExitDate());
             }
         }
         // System.out.println("");
