@@ -5,7 +5,6 @@ import com.quickpark.parkinglot.DTO.FreeRequest;
 import com.quickpark.parkinglot.entities.Ticket;
 import com.quickpark.parkinglot.response.DisplayResponse;
 import com.quickpark.parkinglot.service.IParkingService;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +18,6 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 
-@CrossOrigin(origins = "*")
 @RestController
 public class ParkingController {
 
