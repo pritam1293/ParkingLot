@@ -1,11 +1,3 @@
-/**
- * Validation Utilities for QuickPark Application
- * Centralized validation functions for forms and data
- */
-
-/**
- * Vehicle validation patterns and functions
- */
 class VehicleValidator {
     static patterns = {
         vehicleNumber: /^[A-Z]{2}\d{2}[A-Z]+\d{4}$/,
@@ -119,9 +111,7 @@ class VehicleValidator {
     }
 }
 
-/**
- * Admin validation functions
- */
+// Admin validation functions
 class AdminValidator {
     static validateCredentials(username, password) {
         const errors = [];
@@ -145,9 +135,7 @@ class AdminValidator {
     }
 }
 
-/**
- * Gate validation functions
- */
+// Gate validation functions
 class GateValidator {
     static validateGateData(gateData) {
         const { gateId, gateName, gateType, guardName, gateStatus } = gateData;
@@ -199,9 +187,7 @@ class GateValidator {
     }
 }
 
-/**
- * Generic form validation utilities
- */
+// Generic form validation utilities
 class FormValidator {
     static validateRequired(data, requiredFields) {
         const missing = [];
@@ -267,9 +253,7 @@ class FormValidator {
     }
 }
 
-/**
- * Validation message display utilities
- */
+// Validation message display utilities
 class ValidationDisplay {
     static showFieldError(fieldId, message) {
         const field = document.getElementById(fieldId);

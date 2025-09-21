@@ -1,11 +1,3 @@
-/**
- * Print Utilities for QuickPark Application
- * Centralized printing functionality with templates
- */
-
-/**
- * Generic print function with customizable templates
- */
 class PrintUtils {
     static defaultStyles = `
         body { 
@@ -180,9 +172,7 @@ Thank you for your payment!
     }
 }
 
-/**
- * Export convenience functions for global access
- */
+// Export convenience functions for global access
 function printTicket(ticketId, vehicleNo, ownerName, ownerContact, entryDate, entryTime, parkingSpot) {
     PrintUtils.printParkingTicket(ticketId, vehicleNo, ownerName, ownerContact, entryDate, entryTime, parkingSpot);
 }

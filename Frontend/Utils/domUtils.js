@@ -1,11 +1,3 @@
-/**
- * DOM Utilities for QuickPark Application
- * Centralized DOM manipulation and element update functions
- */
-
-/**
- * Safely update element content if element exists
- */
 function updateElementIfExists(elementId, value, property = 'textContent') {
     const element = document.getElementById(elementId);
     if (element) {
@@ -16,9 +8,7 @@ function updateElementIfExists(elementId, value, property = 'textContent') {
     return false;
 }
 
-/**
- * Safely update multiple elements at once
- */
+// Safely update multiple elements at once
 function updateElements(updates) {
     const results = {};
     for (const [elementId, value, property] of updates) {
@@ -27,9 +17,7 @@ function updateElements(updates) {
     return results;
 }
 
-/**
- * Show/hide elements safely
- */
+// Show/hide elements safely
 function toggleElementDisplay(elementId, show = true) {
     const element = document.getElementById(elementId);
     if (element) {
@@ -39,9 +27,7 @@ function toggleElementDisplay(elementId, show = true) {
     return false;
 }
 
-/**
- * Button state management utility
- */
+// Button state management utility
 class ButtonManager {
     static setLoadingState(button, loadingText = '⏳ Loading...') {
         if (!button) return null;
@@ -77,9 +63,7 @@ class ButtonManager {
     }
 }
 
-/**
- * Alert/Message display utilities
- */
+// Alert/Message display utilities
 class MessageDisplay {
     static createAlert(type, title, message, actions = []) {
         const alertClass = `alert alert-${type}`;
@@ -121,9 +105,7 @@ class MessageDisplay {
     }
 }
 
-/**
- * Status indicator utilities
- */
+// Status indicator utilities
 class StatusIndicator {
     static getStatusClass(availabilityPercentage) {
         if (availabilityPercentage > 50) return 'available';
@@ -157,9 +139,7 @@ class StatusIndicator {
     }
 }
 
-/**
- * Form utilities
- */
+// Form utilities
 class FormUtils {
     static resetForm(formId) {
         const form = document.getElementById(formId);
@@ -191,9 +171,7 @@ class FormUtils {
     }
 }
 
-/**
- * Navigation utilities
- */
+// Navigation utilities
 class Navigation {
     static smoothScrollToSection(sectionId) {
         const section = document.getElementById(sectionId);
@@ -231,9 +209,7 @@ class Navigation {
     }
 }
 
-/**
- * Table utilities
- */
+// Table utilities
 class TableUtils {
     static showLoadingRow(tableBodyId, colspan, message = '⏳ Loading...') {
         const tableBody = document.getElementById(tableBodyId);
@@ -284,9 +260,7 @@ class TableUtils {
     }
 }
 
-/**
- * Date/Time utilities
- */
+// Date/Time utilities
 class DateTimeUtils {
     static formatDate(dateString) {
         if (!dateString) return 'N/A';

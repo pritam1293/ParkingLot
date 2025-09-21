@@ -1,8 +1,3 @@
-/**
- * API Utilities for QuickPark Application
- * Centralized API call functions with error handling
- */
-
 const API_CONFIG = {
     baseUrl: 'http://localhost:8080/quickpark/',
     headers: {
@@ -10,9 +5,7 @@ const API_CONFIG = {
     }
 };
 
-/**
- * Generic API call function with error handling
- */
+// Generic API call function with error handling
 async function apiCall(endpoint, options = {}) {
     const url = API_CONFIG.baseUrl + endpoint;
     const config = {
@@ -38,9 +31,7 @@ async function apiCall(endpoint, options = {}) {
     }
 }
 
-/**
- * Safe JSON parsing with fallback
- */
+// Safe JSON parsing with fallback
 function safeJsonParse(text, fallback = null) {
     try {
         return JSON.parse(text);
@@ -50,26 +41,20 @@ function safeJsonParse(text, fallback = null) {
     }
 }
 
-/**
- * API call that expects JSON response
- */
+// API call that expects JSON response
 async function apiCallJson(endpoint, options = {}) {
     const response = await apiCall(endpoint, options);
     const text = await response.text();
     return safeJsonParse(text) || text;
 }
 
-/**
- * API call that expects text response
- */
+// API call that expects text response
 async function apiCallText(endpoint, options = {}) {
     const response = await apiCall(endpoint, options);
     return await response.text();
 }
 
-/**
- * GET request helpers
- */
+// GET request helpers
 const API = {
     // Parking status
     async getParkingStatus() {
@@ -161,9 +146,7 @@ const API = {
     }
 };
 
-/**
- * Standard error messages
- */
+// Standard error messages
 const ERROR_MESSAGES = {
     NETWORK: 'Network error. Please check your connection and try again.',
     VALIDATION: 'Please fill in all required fields.',
@@ -172,9 +155,7 @@ const ERROR_MESSAGES = {
     GENERIC: 'An error occurred. Please try again.'
 };
 
-/**
- * Create standardized error response
- */
+// Create standardized error response
 function createErrorResponse(message, isNetworkError = false) {
     return {
         success: false,
@@ -183,9 +164,7 @@ function createErrorResponse(message, isNetworkError = false) {
     };
 }
 
-/**
- * Create standardized success response
- */
+// Create standardized success response
 function createSuccessResponse(data, message = 'Operation completed successfully') {
     return {
         success: true,
