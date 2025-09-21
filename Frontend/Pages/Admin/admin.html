@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard - QuickPark</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../../Styles/style.css">
 </head>
 
 <body>
@@ -25,7 +25,7 @@
         <a href="#vehicles" class="nav-link active" onclick="scrollToSection('vehicles')">Vehicles</a>
         <a href="#gates" class="nav-link" onclick="scrollToSection('gates')">Gates</a>
         <a href="#analytics" class="nav-link" onclick="scrollToSection('analytics')">Analytics</a>
-        <a href="index.html" class="nav-link">Back to Home</a>
+        <a href="../User/index.html" class="nav-link">Back to Home</a>
         <!-- Mobile logout option (hidden on desktop) -->
         <a href="#" class="nav-link mobile-logout" onclick="logout()">🚪 Logout</a>
       </nav>
@@ -372,6 +372,13 @@
   <!-- Success/Error Messages -->
   <div id="messageContainer" class="message-container"></div>
 
-  <script src="script.js"></script>
+  <!-- Utility Scripts -->
+  <script src="../../Utils/apiUtils.js"></script>
+  <script src="../../Utils/domUtils.js"></script>
+  <script src="../../Utils/validationUtils.js"></script>
+  <script src="../../Utils/printUtils.js"></script>
+  
+  <!-- Main Application Script -->
+  <script src="../../script.js"></script>
 </body>
 </html>

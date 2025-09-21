@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login - QuickPark</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../../Styles/style.css">
 </head>
 
 <body>
@@ -22,12 +22,12 @@
       </button>
       
       <nav class="nav-menu" id="navMenu">
-        <a href="index.html" class="nav-link">Home</a>
-        <a href="park.html" class="nav-link">Park</a>
-        <a href="unpark.html" class="nav-link">Unpark</a>
-        <a href="status.html" class="nav-link">Status</a>
+        <a href="../User/index.html" class="nav-link">Home</a>
+        <a href="../User/park.html" class="nav-link">Park</a>
+        <a href="../User/unpark.html" class="nav-link">Unpark</a>
+        <a href="../User/status.html" class="nav-link">Status</a>
         <a href="admin-login.html" class="nav-link active">Admin</a>
-        <a href="index.html#contact" class="nav-link">Contact</a>
+        <a href="../User/index.html#contact" class="nav-link">Contact</a>
       </nav>
     </div>
   </header>
@@ -59,12 +59,19 @@
         </button>
       </form>
 
-      <a href="index.html" class="back-link">
+      <a href="../User/index.html" class="back-link">
         ← Back to QuickPark Home
       </a>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <!-- Utility Scripts -->
+  <script src="../../Utils/apiUtils.js"></script>
+  <script src="../../Utils/domUtils.js"></script>
+  <script src="../../Utils/validationUtils.js"></script>
+  <script src="../../Utils/printUtils.js"></script>
+  
+  <!-- Main Application Script -->
+  <script src="../../script.js"></script>
 </body>
 </html>
