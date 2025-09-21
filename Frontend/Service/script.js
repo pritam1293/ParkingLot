@@ -1,9 +1,3 @@
-/**
- * QuickPark Application - Main Script
- * Refactored to use utility modules and eliminate duplications
- */
-
-// Global configuration
 const CONFIG = {
     PARKING_CAPACITY: {
         MINI: 50,
@@ -17,9 +11,8 @@ const CONFIG = {
 // APPLICATION INITIALIZATION
 // ============================================================================
 
-/**
- * Main application initializer
- */
+// Main application initializer
+
 class QuickParkApp {
     constructor() {
         this.currentPage = this.detectCurrentPage();
@@ -1055,9 +1048,7 @@ class GateManagement {
     }
 }
 
-// ============================================================================
 // GLOBAL FUNCTIONS (for backward compatibility)
-// ============================================================================
 
 // Navigation functions
 function toggleMobileMenu() {

@@ -1,5 +1,5 @@
 const API_CONFIG = {
-    baseUrl: 'http://localhost:8080/quickpark/',
+    baseUrl: 'http://localhost:8080/quickpark/api/',
     headers: {
         'Content-Type': 'application/json'
     }
