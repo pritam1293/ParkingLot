@@ -4,7 +4,6 @@ function updateElementIfExists(elementId, value, property = 'textContent') {
         element[property] = value;
         return true;
     }
-    console.log(`Element ${elementId} not found`);
     return false;
 }
 

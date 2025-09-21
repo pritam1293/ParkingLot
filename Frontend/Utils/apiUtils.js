@@ -14,10 +14,7 @@ async function apiCall(endpoint, options = {}) {
     };
 
     try {
-        console.log(`API Call: ${config.method || 'GET'} ${url}`);
         const response = await fetch(url, config);
-
-        console.log(`Response: ${response.status} ${response.statusText}`);
 
         if (!response.ok) {
             const errorText = await response.text();
