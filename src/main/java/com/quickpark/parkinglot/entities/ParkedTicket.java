@@ -1,0 +1,17 @@
+package com.quickpark.parkinglot.entities;
+
+import java.time.LocalDateTime;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "ParkedTickets")
+public class ParkedTicket extends Ticket {
+
+    public ParkedTicket() {
+        super();
+    }
+
+    public ParkedTicket(String id, String ownerName, String ownerContact, LocalDateTime entryTime, String vehicleNo,
+            ParkingSpot parkingSpot) {
+        super(id, ownerName, ownerContact, entryTime, vehicleNo, parkingSpot);
+    }
+}

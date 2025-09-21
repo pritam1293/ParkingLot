@@ -1,35 +1,30 @@
 package com.quickpark.parkinglot.entities;
 
-import java.time.LocalTime;
-import java.time.LocalDate;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.annotation.Id;
+import java.time.LocalDateTime;
 
-@Document(collection = "tickets")
-public class Ticket {
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+
+public abstract class Ticket {
     @Id
     private String id;
     private String ownerName;
     private String ownerContact;
-    private LocalTime entryTime;
-    private LocalTime exitTime;
-    private LocalDate entryDate;
-    private LocalDate exitDate;
+    private LocalDateTime entryTime;
+    @Indexed(unique = true)
     private String vehicleNo;
-    private boolean completed; // New field to track completion status
     private ParkingSpot parkingSpot;
 
-    public Ticket(String id, String ownerName, String ownerContact, LocalTime entryTime, LocalTime exitTime, LocalDate entryDate, LocalDate exitDate, String vehicleNo, ParkingSpot parkingSpot) {
+    public Ticket() {
+    }
+
+    public Ticket(String id, String ownerName, String ownerContact, LocalDateTime entryTime, String vehicleNo, ParkingSpot parkingSpot) {
         this.id = id;
         this.ownerName = ownerName;
         this.ownerContact = ownerContact;
         this.entryTime = entryTime;
-        this.exitTime = exitTime;
-        this.entryDate = entryDate;
-        this.exitDate = exitDate;
         this.vehicleNo = vehicleNo;
         this.parkingSpot = parkingSpot;
-        this.completed = false; // Initialize as not complete
     }
 
     public String getId() {
@@ -56,36 +51,12 @@ public class Ticket {
         this.ownerContact = ownerContact;
     }
 
-    public LocalTime getEntryTime() {
+    public LocalDateTime getEntryTime() {
         return entryTime;
     }
 
-    public void setEntryTime(LocalTime entryTime) {
+    public void setEntryTime(LocalDateTime entryTime) {
         this.entryTime = entryTime;
-    }
-
-    public LocalTime getExitTime() {
-        return exitTime;
-    }
-
-    public void setExitTime(LocalTime exitTime) {
-        this.exitTime = exitTime;
-    }
-
-    public LocalDate getEntryDate() {
-        return entryDate;
-    }
-
-    public LocalDate getExitDate() {
-        return exitDate;
-    }
-
-    public void setExitDate(LocalDate exitDate) {
-        this.exitDate = exitDate;
-    }
-
-    public void setEntryDate(LocalDate entryDate) {
-        this.entryDate = entryDate;
     }
 
     public String getVehicleNo() {
@@ -94,14 +65,6 @@ public class Ticket {
 
     public void setVehicleNo(String vehicleNo) {
         this.vehicleNo = vehicleNo;
-    }
-
-    public boolean isCompleted() {
-        return completed;
-    }
-
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
     }
 
     public ParkingSpot getParkingSpot() {
@@ -119,11 +82,7 @@ public class Ticket {
                 ", ownerName='" + ownerName + '\'' +
                 ", ownerContact='" + ownerContact + '\'' +
                 ", entryTime=" + entryTime +
-                ", exitTime=" + exitTime +
-                ", entryDate=" + entryDate +
-                ", exitDate=" + exitDate +
                 ", vehicleNo='" + vehicleNo + '\'' +
-                ", completed=" + completed +
                 ", parkingSpot=" + parkingSpot +
                 '}';
     }

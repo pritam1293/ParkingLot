@@ -2,7 +2,8 @@ package com.quickpark.parkinglot.contoller;
 
 import com.quickpark.parkinglot.DTO.BookRequest;
 import com.quickpark.parkinglot.DTO.FreeRequest;
-import com.quickpark.parkinglot.entities.Ticket;
+import com.quickpark.parkinglot.entities.ParkedTicket;
+import com.quickpark.parkinglot.entities.UnparkedTicket;
 import com.quickpark.parkinglot.response.DisplayResponse;
 import com.quickpark.parkinglot.service.IParkingService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,11 +15,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 
 @RestController
+@RequestMapping("/quickpark/api")
 public class ParkingController {
 
     private final IParkingService parkingService;
@@ -27,19 +28,23 @@ public class ParkingController {
         this.parkingService = parkingService;
     }
 
-    @GetMapping("/quickpark/home")
+    @GetMapping("/home")
     public String home() {
         return "Welcome to the QUICK PARK parking lot, Have a nice day";
     }
 
-    @GetMapping("/quickpark/free-parking-spots")
-    public DisplayResponse display() {
-        return parkingService.getFreeParkingSpots();
+    @GetMapping("/free-parking-spots")
+    public ResponseEntity<?> display() {    
+        try {
+            return ResponseEntity.ok(parkingService.getFreeParkingSpots());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching free parking spots.");
+        }
     }
 
-    @PostMapping(path = "/quickpark/park" , consumes = "application/json")
+    @PostMapping(path = "/park" , consumes = "application/json")
     public ResponseEntity<?> ParkVehicle(@RequestBody BookRequest bookRequest) {
-        Ticket ticket = parkingService.ParkVehicle(bookRequest);
+        ParkedTicket ticket = parkingService.ParkVehicle(bookRequest);
 
         if (ticket != null) {
             return ResponseEntity.ok(ticket);
@@ -49,8 +54,8 @@ public class ParkingController {
         }
     }
 
-    @DeleteMapping(path = "/quickpark/unpark" , consumes = "text/plain")
-    public ResponseEntity<?> UnparkVehicle(@RequestBody String ticketId) {
+    @DeleteMapping(path = "/unpark/{ticketId}")
+    public ResponseEntity<?> UnparkVehicle(@PathVariable String ticketId) {
         FreeRequest freeRequest = parkingService.UnparkVehicle(ticketId);
         if (freeRequest != null) {
             return ResponseEntity.ok(freeRequest);
@@ -60,9 +65,9 @@ public class ParkingController {
         }
     }
 
-    @PutMapping(path = "/quickpark/update-ticket/{ticketId}" , consumes = "application/json")
+    @PutMapping(path = "/update-ticket/{ticketId}" , consumes = "application/json")
     public ResponseEntity<?> UpdateParkedVehicle(@PathVariable String ticketId, @RequestBody BookRequest bookRequest) {
-        Ticket updatedTicket = parkingService.UpdateParkedVehicle(ticketId, bookRequest);
+        ParkedTicket updatedTicket = parkingService.UpdateParkedVehicle(ticketId, bookRequest);
         if (updatedTicket != null) {
             return ResponseEntity.ok(updatedTicket);
         } 
@@ -71,48 +76,38 @@ public class ParkingController {
         }
     }
 
-    @GetMapping("quickpark/admin/validate-admin/{username}/{password}")
+    @GetMapping("/admin/validate-admin/{username}/{password}")
     public boolean validateAdmin(@PathVariable String username, @PathVariable String password) {
         return parkingService.validateAdminCredentials(username, password);
     }
 
-    @GetMapping("/quickpark/admin/active-vehicles")
-    public List<Ticket> getActiveParkedVehicles() {
+    @GetMapping("/admin/active-vehicles")
+    public List<ParkedTicket> getActiveParkedVehicles() {
         return parkingService.getActiveParkedVehicles();
     }
 
-    @GetMapping("/quickpark/admin/completed-vehicles")
-    public List<Ticket> getCompletedParkedVehicles() {
+    @GetMapping("/admin/completed-vehicles")
+    public List<UnparkedTicket> getCompletedParkedVehicles() {
         return parkingService.getCompletedParkedVehicles();
     }
 
-    @GetMapping("/quickpark/admin/all-vehicles")
-    public List<Ticket> getAllParkedVehicles() {
-        return parkingService.getAllVehicles();
-    }
-
-    @GetMapping("/quickpark/admin/unparked-today")
+    @GetMapping("/admin/unparked-today")
     public long countCompletedVehiclesToday() {
         return parkingService.countCompletedVehiclesToday();
     }
 
-    @GetMapping("/quickpark/admin/revenue-today")
+    @GetMapping("/admin/revenue-today")
     public long countRevenueToday() {
         return parkingService.countRevenueToday();
     }
 
-    @GetMapping("/quickpark/admin/revenue-week")
+    @GetMapping("/admin/revenue-week")
     public long countRevenueThisWeek() {
         return parkingService.countRevenueThisWeek();
     }
 
-    @GetMapping("/quickpark/admin/revenue-month")
+    @GetMapping("/admin/revenue-month")
     public long countRevenueThisMonth() {
         return parkingService.countRevenueThisMonth();
-    }
-
-    @GetMapping("/quickpark/admin/parking-statistics")
-    public Map<String, Long> getParkingStatistics() {
-        return parkingService.getParkingUtilizationStats();
     }
 }
