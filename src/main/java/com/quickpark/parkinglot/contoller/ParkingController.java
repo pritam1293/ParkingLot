@@ -2,9 +2,9 @@ package com.quickpark.parkinglot.contoller;
 
 import com.quickpark.parkinglot.DTO.BookRequest;
 import com.quickpark.parkinglot.DTO.FreeRequest;
+import com.quickpark.parkinglot.Exceptions.ParkingLotException;
 import com.quickpark.parkinglot.entities.ParkedTicket;
 import com.quickpark.parkinglot.entities.UnparkedTicket;
-import com.quickpark.parkinglot.response.DisplayResponse;
 import com.quickpark.parkinglot.service.IParkingService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -44,70 +46,112 @@ public class ParkingController {
 
     @PostMapping(path = "/park" , consumes = "application/json")
     public ResponseEntity<?> ParkVehicle(@RequestBody BookRequest bookRequest) {
-        ParkedTicket ticket = parkingService.ParkVehicle(bookRequest);
-
-        if (ticket != null) {
-            return ResponseEntity.ok(ticket);
-        } 
-        else {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Parking failed, no free spots available or a vehicle is already parked with the same number");
+        try {
+            ParkedTicket ticket = parkingService.ParkVehicle(bookRequest);
+            if(ticket != null) {
+                return ResponseEntity.ok(ticket);
+            } else {
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Parking failed");
+            }
+        } catch (ParkingLotException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while parking the vehicle.");
         }
     }
 
     @DeleteMapping(path = "/unpark/{ticketId}")
     public ResponseEntity<?> UnparkVehicle(@PathVariable String ticketId) {
-        FreeRequest freeRequest = parkingService.UnparkVehicle(ticketId);
-        if (freeRequest != null) {
-            return ResponseEntity.ok(freeRequest);
-        } 
-        else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unparking failed, invalid ticket ID or the vehicle is already unparked");
+        try {
+            FreeRequest freeRequest = parkingService.UnparkVehicle(ticketId);
+            if (freeRequest != null) {
+                return ResponseEntity.ok(freeRequest);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unparking failed");
+            }
+        } catch (ParkingLotException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while unparking the vehicle.");
         }
     }
 
     @PutMapping(path = "/update-ticket/{ticketId}" , consumes = "application/json")
     public ResponseEntity<?> UpdateParkedVehicle(@PathVariable String ticketId, @RequestBody BookRequest bookRequest) {
-        ParkedTicket updatedTicket = parkingService.UpdateParkedVehicle(ticketId, bookRequest);
-        if (updatedTicket != null) {
-            return ResponseEntity.ok(updatedTicket);
-        } 
-        else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Update failed, invalid ticket ID or invalid request data");
+        try {
+            ParkedTicket updatedTicket = parkingService.UpdateParkedVehicle(ticketId, bookRequest);
+            if (updatedTicket != null) {
+                return ResponseEntity.ok(updatedTicket);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Update failed");
+            }
+        } catch (ParkingLotException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the parked vehicle.");
         }
     }
 
     @GetMapping("/admin/validate-admin/{username}/{password}")
     public boolean validateAdmin(@PathVariable String username, @PathVariable String password) {
-        return parkingService.validateAdminCredentials(username, password);
+        try {
+            return parkingService.validateAdminCredentials(username, password);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @GetMapping("/admin/active-vehicles")
     public List<ParkedTicket> getActiveParkedVehicles() {
-        return parkingService.getActiveParkedVehicles();
+        try {
+            return parkingService.getActiveParkedVehicles();
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 
     @GetMapping("/admin/completed-vehicles")
     public List<UnparkedTicket> getCompletedParkedVehicles() {
-        return parkingService.getCompletedParkedVehicles();
+        try {
+            return parkingService.getCompletedParkedVehicles();
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 
     @GetMapping("/admin/unparked-today")
     public long countCompletedVehiclesToday() {
-        return parkingService.countCompletedVehiclesToday();
+        try {
+            return parkingService.countCompletedVehiclesToday();
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     @GetMapping("/admin/revenue-today")
     public long countRevenueToday() {
-        return parkingService.countRevenueToday();
+        try {
+            return parkingService.countRevenueToday();
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     @GetMapping("/admin/revenue-week")
     public long countRevenueThisWeek() {
-        return parkingService.countRevenueThisWeek();
+        try {
+            return parkingService.countRevenueThisWeek();
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     @GetMapping("/admin/revenue-month")
     public long countRevenueThisMonth() {
-        return parkingService.countRevenueThisMonth();
+        try {
+            return parkingService.countRevenueThisMonth();
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }

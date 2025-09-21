@@ -8,6 +8,7 @@ import com.quickpark.parkinglot.entities.ParkingSpot;
 import com.quickpark.parkinglot.entities.UnparkedTicket;
 import com.quickpark.parkinglot.entities.ParkedTicket;
 import com.quickpark.parkinglot.response.DisplayResponse;
+import com.quickpark.parkinglot.Exceptions.ParkingLotException;
 
 import com.quickpark.parkinglot.repository.ParkedTicketRepository;
 import com.quickpark.parkinglot.repository.UnparkedTicketRepository;
@@ -20,9 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-
 @Service
-public class ParkingService implements IParkingService{
+public class ParkingService implements IParkingService {
 
     DisplayBoard displayBoard;
     ParkingLot parkingLot;
@@ -31,7 +31,8 @@ public class ParkingService implements IParkingService{
     private final UnparkedTicketRepository unparkedTicketRepository;
     private Map<String, String> adminCredentials;
 
-    public ParkingService(ParkedTicketRepository parkedTicketRepository, UnparkedTicketRepository unparkedTicketRepository) {
+    public ParkingService(ParkedTicketRepository parkedTicketRepository,
+            UnparkedTicketRepository unparkedTicketRepository) {
         this.displayBoard = DisplayBoard.getInstance();
         this.parkingLot = new ParkingLot();
         this.adminCredentials = new HashMap<>();
@@ -51,13 +52,13 @@ public class ParkingService implements IParkingService{
 
     private void changeStatusFromDatabase() {
         List<ParkedTicket> activeTickets = parkedTicketRepository.findAll();
-        for(ParkedTicket ticket : activeTickets) {
+        for (ParkedTicket ticket : activeTickets) {
             ParkingSpot parkingSpotFromDB = ticket.getParkingSpot();
             String occupiedType = parkingSpotFromDB.getType();
             int occupiedLocation = parkingSpotFromDB.getLocation();
 
-            for(ParkingSpot parkingSpot : parkingLot.getParkingSpotList()) {
-                if(parkingSpot.getType().equals(occupiedType) && parkingSpot.getLocation() == occupiedLocation) {
+            for (ParkingSpot parkingSpot : parkingLot.getParkingSpotList()) {
+                if (parkingSpot.getType().equals(occupiedType) && parkingSpot.getLocation() == occupiedLocation) {
                     parkingSpot.setBooked(true);
                     displayBoard.changeFreeParkingSpot(parkingSpot);
                     break;
@@ -77,79 +78,74 @@ public class ParkingService implements IParkingService{
 
     @Override
     public ParkedTicket ParkVehicle(BookRequest bookRequest) {
-        ParkedTicket existingTicket = parkedTicketRepository.findByVehicleNo(bookRequest.getVehicleNo());
-        if (existingTicket != null) {
+        try {
+            if (parkedTicketRepository.existsByVehicleNo(bookRequest.getVehicleNo())) {
+                throw new ParkingLotException("Vehicle with number " + bookRequest.getVehicleNo() + " is already parked.");
+            }
+            ParkingSpot freeParkingSpot = null;
+            for (ParkingSpot parkingSpot : parkingLot.getParkingSpotList()) {
+                if (bookRequest.getType().equals(parkingSpot.getType()) && !parkingSpot.isBooked()) {
+                    freeParkingSpot = parkingSpot;
+                    parkingSpot.setBooked(true);
+                    break;
+                }
+            }
+            if (freeParkingSpot == null) {
+                throw new ParkingLotException("No free parking spots available for type: " + bookRequest.getType());
+            }
+            displayBoard.changeFreeParkingSpot(freeParkingSpot);
+            String id = generateRandomId();
+            ParkedTicket parkedTicket = new ParkedTicket(
+                    id,
+                    bookRequest.getOwnerName(),
+                    bookRequest.getOwnerContact(),
+                    LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
+                    bookRequest.getVehicleNo(),
+                    freeParkingSpot
+            );
+            parkedTicketRepository.save(parkedTicket);
+            return parkedTicket;
+        } catch (Exception e) {
             return null;
         }
-
-        ParkingSpot freeParkingSpot = null;
-        for(ParkingSpot parkingSpot : parkingLot.getParkingSpotList()) {
-            if(bookRequest.getType().equals(parkingSpot.getType()) && !parkingSpot.isBooked()) {
-                freeParkingSpot = parkingSpot;
-                parkingSpot.setBooked(true);
-                break;
-            }
-        }
-        if(freeParkingSpot == null) return null;
-
-        displayBoard.changeFreeParkingSpot(freeParkingSpot);
-        String id = generateRandomId();
-        ParkedTicket parkedTicket = new ParkedTicket(
-                id,
-                bookRequest.getOwnerName(),
-                bookRequest.getOwnerContact(),
-                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
-                bookRequest.getVehicleNo(),
-                freeParkingSpot
-        );
-        parkedTicketRepository.save(parkedTicket);
-        return parkedTicket;
     }
 
     @Override
     public FreeRequest UnparkVehicle(String ParkingTicketId) {
-        if (ParkingTicketId == null) {
+        try {
+            ParkedTicket parkedTicket = parkedTicketRepository.findById(ParkingTicketId).orElse(null);
+            if (parkedTicket == null) {
+                throw new ParkingLotException("Invalid ticket ID or the vehicle is already unparked");
+            }
+            parkedTicketRepository.delete(parkedTicket);
+            long totalTime = countTimeInMinutes(parkedTicket.getEntryTime());
+            long totalCost = calculateCost(parkedTicket, totalTime);
+            unparkedTicketRepository.save(
+                    new UnparkedTicket(
+                            parkedTicket.getId(),
+                            parkedTicket.getOwnerName(),
+                            parkedTicket.getOwnerContact(),
+                            parkedTicket.getEntryTime(),
+                            LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
+                            totalTime,
+                            totalCost,
+                            parkedTicket.getVehicleNo(),
+                            parkedTicket.getParkingSpot())
+            );
+            parkedTicket.getParkingSpot().setBooked(false);
+            displayBoard.changeFreeParkingSpot(parkedTicket.getParkingSpot());
+            return new FreeRequest(
+                    parkedTicket.getOwnerName(),
+                    parkedTicket.getOwnerContact(),
+                    parkedTicket.getParkingSpot().getType(),
+                    parkedTicket.getVehicleNo(),
+                    parkedTicket.getId(),
+                    totalCost,
+                    totalTime
+            );
+        } catch (Exception e) {
             return null;
         }
-
-        ParkedTicket parkedTicket = parkedTicketRepository.findById(ParkingTicketId).orElse(null);
-
-        if (parkedTicket == null) {
-            return null;
-        }
-
-        long totalTime = countTimeInMinutes(parkedTicket.getEntryTime());
-        long totalCost = calculateCost(parkedTicket, totalTime);
-
-        unparkedTicketRepository.save(
-            new UnparkedTicket(
-                parkedTicket.getId(),
-                parkedTicket.getOwnerName(),
-                parkedTicket.getOwnerContact(),
-                parkedTicket.getEntryTime(),
-                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
-                totalTime,
-                totalCost,
-                parkedTicket.getVehicleNo(),
-                parkedTicket.getParkingSpot()
-            )
-        );
-
-        parkedTicket.getParkingSpot().setBooked(false);
-        displayBoard.changeFreeParkingSpot(parkedTicket.getParkingSpot());
-
-        FreeRequest freeRequest = new FreeRequest(
-                parkedTicket.getOwnerName(),
-                parkedTicket.getOwnerContact(),
-                parkedTicket.getParkingSpot().getType(),
-                parkedTicket.getVehicleNo(),
-                parkedTicket.getId(),
-                totalCost,
-                totalTime
-        );
-        //remove the ticket form active tickets
-        parkedTicketRepository.delete(parkedTicket);
-        return freeRequest;
     }
 
     private long countTimeInMinutes(LocalDateTime entryTime) {
@@ -158,10 +154,10 @@ public class ParkingService implements IParkingService{
     }
 
     private long calculateCost(ParkedTicket parkedTicket, long totalTime) {
-        totalTime = Math.max(0, totalTime - 30); //first 30 minutes are free
+        totalTime = Math.max(0, totalTime - 30); // first 30 minutes are free
         double totalTimeinHours = totalTime / 60.0; // Convert to hours
         double totalCost = totalTimeinHours * parkedTicket.getParkingSpot().getCost();
-        return (long)totalCost;
+        return (long) totalCost;
     }
 
     private String generateRandomId() {
@@ -170,14 +166,19 @@ public class ParkingService implements IParkingService{
 
     @Override
     public ParkedTicket UpdateParkedVehicle(String ticketId, BookRequest bookRequest) {
-        ParkedTicket ticket = parkedTicketRepository.findById(ticketId).orElse(null);
-        if (ticket != null) {
+        try {
+            ParkedTicket ticket = parkedTicketRepository.findById(ticketId).orElse(null);
+            if (ticket == null) {
+                throw new ParkingLotException("Invalid ticket ID");
+            }
             ticket.setVehicleNo(bookRequest.getVehicleNo());
             ticket.setOwnerName(bookRequest.getOwnerName());
             ticket.setOwnerContact(bookRequest.getOwnerContact());
             parkedTicketRepository.save(ticket);
+            return ticket;
+        } catch (Exception e) {
+            return null;
         }
-        return ticket;
     }
 
     @Override
@@ -206,40 +207,54 @@ public class ParkingService implements IParkingService{
 
     @Override
     public long countRevenueToday() {
-        LocalDateTime today = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
-        List<UnparkedTicket> completedTickets = unparkedTicketRepository.findByExitTime(today);
-        long totalRevenue = 0;
-        for (UnparkedTicket ticket : completedTickets) {
-            totalRevenue += ticket.getTotalCost();
+        try {
+            LocalDateTime today = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+            List<UnparkedTicket> completedTickets = unparkedTicketRepository.findByExitTime(today);
+            long totalRevenue = 0;
+            for (UnparkedTicket ticket : completedTickets) {
+                totalRevenue += ticket.getTotalCost();
+            }
+            return totalRevenue;
+        } catch (Exception e) {
+            return 0;
         }
-        return totalRevenue;
     }
 
     @Override
     public long countRevenueThisWeek() {
-        LocalDateTime today = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
-        LocalDateTime startOfWeek = today.minusDays(today.getDayOfWeek().getValue() - 1); // Monday is the start of the week
-        List<UnparkedTicket> completedTickets = unparkedTicketRepository.findByExitTimeBetween(startOfWeek, today);
-        long totalRevenue = 0;
-        for (UnparkedTicket ticket : completedTickets) {
-            if (ticket.getExitTime() != null && !ticket.getExitTime().isBefore(startOfWeek) && !ticket.getExitTime().isAfter(today)) {
-                totalRevenue += ticket.getTotalCost();
+        try {
+            LocalDateTime today = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+            LocalDateTime startOfWeek = today.minusDays(today.getDayOfWeek().getValue() - 1); // Monday is the start of the week
+            List<UnparkedTicket> completedTickets = unparkedTicketRepository.findByExitTimeBetween(startOfWeek, today);
+            long totalRevenue = 0;
+            for (UnparkedTicket ticket : completedTickets) {
+                if (ticket.getExitTime() != null && !ticket.getExitTime().isBefore(startOfWeek)
+                        && !ticket.getExitTime().isAfter(today)) {
+                    totalRevenue += ticket.getTotalCost();
+                }
             }
+            return totalRevenue;
+        } catch (Exception e) {
+            return 0;
         }
-        return totalRevenue;
     }
 
     @Override
     public long countRevenueThisMonth() {
-        LocalDateTime today = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
-        LocalDateTime startOfMonth = today.withDayOfMonth(1);
-        List<UnparkedTicket> completedTickets = unparkedTicketRepository.findByExitTimeBetween(startOfMonth, today);
-        long totalRevenue = 0;
-        for (UnparkedTicket ticket : completedTickets) {
-            if (ticket.getExitTime() != null && !ticket.getExitTime().isBefore(startOfMonth) && !ticket.getExitTime().isAfter(today)) {
-                totalRevenue += ticket.getTotalCost();
+        try {
+            LocalDateTime today = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+            LocalDateTime startOfMonth = today.withDayOfMonth(1);
+            List<UnparkedTicket> completedTickets = unparkedTicketRepository.findByExitTimeBetween(startOfMonth, today);
+            long totalRevenue = 0;
+            for (UnparkedTicket ticket : completedTickets) {
+                if (ticket.getExitTime() != null && !ticket.getExitTime().isBefore(startOfMonth)
+                        && !ticket.getExitTime().isAfter(today)) {
+                    totalRevenue += ticket.getTotalCost();
+                }
             }
+            return totalRevenue;
+        } catch (Exception e) {
+            return 0;
         }
-        return totalRevenue;
     }
 }
