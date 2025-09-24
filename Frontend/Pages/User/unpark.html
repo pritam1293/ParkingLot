@@ -81,11 +81,12 @@
                 <input 
                   type="text" 
                   id="ticketId" 
-                  placeholder="Enter your ticket ID (e.g., 0a88381ead)" 
+                  name="ticketId"
+                  placeholder="Enter your ticket ID (e.g., 0a88381e)" 
                   required
                   pattern="[A-Za-z0-9]+"
                   title="Please enter a valid ticket ID"
-                  maxlength="10"
+                  maxlength="8"
                 >
                 <small>Enter the ticket ID you received when parking</small>
               </div>
@@ -331,5 +332,39 @@
   
   <!-- Main Application Script -->
   <script src="../../Service/script.js"></script>
+  
+  <!-- Additional Debug Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, checking form...');
+      const form = document.getElementById('unparkForm');
+      console.log('Unpark form found:', form);
+      
+      // Add additional form listener as backup
+      if (form) {
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          console.log('Form submitted!');
+          
+          const ticketId = document.getElementById('ticketId').value.trim();
+          console.log('Ticket ID:', ticketId);
+          
+          if (!ticketId) {
+            alert('Please enter a ticket ID');
+            return;
+          }
+          
+          // Call the VehicleManager method directly
+          if (window.VehicleManager && window.VehicleManager.unparkVehicle) {
+            console.log('Calling VehicleManager.unparkVehicle');
+            window.VehicleManager.unparkVehicle();
+          } else {
+            console.error('VehicleManager not found');
+            alert('Error: VehicleManager not loaded. Please refresh the page.');
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>

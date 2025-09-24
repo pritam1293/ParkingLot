@@ -80,7 +80,23 @@ const API = {
     },
 
     async getParkingStatistics() {
-        return await apiCallJson('admin/parking-statistics');
+        // Since backend doesn't have parking-statistics endpoint, 
+        // combine data from available endpoints
+        const [parkingStatus, activeVehicles, completedToday] = await Promise.all([
+            this.getParkingStatus(),
+            this.getActiveVehicles(),
+            this.getCompletedVehiclesToday()
+        ]);
+
+        return {
+            currentOccupancy: {
+                mini: parkingStatus?.mini || 0,
+                compact: parkingStatus?.compact || 0,
+                large: parkingStatus?.large || 0
+            },
+            activeVehiclesCount: Array.isArray(activeVehicles) ? activeVehicles.length : 0,
+            completedToday: completedToday || 0
+        };
     },
 
     async getActiveVehicles() {
@@ -88,7 +104,19 @@ const API = {
     },
 
     async getAllVehicles() {
-        return await apiCallJson('admin/all-vehicles');
+        // Get both active and completed vehicles
+        const [activeVehicles, completedVehicles] = await Promise.all([
+            this.getActiveVehicles(),
+            this.getCompletedVehicles()
+        ]);
+        return {
+            active: activeVehicles || [],
+            completed: completedVehicles || []
+        };
+    },
+
+    async getCompletedVehicles() {
+        return await apiCallJson('admin/completed-vehicles');
     },
 
     async getActiveGates() {
@@ -108,10 +136,8 @@ const API = {
     },
 
     async unparkVehicle(ticketId) {
-        return await apiCallJson('unpark', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'text/plain' },
-            body: ticketId
+        return await apiCallJson(`unpark/${ticketId}`, {
+            method: 'DELETE'
         });
     },
 
@@ -140,6 +166,14 @@ const API = {
             method: 'PUT',
             body: JSON.stringify(gateData)
         });
+    },
+
+    async getGateById(gateId) {
+        return await apiCallJson(`admin/gate/${gateId}`);
+    },
+
+    async getAllGates() {
+        return await apiCallJson('admin/all-gates');
     }
 };
 

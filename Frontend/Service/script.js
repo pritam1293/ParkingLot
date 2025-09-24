@@ -33,7 +33,7 @@ class QuickParkApp {
         // Common initializations
         this.initializeNavigation();
         this.initializeMobileMenu();
-        
+
         // Page-specific initializations
         switch (this.currentPage) {
             case 'home':
@@ -107,10 +107,10 @@ class QuickParkApp {
         document.addEventListener('click', (e) => {
             const navMenu = document.getElementById('navMenu');
             const hamburgerMenu = document.getElementById('hamburgerMenu');
-            
-            if (navMenu && hamburgerMenu && 
-                !navMenu.contains(e.target) && 
-                !hamburgerMenu.contains(e.target) && 
+
+            if (navMenu && hamburgerMenu &&
+                !navMenu.contains(e.target) &&
+                !hamburgerMenu.contains(e.target) &&
                 navMenu.classList.contains('active')) {
                 Navigation.closeMobileMenu();
             }
@@ -332,9 +332,11 @@ class VehicleManager {
     }
 
     static handleParkingSuccess(ticket, responseDiv) {
-        const formattedEntryDate = DateTimeUtils.formatDate(ticket.entryDate);
-        const formattedEntryTime = ticket.entryTime || 'N/A';
-        const parkingSpotInfo = ticket.parkingSpot ? 
+        // Handle LocalDateTime format from backend (e.g., "2025-09-24T10:30:00")
+        const entryDateTime = ticket.entryTime ? new Date(ticket.entryTime) : new Date();
+        const formattedEntryDate = DateTimeUtils.formatDate(entryDateTime);
+        const formattedEntryTime = DateTimeUtils.formatTime(entryDateTime);
+        const parkingSpotInfo = ticket.parkingSpot ?
             `${ticket.parkingSpot.type.toUpperCase()}-${ticket.parkingSpot.location}` : 'Assigned';
 
         const actions = [
@@ -362,7 +364,7 @@ class VehicleManager {
         const isNetworkError = error.message.includes('fetch') || error.message.includes('Network');
         const message = isNetworkError ? ERROR_MESSAGES.NETWORK : error.message;
         const title = isNetworkError ? '❌ Network Error' : '❌ Booking Failed';
-        
+
         MessageDisplay.showError('response', message, title);
     }
 
@@ -389,7 +391,7 @@ class VehicleManager {
 
     static handleUnparkSuccess(freeRequest, responseDiv) {
         const formattedDuration = DateTimeUtils.formatDuration(freeRequest.totalTime);
-        
+
         const billData = {
             ticketId: freeRequest.ticketId,
             vehicleNo: freeRequest.vehicleNo,
@@ -408,7 +410,7 @@ class VehicleManager {
         const isNetworkError = error.message.includes('fetch') || error.message.includes('Network');
         const message = isNetworkError ? ERROR_MESSAGES.NETWORK : error.message;
         const title = isNetworkError ? '❌ Network Error' : '❌ Unpark Failed';
-        
+
         MessageDisplay.showError('unparkResponse', message, title);
     }
 
@@ -457,19 +459,19 @@ class AdminAuth {
     static checkAuthentication() {
         const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
         const currentPage = window.location.pathname;
-        
+
         if (currentPage.includes('admin.html') && !isLoggedIn) {
             window.location.href = 'admin-login.html';
             return false;
         }
-        
+
         return true;
     }
 
     static async validateCredentials(username, password) {
         try {
             const isValid = await API.validateAdmin(username, password);
-            
+
             if (isValid === true) {
                 sessionStorage.setItem('adminLoggedIn', 'true');
                 sessionStorage.setItem('adminUsername', username);
@@ -489,9 +491,9 @@ class AdminAuth {
             sessionStorage.removeItem('adminLoggedIn');
             sessionStorage.removeItem('adminUsername');
             localStorage.removeItem('adminLoginTime');
-            
+
             MessageDisplay.showSuccess('messageContainer', 'Logged out successfully! Redirecting to login page...');
-            
+
             setTimeout(() => {
                 window.location.href = 'admin-login.html';
             }, 1500);
@@ -525,19 +527,19 @@ class AdminLoginManager {
 
     static async handleLogin(e) {
         e.preventDefault();
-        
+
         const formData = FormUtils.getFormData('adminLoginForm');
         const validation = AdminValidator.validateCredentials(formData.username, formData.password);
-        
+
         if (!validation.isValid) {
             this.showError(validation.errors.join(', '));
             return;
         }
 
         this.showSuccess('Validating credentials...');
-        
+
         const result = await AdminAuth.validateCredentials(validation.cleanData.username, validation.cleanData.password);
-        
+
         if (result.success) {
             this.showSuccess('Login successful! Redirecting to dashboard...');
             setTimeout(() => {
@@ -665,7 +667,7 @@ class AdminDashboard {
 
             updateElementIfExists('weekRevenue', `₹${weekly}`);
             updateElementIfExists('monthRevenue', `₹${monthly}`);
-            
+
             this.updateUtilizationStats(stats);
         } catch (error) {
             console.error('Error loading revenue analytics:', error);
@@ -674,20 +676,22 @@ class AdminDashboard {
     }
 
     static updateUtilizationStats(stats) {
-        const totalOccupied = stats.mini + stats.compact + stats.large;
-        
+        // Handle the new API response structure
+        const occupancy = stats.currentOccupancy || stats;
+        const totalOccupied = occupancy.mini + occupancy.compact + occupancy.large;
+
         if (totalOccupied > 0) {
-            const miniPercent = ((stats.mini / totalOccupied) * 100).toFixed(1);
-            const compactPercent = ((stats.compact / totalOccupied) * 100).toFixed(1);
-            const largePercent = ((stats.large / totalOccupied) * 100).toFixed(1);
+            const miniPercent = ((occupancy.mini / totalOccupied) * 100).toFixed(1);
+            const compactPercent = ((occupancy.compact / totalOccupied) * 100).toFixed(1);
+            const largePercent = ((occupancy.large / totalOccupied) * 100).toFixed(1);
 
             updateElements([
                 ['miniUtilizationText', `${miniPercent}%`],
                 ['compactUtilizationText', `${compactPercent}%`],
                 ['largeUtilizationText', `${largePercent}%`],
-                ['miniUtilCount', stats.mini],
-                ['compactUtilCount', stats.compact],
-                ['largeUtilCount', stats.large]
+                ['miniUtilCount', occupancy.mini],
+                ['compactUtilCount', occupancy.compact],
+                ['largeUtilCount', occupancy.large]
             ]);
 
             StatusIndicator.updateProgressBar('miniUtilization', miniPercent);
@@ -700,7 +704,7 @@ class AdminDashboard {
 
     static showAnalyticsError() {
         const fallbackElements = [
-            'weekRevenue', 'monthRevenue', 'miniUtilizationText', 
+            'weekRevenue', 'monthRevenue', 'miniUtilizationText',
             'compactUtilizationText', 'largeUtilizationText',
             'miniUtilCount', 'compactUtilCount', 'largeUtilCount'
         ];
@@ -730,7 +734,7 @@ class VehicleManagement {
 
     static async loadParkedVehicles() {
         TableUtils.showLoadingRow('parkedVehiclesBody', 9, '⏳ Loading parked vehicles...');
-        
+
         try {
             this.parkedVehiclesData = await API.getActiveVehicles();
             this.displayParkedVehicles();
@@ -742,13 +746,19 @@ class VehicleManagement {
 
     static async loadCompletedVehicles() {
         TableUtils.showLoadingRow('completedVehiclesBody', 9, '⏳ Loading completed vehicles...');
-        
+
         try {
             const allVehicles = await API.getAllVehicles();
-            this.completedVehiclesData = allVehicles.filter(vehicle => 
-                vehicle.exitTime || vehicle.exitDate || vehicle.isCompleted || 
-                vehicle.status === 'COMPLETED' || vehicle.status === 'EXITED'
-            );
+            // Handle the new API response structure
+            this.completedVehiclesData = Array.isArray(allVehicles.completed)
+                ? allVehicles.completed
+                : (Array.isArray(allVehicles)
+                    ? allVehicles.filter(vehicle =>
+                        vehicle.exitTime || vehicle.exitDate || vehicle.isCompleted ||
+                        vehicle.status === 'COMPLETED' || vehicle.status === 'EXITED'
+                    )
+                    : []
+                );
             this.displayCompletedVehicles();
         } catch (error) {
             console.error('Error loading completed vehicles:', error);
@@ -758,14 +768,17 @@ class VehicleManagement {
 
     static displayParkedVehicles() {
         const rowGenerator = (vehicle) => {
-            const entryDateTime = `${DateTimeUtils.formatDate(vehicle.entryDate)} ${vehicle.entryTime || ''}`.trim();
-            const parkingSpot = vehicle.parkingSpot ? 
+            // Handle LocalDateTime format from backend
+            const entryDateTime = vehicle.entryTime ? new Date(vehicle.entryTime) : null;
+            const formattedEntryDateTime = entryDateTime ?
+                `${DateTimeUtils.formatDate(entryDateTime)} ${DateTimeUtils.formatTime(entryDateTime)}` : 'N/A';
+
+            const parkingSpot = vehicle.parkingSpot ?
                 `${vehicle.parkingSpot.type}-${vehicle.parkingSpot.location}` : 'N/A';
             const vehicleType = vehicle.parkingSpot?.type || 'N/A';
-            
+
             let duration = 'N/A';
-            if (vehicle.entryDate && vehicle.entryTime) {
-                const entryDateTime = new Date(`${vehicle.entryDate}T${vehicle.entryTime}`);
+            if (entryDateTime) {
                 const diffMinutes = Math.floor((new Date() - entryDateTime) / (1000 * 60));
                 duration = DateTimeUtils.formatDuration(diffMinutes);
             }
@@ -778,7 +791,7 @@ class VehicleManagement {
                     <td>${vehicle.ownerContact || 'N/A'}</td>
                     <td>${vehicleType}</td>
                     <td>${parkingSpot}</td>
-                    <td>${entryDateTime}</td>
+                    <td>${formattedEntryDateTime}</td>
                     <td>${duration}</td>
                     <td>
                         <button class="btn btn-small btn-primary" onclick="VehicleManagement.viewVehicleDetails('${vehicle.id}')">
@@ -794,12 +807,19 @@ class VehicleManagement {
 
     static displayCompletedVehicles() {
         const rowGenerator = (vehicle) => {
-            const entryDateTime = `${DateTimeUtils.formatDate(vehicle.entryDate)} ${vehicle.entryTime || ''}`.trim();
-            const exitDateTime = `${DateTimeUtils.formatDate(vehicle.exitDate)} ${vehicle.exitTime || ''}`.trim();
-            const parkingSpot = vehicle.parkingSpot ? 
+            // Handle LocalDateTime format from backend
+            const entryDateTime = vehicle.entryTime ? new Date(vehicle.entryTime) : null;
+            const exitDateTime = vehicle.exitTime ? new Date(vehicle.exitTime) : null;
+
+            const formattedEntryDateTime = entryDateTime ?
+                `${DateTimeUtils.formatDate(entryDateTime)} ${DateTimeUtils.formatTime(entryDateTime)}` : 'N/A';
+            const formattedExitDateTime = exitDateTime ?
+                `${DateTimeUtils.formatDate(exitDateTime)} ${DateTimeUtils.formatTime(exitDateTime)}` : 'N/A';
+
+            const parkingSpot = vehicle.parkingSpot ?
                 `${vehicle.parkingSpot.type}-${vehicle.parkingSpot.location}` : 'N/A';
             const vehicleType = vehicle.parkingSpot?.type || 'N/A';
-            const duration = DateTimeUtils.formatDuration(vehicle.totalTime);
+            const duration = DateTimeUtils.formatDuration(vehicle.totalDuration || vehicle.totalTime);
             const cost = vehicle.totalCost !== undefined ? `₹${vehicle.totalCost}` : 'N/A';
 
             return `
@@ -809,8 +829,8 @@ class VehicleManagement {
                     <td>${vehicle.ownerName || 'N/A'}</td>
                     <td>${vehicleType}</td>
                     <td>${parkingSpot}</td>
-                    <td>${entryDateTime}</td>
-                    <td>${exitDateTime}</td>
+                    <td>${formattedEntryDateTime}</td>
+                    <td>${formattedExitDateTime}</td>
                     <td>${duration}</td>
                     <td>${cost}</td>
                 </tr>
@@ -861,10 +881,10 @@ class GateManagement {
 
     static async addNewGate(event) {
         event.preventDefault();
-        
+
         const formData = FormUtils.getFormData('gateForm');
         const validation = GateValidator.validateGateData(formData);
-        
+
         if (!validation.isValid) {
             ValidationDisplay.showValidationErrors(validation.errors, 'addGateResponse');
             return;
@@ -896,10 +916,10 @@ class GateManagement {
 
     static async updateGateDetails(event) {
         event.preventDefault();
-        
+
         const formData = FormUtils.getFormData('editGateFormElement');
         const validation = GateValidator.validateGateData(formData);
-        
+
         if (!validation.isValid) {
             ValidationDisplay.showValidationErrors(validation.errors, 'editGateResponse');
             return;
@@ -1005,7 +1025,7 @@ class GateManagement {
         toggleElementDisplay('addGateForm', false);
         toggleElementDisplay('editGateForm', true);
         MessageDisplay.clearMessages('editGateResponse');
-        
+
         // Pre-fill form
         updateElements([
             ['editGateId', gate.id, 'value'],
@@ -1014,7 +1034,7 @@ class GateManagement {
             ['editGuardName', gate.guardName || '', 'value'],
             ['editGateStatus', gate.status ? 'true' : 'false', 'value']
         ]);
-        
+
         document.getElementById('editGateForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -1022,7 +1042,7 @@ class GateManagement {
         const isVisible = document.getElementById('addGateForm').style.display === 'block';
         toggleElementDisplay('addGateForm', !isVisible);
         toggleElementDisplay('editGateForm', false);
-        
+
         if (!isVisible) {
             FormUtils.resetForm('gateForm');
             MessageDisplay.clearMessages('addGateResponse');
@@ -1035,11 +1055,11 @@ class GateManagement {
             ButtonManager.withLoadingState(refreshBtn, async () => {
                 const activeSection = document.getElementById('activeGatesSection');
                 const inactiveSection = document.getElementById('inactiveGatesSection');
-                
+
                 if (activeSection.style.display === 'block') {
                     await this.loadActiveGates();
                 }
-                
+
                 if (inactiveSection.style.display === 'block') {
                     await this.loadInactiveGates();
                 }
@@ -1182,8 +1202,12 @@ function enableNotifications() {
 
 // Initialize application when DOM is loaded
 let app;
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     app = new QuickParkApp();
+
+    // Expose classes to global scope for debugging and direct access
+    window.VehicleManager = VehicleManager;
+    window.API = API;
 });
 
 // Initialize status page functionality for backward compatibility

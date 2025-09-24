@@ -111,6 +111,7 @@
                 <input 
                   type="text" 
                   id="vehicleNumber" 
+                  name="vehicleNo"
                   placeholder="Enter vehicle number (e.g., MP02AB5287)" 
                   required
                   pattern="[A-Za-z0-9\-]+"
@@ -123,7 +124,7 @@
                 <label for="vehicleType">
                   <span>🏷️</span> Vehicle Type
                 </label>
-                <select id="vehicleType" required>
+                <select id="vehicleType" name="type" required>
                   <option value="" disabled selected>Select your vehicle type</option>
                   <option value="mini">🛵 Mini - Motorcycles, Scooters, Small Cars</option>
                   <option value="compact">🚗 Compact - Standard Cars, Sedans</option>
@@ -139,6 +140,7 @@
                 <input 
                   type="text" 
                   id="ownerName" 
+                  name="ownerName"
                   placeholder="Enter owner full name"
                   required
                 >
@@ -152,6 +154,7 @@
                 <input 
                   type="tel" 
                   id="ownerContact" 
+                  name="ownerContact"
                   placeholder="Enter 10-digit mobile number"
                   required
                   pattern="[0-9]{10}"

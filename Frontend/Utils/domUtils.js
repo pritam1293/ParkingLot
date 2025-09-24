@@ -271,6 +271,16 @@ class DateTimeUtils {
         }
     }
 
+    static formatTime(dateString) {
+        if (!dateString) return 'N/A';
+        try {
+            const date = new Date(dateString);
+            return isNaN(date.getTime()) ? dateString : date.toLocaleTimeString();
+        } catch (e) {
+            return dateString;
+        }
+    }
+
     static formatDuration(totalMinutes) {
         if (!totalMinutes || totalMinutes < 0) return 'N/A';
         const hours = Math.floor(totalMinutes / 60);

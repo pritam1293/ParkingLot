@@ -2,7 +2,7 @@ class VehicleValidator {
     static patterns = {
         vehicleNumber: /^[A-Z]{2}\d{2}[A-Z]+\d{4}$/,
         contact: /^[0-9]{10}$/,
-        ticketId: /^[A-Z0-9]{10}$/
+        ticketId: /^[A-Z0-9]{8}$/
     };
 
     static validateVehicleNumber(vehicleNo) {
@@ -59,10 +59,10 @@ class VehicleValidator {
         }
 
         const cleanTicketId = ticketId.trim();
-        if (cleanTicketId.length !== 10) {
+        if (cleanTicketId.length !== 8) {
             return {
                 isValid: false,
-                message: 'Invalid ticket ID. Must be exactly 10 characters'
+                message: 'Invalid ticket ID. Must be exactly 8 characters'
             };
         }
 
@@ -75,8 +75,12 @@ class VehicleValidator {
         const cleanData = { type };
 
         // Validate vehicle type
-        if (!type || !['MINI', 'COMPACT', 'LARGE'].includes(type)) {
+        if (!type || !['mini', 'compact', 'large'].includes(type.toLowerCase())) {
             errors.push('Please select a valid vehicle type');
+        }
+        // Convert to lowercase to match backend expectations
+        if (type) {
+            cleanData.type = type.toLowerCase();
         }
 
         // Validate vehicle number
