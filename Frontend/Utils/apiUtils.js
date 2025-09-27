@@ -80,8 +80,7 @@ const API = {
     },
 
     async getParkingStatistics() {
-        // Since backend doesn't have parking-statistics endpoint, 
-        // combine data from available endpoints
+        //3 api different api end points to gather the data
         const [parkingStatus, activeVehicles, completedToday] = await Promise.all([
             this.getParkingStatus(),
             this.getActiveVehicles(),

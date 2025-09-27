@@ -7,10 +7,6 @@ const CONFIG = {
     }
 };
 
-// ============================================================================
-// APPLICATION INITIALIZATION
-// ============================================================================
-
 // Main application initializer
 
 class QuickParkApp {
@@ -181,10 +177,7 @@ class QuickParkApp {
     }
 }
 
-// ============================================================================
-// PARKING STATUS MANAGEMENT
-// ============================================================================
-
+//parking status management
 class ParkingStatusManager {
     static updateBasicStatus(data) {
         const availableMini = data.mini || 0;
@@ -297,10 +290,7 @@ class ParkingStatusManager {
     }
 }
 
-// ============================================================================
-// VEHICLE MANAGEMENT
-// ============================================================================
-
+// vehcile management
 class VehicleManager {
     static async parkVehicle() {
         const formData = FormUtils.getFormData('parkForm');
@@ -332,7 +322,7 @@ class VehicleManager {
     }
 
     static handleParkingSuccess(ticket, responseDiv) {
-        // Handle LocalDateTime format from backend (e.g., "2025-09-24T10:30:00")
+        // Handle LocalDateTime format from backend (java) (e.g., "2025-09-24T10:30:00")
         const entryDateTime = ticket.entryTime ? new Date(ticket.entryTime) : new Date();
         const formattedEntryDate = DateTimeUtils.formatDate(entryDateTime);
         const formattedEntryTime = DateTimeUtils.formatTime(entryDateTime);
@@ -451,10 +441,7 @@ class VehicleManager {
     }
 }
 
-// ============================================================================
-// ADMIN AUTHENTICATION
-// ============================================================================
-
+// admin authentication
 class AdminAuth {
     static checkAuthentication() {
         const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
@@ -501,10 +488,7 @@ class AdminAuth {
     }
 }
 
-// ============================================================================
-// ADMIN LOGIN MANAGER
-// ============================================================================
-
+// admin login manager
 class AdminLoginManager {
     static initialize() {
         const form = document.getElementById('adminLoginForm');
@@ -567,10 +551,7 @@ class AdminLoginManager {
     }
 }
 
-// ============================================================================
-// ADMIN DASHBOARD
-// ============================================================================
-
+//admin dashboard
 class AdminDashboard {
     static initialize() {
         this.initializeNavigation();
@@ -712,10 +693,7 @@ class AdminDashboard {
     }
 }
 
-// ============================================================================
-// VEHICLE MANAGEMENT (Admin)
-// ============================================================================
-
+// vehicle management admin part
 class VehicleManagement {
     static parkedVehiclesData = [];
     static completedVehiclesData = [];
@@ -871,10 +849,7 @@ class VehicleManagement {
     }
 }
 
-// ============================================================================
-// GATE MANAGEMENT (Admin)
-// ============================================================================
-
+//gate management - admin functionality
 class GateManagement {
     static activeGatesData = [];
     static inactiveGatesData = [];
@@ -1196,9 +1171,7 @@ function enableNotifications() {
     }
 }
 
-// ============================================================================
-// APPLICATION STARTUP
-// ============================================================================
+// application startup
 
 // Initialize application when DOM is loaded
 let app;
