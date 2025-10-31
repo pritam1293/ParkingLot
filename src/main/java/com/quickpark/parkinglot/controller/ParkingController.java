@@ -1,4 +1,4 @@
-package com.quickpark.parkinglot.contoller;
+package com.quickpark.parkinglot.controller;
 
 import com.quickpark.parkinglot.DTO.BookRequest;
 import com.quickpark.parkinglot.DTO.FreeRequest;

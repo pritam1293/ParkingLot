@@ -1,4 +1,4 @@
-package com.quickpark.parkinglot.contoller;
+package com.quickpark.parkinglot.controller;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
