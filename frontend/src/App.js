@@ -1,13 +1,21 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/navbar';
+import Footer from './components/footer';
+import Home from './pages/home';
+import Park from './pages/park';
+import Unpark from './pages/unpark';
+import Status from './pages/status';
+import About from './pages/about';
+import Profile from './pages/profile';
+import History from './pages/history';
 import './App.css';
 
 function App() {
   return (
     <Router>
-      <div className="App min-h-screen bg-gray-100">
+      <div className="App min-h-screen bg-gray-100 flex flex-col">
         <Navbar />
-        <div className="container mx-auto px-4 py-8">
+        <div className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/park" element={<Park />} />
@@ -15,19 +23,13 @@ function App() {
             <Route path="/status" element={<Status />} />
             <Route path="/about" element={<About />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/history" element={<History />} />
           </Routes>
         </div>
+        <Footer />
       </div>
     </Router>
   );
 }
-
-// Placeholder components
-const Home = () => <div className="text-center"><h1 className="text-4xl font-bold text-gray-800">Welcome to QuickPark</h1></div>;
-const Park = () => <div className="text-center"><h1 className="text-3xl font-bold text-gray-800">Park Your Vehicle</h1></div>;
-const Unpark = () => <div className="text-center"><h1 className="text-3xl font-bold text-gray-800">Unpark Your Vehicle</h1></div>;
-const Status = () => <div className="text-center"><h1 className="text-3xl font-bold text-gray-800">Parking Status</h1></div>;
-const About = () => <div className="text-center"><h1 className="text-3xl font-bold text-gray-800">About QuickPark</h1></div>;
-const Profile = () => <div className="text-center"><h1 className="text-3xl font-bold text-gray-800">User Profile</h1></div>;
 
 export default App;

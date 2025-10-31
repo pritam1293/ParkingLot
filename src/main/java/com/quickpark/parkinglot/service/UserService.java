@@ -2,6 +2,7 @@ package com.quickpark.parkinglot.service;
 
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -86,6 +87,7 @@ public class UserService implements IUserService {
             if (userRepository.findByContactNo(user.getContactNo()) != null) {
                 throw new RuntimeException("User with this contact number already exists");
             }
+            user.setCreatedAt(LocalDate.now());
             // Encode the password
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             userRepository.save(user);
