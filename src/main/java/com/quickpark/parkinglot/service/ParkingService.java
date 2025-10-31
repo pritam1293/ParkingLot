@@ -97,7 +97,9 @@ public class ParkingService implements IParkingService {
             String id = generateRandomId();
             ParkedTicket parkedTicket = new ParkedTicket(
                     id,
-                    bookRequest.getOwnerName(),
+                    bookRequest.getFirstName(),
+                    bookRequest.getLastName(),
+                    bookRequest.getEmail(),
                     bookRequest.getOwnerContact(),
                     LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
                     bookRequest.getVehicleNo(),
@@ -123,7 +125,9 @@ public class ParkingService implements IParkingService {
             unparkedTicketRepository.save(
                     new UnparkedTicket(
                             parkedTicket.getId(),
-                            parkedTicket.getOwnerName(),
+                            parkedTicket.getFirstName(),
+                            parkedTicket.getLastName(),
+                            parkedTicket.getEmail(),
                             parkedTicket.getOwnerContact(),
                             parkedTicket.getEntryTime(),
                             LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
@@ -135,7 +139,9 @@ public class ParkingService implements IParkingService {
             parkedTicket.getParkingSpot().setBooked(false);
             displayBoard.changeFreeParkingSpot(parkedTicket.getParkingSpot());
             return new FreeRequest(
-                    parkedTicket.getOwnerName(),
+                    parkedTicket.getFirstName(),
+                    parkedTicket.getLastName(),
+                    parkedTicket.getEmail(),
                     parkedTicket.getOwnerContact(),
                     parkedTicket.getParkingSpot().getType(),
                     parkedTicket.getVehicleNo(),
@@ -172,7 +178,9 @@ public class ParkingService implements IParkingService {
                 throw new ParkingLotException("Invalid ticket ID");
             }
             ticket.setVehicleNo(bookRequest.getVehicleNo());
-            ticket.setOwnerName(bookRequest.getOwnerName());
+            ticket.setFirstName(bookRequest.getFirstName());
+            ticket.setLastName(bookRequest.getLastName());
+            ticket.setEmail(bookRequest.getEmail());
             ticket.setOwnerContact(bookRequest.getOwnerContact());
             parkedTicketRepository.save(ticket);
             return ticket;

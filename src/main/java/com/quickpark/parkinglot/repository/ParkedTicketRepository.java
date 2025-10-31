@@ -18,6 +18,8 @@ public interface ParkedTicketRepository extends MongoRepository<ParkedTicket, St
 
     List<ParkedTicket> findByOwnerName(String ownerName);
 
+    List<ParkedTicket> findByEmail(String email);
+
     List<ParkedTicket> findByOwnerContact(String ownerContact);
 
     void deleteByVehicleNo(String vehicleNo);

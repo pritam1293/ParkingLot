@@ -10,8 +10,8 @@ public class ParkedTicket extends Ticket {
         super();
     }
 
-    public ParkedTicket(String id, String ownerName, String ownerContact, LocalDateTime entryTime, String vehicleNo,
+    public ParkedTicket(String id, String firstName, String lastName, String email, String ownerContact, LocalDateTime entryTime, String vehicleNo,
             ParkingSpot parkingSpot) {
-        super(id, ownerName, ownerContact, entryTime, vehicleNo, parkingSpot);
+        super(id, firstName, lastName, email, ownerContact, entryTime, vehicleNo, parkingSpot);
     }
 }

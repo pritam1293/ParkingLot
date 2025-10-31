@@ -14,8 +14,8 @@ public class UnparkedTicket extends Ticket {
         super();
     }
 
-    public UnparkedTicket(String id, String ownerName, String ownerContact, LocalDateTime entryTime, LocalDateTime exitTime, long totalDuration, long totalCost, String vehicleNo, ParkingSpot parkingSpot) {
-        super(id, ownerName, ownerContact, entryTime, vehicleNo, parkingSpot);
+    public UnparkedTicket(String id, String firstName, String lastName, String email, String ownerContact, LocalDateTime entryTime, LocalDateTime exitTime, long totalDuration, long totalCost, String vehicleNo, ParkingSpot parkingSpot) {
+        super(id, firstName, lastName, email, ownerContact, entryTime, vehicleNo, parkingSpot);
         this.exitTime = exitTime;
         this.totalDuration = totalDuration;
         this.totalCost = totalCost;

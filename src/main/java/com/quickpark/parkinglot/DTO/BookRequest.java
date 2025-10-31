@@ -3,13 +3,17 @@ package com.quickpark.parkinglot.DTO;
 public class BookRequest {
     private String type;
     private String vehicleNo;
-    private String ownerName;
+    private String firstName;
+    private String lastName;
+    private String email;
     private String ownerContact;
 
-    public BookRequest(String type, String vehicleNo, String ownerName, String ownerContact) {
+    public BookRequest(String type, String vehicleNo, String firstName, String lastName, String email, String ownerContact) {
         this.type = type;
         this.vehicleNo = vehicleNo;
-        this.ownerName = ownerName;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
         this.ownerContact = ownerContact;
     }
 
@@ -29,12 +33,28 @@ public class BookRequest {
         this.vehicleNo = vehicleNo;
     }
 
-    public String getOwnerName() {
-        return ownerName;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setOwnerName(String ownerName) {
-        this.ownerName = ownerName;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getOwnerContact() {
@@ -50,7 +70,9 @@ public class BookRequest {
         return "BookRequest{" +
                 "type='" + type + '\'' +
                 ", vehicleNo='" + vehicleNo + '\'' +
-                ", ownerName='" + ownerName + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
                 ", ownerContact='" + ownerContact + '\'' +
                 '}';
     }

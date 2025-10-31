@@ -1,5 +1,7 @@
 package com.quickpark.parkinglot.service;
 
+import java.util.List;
+import java.util.Map;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -7,6 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.quickpark.parkinglot.config.JWT;
 import com.quickpark.parkinglot.entities.User;
+import com.quickpark.parkinglot.entities.ParkedTicket;
+import com.quickpark.parkinglot.entities.UnparkedTicket;
+import com.quickpark.parkinglot.repository.ParkedTicketRepository;
+import com.quickpark.parkinglot.repository.UnparkedTicketRepository;
 import com.quickpark.parkinglot.repository.UserRepository;
 
 @Service
@@ -16,11 +22,18 @@ public class UserService implements IUserService {
     private JWT jwtUtil;
     private final UserRepository userRepository;
     private final Validation validation;
+    private final ParkedTicketRepository parkedTicketRepository;
+    private final UnparkedTicketRepository unparkedTicketRepository;
 
-    public UserService(PasswordEncoder passwordEncoder, JWT jwtUtil, UserRepository userRepository, Validation validation) {
+    public UserService(PasswordEncoder passwordEncoder, JWT jwtUtil, 
+        UserRepository userRepository, Validation validation, 
+        ParkedTicketRepository parkedTicketRepository, 
+        UnparkedTicketRepository unparkedTicketRepository) {
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
+        this.parkedTicketRepository = parkedTicketRepository;
+        this.unparkedTicketRepository = unparkedTicketRepository;
         this.validation = validation;
     }
 
@@ -141,6 +154,55 @@ public class UserService implements IUserService {
             return token;
         } catch (Exception e) {
             throw new RuntimeException("Error validating user: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public User getUserByEmail(String email) {
+        try {
+            if (email != null) {
+                email = email.trim();
+            }
+            if (email == null || email.isEmpty()) {
+                throw new RuntimeException("Email is required");
+            }
+            if (!validation.isValidEmail(email)) {
+                throw new RuntimeException("Invalid email format");
+            }
+            User user = userRepository.findByEmail(email);
+            if (user == null) {
+                throw new RuntimeException("User with this email does not exist");
+            }
+            // Make the password empty before returning the user object
+            user.setPassword("");
+            return user;
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching user by email: " + e.getMessage());
+        }
+    }
+    @Override
+    public Map<String, List<Object>> getUserParkingHistory(String email) {
+        try {
+            if (email != null) {
+                email = email.trim();
+            }
+            if (email == null || email.isEmpty()) {
+                throw new RuntimeException("Email is required");
+            }
+            if (!validation.isValidEmail(email)) {
+                throw new RuntimeException("Invalid email format");
+            }
+            if (!userRepository.existsByEmail(email)) {
+                throw new RuntimeException("User with this email does not exist");
+            }
+            List<ParkedTicket> parkedTickets = parkedTicketRepository.findByEmail(email);
+            List<UnparkedTicket> unparkedTickets = unparkedTicketRepository.findByEmail(email);
+            return Map.of(
+                "parked", List.copyOf(parkedTickets),
+                "unparked", List.copyOf(unparkedTickets)
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching user parking history: " + e.getMessage());
         }
     }
 }

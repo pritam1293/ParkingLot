@@ -8,7 +8,9 @@ import org.springframework.data.mongodb.core.index.Indexed;
 public abstract class Ticket {
     @Id
     private String id;
-    private String ownerName;
+    private String firstName;
+    private String lastName;
+    private String email;
     private String ownerContact;
     private LocalDateTime entryTime;
     @Indexed(unique = true)
@@ -18,9 +20,11 @@ public abstract class Ticket {
     public Ticket() {
     }
 
-    public Ticket(String id, String ownerName, String ownerContact, LocalDateTime entryTime, String vehicleNo, ParkingSpot parkingSpot) {
+    public Ticket(String id, String firstName, String lastName, String email, String ownerContact, LocalDateTime entryTime, String vehicleNo, ParkingSpot parkingSpot) {
         this.id = id;
-        this.ownerName = ownerName;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
         this.ownerContact = ownerContact;
         this.entryTime = entryTime;
         this.vehicleNo = vehicleNo;
@@ -35,12 +39,28 @@ public abstract class Ticket {
         this.id = id;
     }
 
-    public String getOwnerName() {
-        return ownerName;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setOwnerName(String ownerName) {
-        this.ownerName = ownerName;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getOwnerContact() {
@@ -79,7 +99,9 @@ public abstract class Ticket {
     public String toString() {
         return "Ticket{" +
                 "id='" + id + '\'' +
-                ", ownerName='" + ownerName + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
                 ", ownerContact='" + ownerContact + '\'' +
                 ", entryTime=" + entryTime +
                 ", vehicleNo='" + vehicleNo + '\'' +

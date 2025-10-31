@@ -1,7 +1,9 @@
 package com.quickpark.parkinglot.DTO;
 
 public class FreeRequest {
-    private String ownerName;
+    private String firstName;
+    private String lastName;
+    private String email;
     private String ownerContact;
     private String type;
     private String vehicleNo;
@@ -9,8 +11,10 @@ public class FreeRequest {
     private long totalCost;
     private long totalTime;
 
-    public FreeRequest(String ownerName, String ownerContact, String type, String vehicleNo, String ticketId, long totalCost, long totalTime) {
-        this.ownerName = ownerName;
+    public FreeRequest(String firstName, String lastName, String email, String ownerContact, String type, String vehicleNo, String ticketId, long totalCost, long totalTime) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
         this.ownerContact = ownerContact;
         this.type = type;
         this.vehicleNo = vehicleNo;
@@ -19,11 +23,23 @@ public class FreeRequest {
         this.totalTime = totalTime;
     }
 
-    public String getOwnerName() {
-        return ownerName;
+    public String getFirstName() {
+        return firstName;
     }
-    public void setOwnerName(String ownerName) {
-        this.ownerName = ownerName;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+    public String getLastName() {
+        return lastName;
+    }
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
     }
     public String getOwnerContact() {
         return ownerContact;
@@ -64,7 +80,9 @@ public class FreeRequest {
     @Override
     public String toString() {
         return "FreeRequest{" +
-                "ownerName='" + ownerName + '\'' +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
                 ", ownerContact='" + ownerContact + '\'' +
                 ", type='" + type + '\'' +
                 ", vehicleNo='" + vehicleNo + '\'' +
