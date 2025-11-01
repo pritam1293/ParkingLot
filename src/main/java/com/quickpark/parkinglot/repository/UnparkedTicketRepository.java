@@ -18,8 +18,6 @@ public interface UnparkedTicketRepository extends MongoRepository<UnparkedTicket
 
     List<UnparkedTicket> findByExitTimeBetween(LocalDateTime startTime, LocalDateTime endTime);
 
-    List<UnparkedTicket> findByOwnerName(String ownerName);
-
     List<UnparkedTicket> findByEmail(String email);
 
     List<UnparkedTicket> findByOwnerContact(String ownerContact);

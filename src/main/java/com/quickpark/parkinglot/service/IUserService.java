@@ -10,6 +10,8 @@ public interface IUserService {
 
     String validateUser(String email, String contactNo, String password);
 
+    String updateUserDetails(String email,User user);
+
     User getUserByEmail(String email);
 
     Map<String, List<Object>> getUserParkingHistory(String email);

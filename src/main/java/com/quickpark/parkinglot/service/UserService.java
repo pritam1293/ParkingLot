@@ -160,6 +160,84 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public synchronized String updateUserDetails(String email, User user) {
+        try {
+            if (email != null) {
+                email = email.trim();
+            }
+            if (email == null || email.isEmpty()) {
+                throw new RuntimeException("Email is required");
+            }
+            if (!validation.isValidEmail(email)) {
+                throw new RuntimeException("Invalid email format");
+            }
+            User existingUser = userRepository.findByEmail(email);
+            if (existingUser == null) {
+                throw new RuntimeException("User with this email does not exist");
+            }
+            // Update fields if they are provided
+            if (user.getFirstName() != null) {
+                user.setFirstName(user.getFirstName().trim());
+                if (!user.getFirstName().isEmpty()) {
+                    existingUser.setFirstName(user.getFirstName());
+                }
+            }
+            if (user.getLastName() != null) {
+                user.setLastName(user.getLastName().trim());
+                if (!user.getLastName().isEmpty()) {
+                    existingUser.setLastName(user.getLastName());
+                }
+            }
+            if (user.getEmail() != null) {
+                user.setEmail(user.getEmail().trim());
+                if (user.getEmail().isEmpty()) {
+                    throw new RuntimeException("Email cannot be empty");
+                }
+                if (!validation.isValidEmail(user.getEmail())) {
+                    throw new RuntimeException("Invalid email format");
+                }
+                if (!user.getEmail().equals(email) && userRepository.existsByEmail(user.getEmail())) {
+                    throw new RuntimeException("Another user with this email already exists");
+                }
+                existingUser.setEmail(user.getEmail());
+            }
+            if (user.getContactNo() != null) {
+                user.setContactNo(user.getContactNo().trim());
+                if (user.getContactNo().isEmpty()) {
+                    throw new RuntimeException("Contact number cannot be empty");
+                }
+                if (!validation.isValidContactNo(user.getContactNo())) {
+                    throw new RuntimeException("Invalid contact number format");
+                }
+                if (!user.getContactNo().equals(existingUser.getContactNo()) && 
+                    userRepository.existsByContactNo(user.getContactNo())) {
+                    throw new RuntimeException("Another user with this contact number already exists");
+                }
+                existingUser.setContactNo(user.getContactNo());
+            }
+            if (user.getPassword() != null) {
+                user.setPassword(user.getPassword().trim());
+                if (user.getPassword().isEmpty()) {
+                    throw new RuntimeException("Password cannot be empty");
+                }
+                if (!validation.isValidPassword(user.getPassword())) {
+                    throw new RuntimeException("Invalid password format");
+                }
+                // Current password and new password should not be the same
+                if (passwordEncoder.matches(user.getPassword(), existingUser.getPassword())) {
+                    throw new RuntimeException("New password cannot be the same as the current password");
+                }
+                existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
+            userRepository.save(existingUser);
+            return "User details updated successfully";
+        } catch (Exception e) {
+            throw new RuntimeException("Error updating user details: " + e.getMessage());
+        }
+    }
+
+    @Override
     public User getUserByEmail(String email) {
         try {
             if (email != null) {

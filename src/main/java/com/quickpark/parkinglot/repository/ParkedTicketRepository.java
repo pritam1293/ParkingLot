@@ -16,8 +16,6 @@ public interface ParkedTicketRepository extends MongoRepository<ParkedTicket, St
     @NonNull
     List<ParkedTicket> findAll();
 
-    List<ParkedTicket> findByOwnerName(String ownerName);
-
     List<ParkedTicket> findByEmail(String email);
 
     List<ParkedTicket> findByOwnerContact(String ownerContact);

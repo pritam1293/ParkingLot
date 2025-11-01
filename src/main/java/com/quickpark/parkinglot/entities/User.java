@@ -19,7 +19,8 @@ public class User {
     public User() {
     }
 
-    public User(String firstName, String lastName, String email, String contactNo, String password, LocalDate createdAt) {
+    public User(String firstName, String lastName, String email, String contactNo, String password,
+            LocalDate createdAt) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -27,6 +28,7 @@ public class User {
         this.password = password;
         this.createdAt = createdAt;
     }
+
     public String getFirstName() {
         return firstName;
     }
@@ -42,7 +44,7 @@ public class User {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-    
+
     public String getEmail() {
         return email;
     }
@@ -77,7 +79,12 @@ public class User {
 
     @Override
     public String toString() {
-        return "User [firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + ", contactNo="
-                + contactNo + ", password=" + password + ", createdAt=" + createdAt + "]";
+        return "User{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", contactNo='" + contactNo + '\'' +
+                ", createdAt=" + createdAt +
+                '}';
     }
 }
