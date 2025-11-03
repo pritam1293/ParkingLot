@@ -26,7 +26,7 @@ const Navbar = () => {
                         <div className="relative">
                             <div className="absolute inset-0 bg-slate-600 rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
                             <img
-                                src="/images/quickpark_logo.png"
+                                src="/images/quickpark_logo.jpg"
                                 alt="QuickPark Logo"
                                 className="relative h-12 w-auto drop-shadow-lg"
                             />
