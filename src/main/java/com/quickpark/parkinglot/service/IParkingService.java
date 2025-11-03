@@ -1,6 +1,7 @@
 package com.quickpark.parkinglot.service;
 
-import com.quickpark.parkinglot.DTO.BookRequest;
+import java.util.Map;
+
 import com.quickpark.parkinglot.DTO.FreeRequest;
 import com.quickpark.parkinglot.entities.ParkedTicket;
 import com.quickpark.parkinglot.entities.UnparkedTicket;
@@ -9,11 +10,11 @@ import com.quickpark.parkinglot.response.DisplayResponse;
 public interface IParkingService {
     public DisplayResponse getFreeParkingSpots();
 
-    public ParkedTicket ParkVehicle(BookRequest bookRequest);
+    public ParkedTicket ParkVehicle(Map<String, String> requestBody);
 
     public FreeRequest UnparkVehicle(String ticketId);
 
-    public ParkedTicket UpdateParkedVehicle(String ticketId, BookRequest bookRequest);
+    public ParkedTicket UpdateParkedVehicle(String ticketId, Map<String, String> requestBody);
 
     public boolean validateAdminCredentials(String username, String password);
 

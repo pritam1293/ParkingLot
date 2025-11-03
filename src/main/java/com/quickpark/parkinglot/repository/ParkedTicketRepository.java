@@ -12,6 +12,8 @@ public interface ParkedTicketRepository extends MongoRepository<ParkedTicket, St
     ParkedTicket findByVehicleNo(String vehicleNo);
 
     boolean existsByVehicleNo(String vehicleNo);
+
+    boolean existsById(@NonNull String id);  
     
     @NonNull
     List<ParkedTicket> findAll();

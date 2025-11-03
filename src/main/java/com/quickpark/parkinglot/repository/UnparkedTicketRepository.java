@@ -14,6 +14,8 @@ public interface UnparkedTicketRepository extends MongoRepository<UnparkedTicket
 
     boolean existsByVehicleNo(String vehicleNo);
 
+    boolean existsById(@NonNull String id);
+
     List<UnparkedTicket> findByExitTime(LocalDateTime exitTime);
 
     List<UnparkedTicket> findByExitTimeBetween(LocalDateTime startTime, LocalDateTime endTime);

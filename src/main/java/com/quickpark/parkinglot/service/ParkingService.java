@@ -1,6 +1,5 @@
 package com.quickpark.parkinglot.service;
 
-import com.quickpark.parkinglot.DTO.BookRequest;
 import com.quickpark.parkinglot.DTO.FreeRequest;
 import com.quickpark.parkinglot.entities.DisplayBoard;
 import com.quickpark.parkinglot.entities.ParkingLot;
@@ -12,6 +11,8 @@ import com.quickpark.parkinglot.Exceptions.ParkingLotException;
 
 import com.quickpark.parkinglot.repository.ParkedTicketRepository;
 import com.quickpark.parkinglot.repository.UnparkedTicketRepository;
+import com.quickpark.parkinglot.repository.UserRepository;
+import com.quickpark.parkinglot.entities.User;
 import org.springframework.stereotype.Service;
 
 import java.time.temporal.ChronoUnit;
@@ -29,15 +30,19 @@ public class ParkingService implements IParkingService {
 
     private final ParkedTicketRepository parkedTicketRepository;
     private final UnparkedTicketRepository unparkedTicketRepository;
+    private final UserRepository userRepository;
     private Map<String, String> adminCredentials;
+    private final Validation validation; 
 
     public ParkingService(ParkedTicketRepository parkedTicketRepository,
-            UnparkedTicketRepository unparkedTicketRepository) {
+            UnparkedTicketRepository unparkedTicketRepository, UserRepository userRepository, Validation validation) {
         this.displayBoard = DisplayBoard.getInstance();
         this.parkingLot = new ParkingLot();
+        this.validation = validation;
         this.adminCredentials = new HashMap<>();
         this.parkedTicketRepository = parkedTicketRepository;
         this.unparkedTicketRepository = unparkedTicketRepository;
+        this.userRepository = userRepository;
         changeStatusFromDatabase();
         System.out.println("");
         System.out.println("MongoDB is connected");
@@ -77,32 +82,66 @@ public class ParkingService implements IParkingService {
     }
 
     @Override
-    public ParkedTicket ParkVehicle(BookRequest bookRequest) {
+    public ParkedTicket ParkVehicle(Map<String, String> requestBody) {
         try {
-            if (parkedTicketRepository.existsByVehicleNo(bookRequest.getVehicleNo())) {
-                throw new ParkingLotException("Vehicle with number " + bookRequest.getVehicleNo() + " is already parked.");
+            // type, vehicle no, email
+            // Trim all the trailing and leading spaces
+            String email = requestBody.get("email");
+            String type = requestBody.get("type");
+            String vehicleNo = requestBody.get("vehicleNo");
+            if (email != null) email = email.trim();
+            if (type != null) type = type.trim();
+            if (vehicleNo != null) vehicleNo = vehicleNo.trim();
+
+            if (email == null || email.isEmpty()) {
+                throw new ParkingLotException("Email is required for parking.");
+            }
+            // vehicle should oneof type mini, large, compact
+            if (type == null || type.isEmpty()) {
+                throw new ParkingLotException("Vehicle type is required for parking.");
+            }
+            if (!validation.isValidVehicleType(type)) {
+                throw new ParkingLotException("Invalid vehicle type. Allowed types are: mini, large, compact.");
+            }
+            if (vehicleNo == null || vehicleNo.isEmpty()) {
+                throw new ParkingLotException("Vehicle number is required for parking.");
+            }
+            if (!validation.isVehicleNoValid(vehicleNo)) {
+                throw new ParkingLotException("Invalid vehicle number format.");
+            }
+
+            User user = userRepository.findByEmail(email);
+            if (user == null) {
+                throw new ParkingLotException("User with email " + email + " does not exist.");
+            }
+
+            if (parkedTicketRepository.existsByVehicleNo(vehicleNo)) {
+                throw new ParkingLotException("Vehicle with number " + vehicleNo + " is already parked.");
             }
             ParkingSpot freeParkingSpot = null;
             for (ParkingSpot parkingSpot : parkingLot.getParkingSpotList()) {
-                if (bookRequest.getType().equals(parkingSpot.getType()) && !parkingSpot.isBooked()) {
+                if (type.equals(parkingSpot.getType()) && !parkingSpot.isBooked()) {
                     freeParkingSpot = parkingSpot;
                     parkingSpot.setBooked(true);
                     break;
                 }
             }
             if (freeParkingSpot == null) {
-                throw new ParkingLotException("No free parking spots available for type: " + bookRequest.getType());
+                throw new ParkingLotException("No free parking spots available for type: " + type);
             }
             displayBoard.changeFreeParkingSpot(freeParkingSpot);
-            String id = generateRandomId();
+            String ticketId = generateRandomId();
+            if (ticketId.isEmpty()) {
+                throw new ParkingLotException("Failed to generate unique ticket ID. Please try again.");
+            }
             ParkedTicket parkedTicket = new ParkedTicket(
-                    id,
-                    bookRequest.getFirstName(),
-                    bookRequest.getLastName(),
-                    bookRequest.getEmail(),
-                    bookRequest.getOwnerContact(),
+                    ticketId,
+                    user.getFirstName(),
+                    user.getLastName(),
+                    email,
+                    user.getContactNo(),
                     LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
-                    bookRequest.getVehicleNo(),
+                    vehicleNo,
                     freeParkingSpot
             );
             parkedTicketRepository.save(parkedTicket);
@@ -115,6 +154,9 @@ public class ParkingService implements IParkingService {
     @Override
     public FreeRequest UnparkVehicle(String ParkingTicketId) {
         try {
+            if (ParkingTicketId == null || ParkingTicketId.isEmpty()) {
+                throw new ParkingLotException("Ticket ID is required for unparking.");
+            }
             ParkedTicket parkedTicket = parkedTicketRepository.findById(ParkingTicketId).orElse(null);
             if (parkedTicket == null) {
                 throw new ParkingLotException("Invalid ticket ID or the vehicle is already unparked");
@@ -167,21 +209,50 @@ public class ParkingService implements IParkingService {
     }
 
     private String generateRandomId() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        /* 
+        Generate a random 8-character alphanumeric ID, starting with QP
+        Generate the id till we get a unique one, max 20 attempts, else return empty string
+        */
+        String randomId = "QP" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        int attempts = 0;
+        while (parkedTicketRepository.existsById(randomId) && attempts < 20) {
+            randomId = "QP" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+            attempts++;
+        }
+        return attempts < 20 ? randomId : ""; // return empty string if unique ID not found
     }
 
     @Override
-    public ParkedTicket UpdateParkedVehicle(String ticketId, BookRequest bookRequest) {
+    public ParkedTicket UpdateParkedVehicle(String ticketId, Map<String, String> requestBody) {
         try {
+            if (ticketId == null || ticketId.isEmpty()) {
+                throw new ParkingLotException("Ticket ID is required for updating parked vehicle.");
+            }
+            String vehicleNo = requestBody.get("vehicleNo");
+            String type = requestBody.get("type");
+            // Trim all the trailing and leading spaces
+            if (vehicleNo != null) vehicleNo = vehicleNo.trim();
+            if (type != null) type = type.trim();
+
+            // Validate inputs
+            if (vehicleNo == null || vehicleNo.isEmpty()) {
+                throw new ParkingLotException("Vehicle number is required for updating parked vehicle.");
+            }
+            if (!validation.isVehicleNoValid(vehicleNo)) {
+                throw new ParkingLotException("Invalid vehicle number format.");
+            }
+            if (type == null || type.isEmpty()) {
+                throw new ParkingLotException("Vehicle type is required for updating parked vehicle.");
+            }
+            if (!validation.isValidVehicleType(type)) {
+                throw new ParkingLotException("Invalid vehicle type. Allowed types are: mini, large, compact.");
+            }
             ParkedTicket ticket = parkedTicketRepository.findById(ticketId).orElse(null);
             if (ticket == null) {
                 throw new ParkingLotException("Invalid ticket ID");
             }
-            ticket.setVehicleNo(bookRequest.getVehicleNo());
-            ticket.setFirstName(bookRequest.getFirstName());
-            ticket.setLastName(bookRequest.getLastName());
-            ticket.setEmail(bookRequest.getEmail());
-            ticket.setOwnerContact(bookRequest.getOwnerContact());
+            ticket.setVehicleNo(vehicleNo);
+            ticket.getParkingSpot().setType(type);
             parkedTicketRepository.save(ticket);
             return ticket;
         } catch (Exception e) {

@@ -1,22 +1,18 @@
 package com.quickpark.parkinglot.controller;
 
-import com.quickpark.parkinglot.DTO.BookRequest;
 import com.quickpark.parkinglot.DTO.FreeRequest;
 import com.quickpark.parkinglot.Exceptions.ParkingLotException;
+import com.quickpark.parkinglot.config.JWT;
 import com.quickpark.parkinglot.entities.ParkedTicket;
 import com.quickpark.parkinglot.entities.UnparkedTicket;
 import com.quickpark.parkinglot.service.IParkingService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 
@@ -25,9 +21,11 @@ import org.springframework.http.HttpStatus;
 public class ParkingController {
 
     private final IParkingService parkingService;
+    private final JWT jwtUtil;
 
-    public ParkingController(IParkingService parkingService) {
+    public ParkingController(IParkingService parkingService, JWT jwtUtil) {
         this.parkingService = parkingService;
+        this.jwtUtil = jwtUtil;
     }
 
     @GetMapping("/home")
@@ -45,9 +43,14 @@ public class ParkingController {
     }
 
     @PostMapping(path = "/park" , consumes = "application/json")
-    public ResponseEntity<?> ParkVehicle(@RequestBody BookRequest bookRequest) {
+    public ResponseEntity<?> ParkVehicle(@RequestBody Map<String, String> requestBody, @RequestHeader("Authorization") String authHeader) {
         try {
-            ParkedTicket ticket = parkingService.ParkVehicle(bookRequest);
+            String userEmail = extractEmailFromToken(authHeader);
+            if(userEmail == null || userEmail.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user token");
+            }
+            requestBody.put("email", userEmail);
+            ParkedTicket ticket = parkingService.ParkVehicle(requestBody);
             if(ticket != null) {
                 return ResponseEntity.ok(ticket);
             } else {
@@ -60,8 +63,8 @@ public class ParkingController {
         }
     }
 
-    @DeleteMapping(path = "/unpark/{ticketId}")
-    public ResponseEntity<?> UnparkVehicle(@PathVariable String ticketId) {
+    @DeleteMapping(path = "/unpark")
+    public ResponseEntity<?> UnparkVehicle(@RequestParam String ticketId) {
         try {
             FreeRequest freeRequest = parkingService.UnparkVehicle(ticketId);
             if (freeRequest != null) {
@@ -76,10 +79,10 @@ public class ParkingController {
         }
     }
 
-    @PutMapping(path = "/update-ticket/{ticketId}" , consumes = "application/json")
-    public ResponseEntity<?> UpdateParkedVehicle(@PathVariable String ticketId, @RequestBody BookRequest bookRequest) {
+    @PutMapping(path = "/update-ticket" , consumes = "application/json")
+    public ResponseEntity<?> UpdateParkedVehicle(@RequestParam String ticketId, @RequestBody Map<String, String> requestBody) {
         try {
-            ParkedTicket updatedTicket = parkingService.UpdateParkedVehicle(ticketId, bookRequest);
+            ParkedTicket updatedTicket = parkingService.UpdateParkedVehicle(ticketId, requestBody);
             if (updatedTicket != null) {
                 return ResponseEntity.ok(updatedTicket);
             } else {
@@ -153,5 +156,14 @@ public class ParkingController {
         } catch (Exception e) {
             return 0;
         }
+    }
+
+    private String extractEmailFromToken(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid or missing Authorization header");
+        }
+
+        String token = authHeader.substring(7); // Remove "Bearer " prefix
+        return jwtUtil.extractEmail(token);
     }
 }
