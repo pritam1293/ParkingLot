@@ -75,6 +75,9 @@ public class UserService implements IUserService {
             if (!validation.isValidContactNo(user.getContactNo())) {
                 throw new RuntimeException("Invalid contact number format");
             }
+            if (!validation.isValidPassword(user.getPassword())) {
+                throw new RuntimeException("Invalid password format");
+            }
             if (user.getFirstName() == null) {
                 user.setFirstName(user.getEmail());
             }
@@ -112,46 +115,38 @@ public class UserService implements IUserService {
             if (password != null) {
                 password = password.trim();
             }
-            // User object validation
-            if (email == null || email.isEmpty()) {
-                throw new RuntimeException("Email is required");
-            }
-            if (contactNo == null || contactNo.isEmpty()) {
-                throw new RuntimeException("Contact number is required");
-            }
-            if (password == null || password.isEmpty()) {
+            if(password == null || password.isEmpty()) {
                 throw new RuntimeException("Password is required");
             }
-            // Validate email and contact number formats
-            if (!validation.isValidEmail(email)) {
-                throw new RuntimeException("Invalid email format");
-            }
-            if (!validation.isValidContactNo(contactNo)) {
-                throw new RuntimeException("Invalid contact number format");
-            }
-            // If email is Provided, then validate using email
             User user = null;
-            if(email != null && !email.isEmpty()) {
+
+            // If email is provided, validate using email
+            if (email != null && !email.isEmpty()) {
+                if (!validation.isValidEmail(email)) {
+                    throw new RuntimeException("Invalid email format");
+                }
                 user = userRepository.findByEmail(email);
                 if (user == null) {
                     throw new RuntimeException("User with this email does not exist");
                 }
-                if (!passwordEncoder.matches(password, user.getPassword())) {
-                    throw new RuntimeException("Invalid password");
+            }
+            // If contact number is provided, validate using contact number
+            else if (contactNo != null && !contactNo.isEmpty()) {
+                if (!validation.isValidContactNo(contactNo)) {
+                    throw new RuntimeException("Invalid contact number format");
                 }
-            } else if(contactNo != null && !contactNo.isEmpty()) {
-                // If contact number is provided, validate using contact number
                 user = userRepository.findByContactNo(contactNo);
                 if (user == null) {
                     throw new RuntimeException("User with this contact number does not exist");
                 }
-                if (!passwordEncoder.matches(password, user.getPassword())) {
-                    throw new RuntimeException("Invalid password");
-                }
             } else {
                 throw new RuntimeException("Either email or contact number must be provided");
             }
-            // Generate and return JWT token
+            // Validate password
+            if (!passwordEncoder.matches(password, user.getPassword())) {
+                throw new RuntimeException("Incorrect password");
+            }
+            // Validated, generate and return JWT token
             String token = jwtUtil.generateToken(user.getEmail());
             return token;
         } catch (Exception e) {

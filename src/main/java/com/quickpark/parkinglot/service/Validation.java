@@ -20,9 +20,11 @@ public class Validation {
     }
 
     public boolean isValidPassword(String password) {
-        /*Password length must be 6-15 characters, 
+        /*
+        Password length must be 6-15 characters, 
         containing at least one uppercase, one lowercase, one digit, 
-        and one special character*/
+        and one special character
+        */
         String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,15}$";
         return password != null && password.matches(passwordRegex);
     }
