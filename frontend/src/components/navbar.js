@@ -15,23 +15,23 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 shadow-lg border-b border-blue-700 sticky top-0 z-50">
+        <nav className="bg-slate-800 shadow-lg border-b border-slate-700 sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-20">
                     {/* Logo */}
                     <div
                         className="flex items-center cursor-pointer group"
-                        onClick={() => handleNavigation('/')}
+                        onClick={() => handleNavigation('/home')}
                     >
                         <div className="relative">
-                            <div className="absolute inset-0 bg-blue-400 rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
+                            <div className="absolute inset-0 bg-slate-600 rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
                             <img
                                 src="/images/quickpark_logo.png"
                                 alt="QuickPark Logo"
                                 className="relative h-12 w-auto drop-shadow-lg"
                             />
                         </div>
-                        <span className="ml-3 text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent hidden sm:block drop-shadow-sm">
+                        <span className="ml-3 text-2xl font-bold text-slate-100 hidden sm:block drop-shadow-sm">
                             QuickPark
                         </span>
                     </div>
@@ -66,7 +66,7 @@ const Navbar = () => {
                         {/* Profile Button */}
                         <button
                             onClick={() => handleNavigation('/profile')}
-                            className="ml-4 p-2 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg hover:shadow-cyan-500/50 transform hover:scale-110 ring-2 ring-cyan-400/20"
+                            className="ml-4 p-2 rounded-full bg-slate-700 text-white hover:bg-slate-600 transition-all duration-300 shadow-lg hover:shadow-slate-500/50 transform hover:scale-110 ring-2 ring-slate-600/50"
                         >
                             <svg
                                 className="h-6 w-6"
@@ -88,7 +88,7 @@ const Navbar = () => {
                     <div className="md:hidden">
                         <button
                             onClick={toggleMenu}
-                            className="p-2 rounded-lg text-cyan-400 hover:text-white hover:bg-blue-800/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-200"
+                            className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 transition-all duration-200"
                         >
                             <svg
                                 className="h-6 w-6"
@@ -115,7 +115,7 @@ const Navbar = () => {
                 className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                     }`}
             >
-                <div className="px-4 pt-2 pb-4 space-y-2 bg-gradient-to-b from-slate-800 to-slate-900 border-t border-blue-700/50">
+                <div className="px-4 pt-2 pb-4 space-y-2 bg-slate-800 border-t border-slate-700">
                     <MobileNavButton onClick={() => handleNavigation('/park')}>
                         <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
@@ -156,7 +156,7 @@ const Navbar = () => {
 const NavButton = ({ onClick, children }) => (
     <button
         onClick={onClick}
-        className="flex items-center px-4 py-2 rounded-lg text-gray-100 hover:text-cyan-400 hover:bg-blue-800/50 font-medium transition-all duration-200 text-base border border-transparent hover:border-cyan-500/30"
+        className="flex items-center px-4 py-2 rounded-lg text-slate-200 hover:text-white hover:bg-slate-700 font-medium transition-all duration-200 text-base border border-transparent hover:border-slate-600"
     >
         {children}
     </button>
@@ -166,7 +166,7 @@ const NavButton = ({ onClick, children }) => (
 const MobileNavButton = ({ onClick, children }) => (
     <button
         onClick={onClick}
-        className="flex items-center w-full px-4 py-3 rounded-lg text-gray-100 hover:text-cyan-400 hover:bg-blue-800/50 font-medium transition-all duration-200 text-base shadow-md border border-blue-700/30 hover:border-cyan-500/50 backdrop-blur-sm"
+        className="flex items-center w-full px-4 py-3 rounded-lg text-slate-200 hover:text-white hover:bg-slate-700 font-medium transition-all duration-200 text-base shadow-md border border-slate-700 hover:border-slate-600 backdrop-blur-sm"
     >
         {children}
     </button>
