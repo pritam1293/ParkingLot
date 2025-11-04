@@ -1,12 +1,23 @@
 package com.quickpark.parkinglot.entities;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "parking_spots")
 public abstract class ParkingSpot {
+    @Id
+    private String id;
+
+    @Version
+    private Long version;
+
     private String type;
     private int cost;
     private int location;
     private boolean isBooked;
 
-    public ParkingSpot(String type,int cost,int location) {
+    public ParkingSpot(String type, int cost, int location) {
         this.type = type;
         this.cost = cost;
         this.location = location;
@@ -45,13 +56,31 @@ public abstract class ParkingSpot {
         isBooked = booked;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
     @Override
     public String toString() {
         return "ParkingSpot{" +
-                "type='" + type + '\'' +
+                "id='" + id + '\'' +
+                ", type='" + type + '\'' +
                 ", cost=" + cost +
                 ", location=" + location +
                 ", isBooked=" + isBooked +
+                ", version=" + version +
                 '}';
     }
 }

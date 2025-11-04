@@ -54,6 +54,7 @@ public class ParkingController {
             if(ticket != null) {
                 return ResponseEntity.ok(ticket);
             } else {
+                // Return the actual error instead of a generic message
                 return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Parking failed");
             }
         } catch (ParkingLotException e) {

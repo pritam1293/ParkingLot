@@ -2,7 +2,6 @@ package com.quickpark.parkinglot.service;
 
 import com.quickpark.parkinglot.DTO.FreeRequest;
 import com.quickpark.parkinglot.entities.DisplayBoard;
-import com.quickpark.parkinglot.entities.ParkingLot;
 import com.quickpark.parkinglot.entities.ParkingSpot;
 import com.quickpark.parkinglot.entities.UnparkedTicket;
 import com.quickpark.parkinglot.entities.ParkedTicket;
@@ -12,8 +11,10 @@ import com.quickpark.parkinglot.Exceptions.ParkingLotException;
 import com.quickpark.parkinglot.repository.ParkedTicketRepository;
 import com.quickpark.parkinglot.repository.UnparkedTicketRepository;
 import com.quickpark.parkinglot.repository.UserRepository;
+import com.quickpark.parkinglot.repository.ParkingSpotRepository;
 import com.quickpark.parkinglot.entities.User;
 import org.springframework.stereotype.Service;
+import org.springframework.dao.OptimisticLockingFailureException;
 
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
@@ -26,24 +27,27 @@ import java.util.HashMap;
 public class ParkingService implements IParkingService {
 
     DisplayBoard displayBoard;
-    ParkingLot parkingLot;
-
+    private final ParkingSpotRepository parkingSpotRepository;
     private final ParkedTicketRepository parkedTicketRepository;
     private final UnparkedTicketRepository unparkedTicketRepository;
     private final UserRepository userRepository;
     private Map<String, String> adminCredentials;
-    private final Validation validation; 
+    private final Validation validation;
 
-    public ParkingService(ParkedTicketRepository parkedTicketRepository,
-            UnparkedTicketRepository unparkedTicketRepository, UserRepository userRepository, Validation validation) {
+    public ParkingService(ParkingSpotRepository parkingSpotRepository,
+            ParkedTicketRepository parkedTicketRepository,
+            UnparkedTicketRepository unparkedTicketRepository,
+            UserRepository userRepository,
+            Validation validation) {
         this.displayBoard = DisplayBoard.getInstance();
-        this.parkingLot = new ParkingLot();
+        this.parkingSpotRepository = parkingSpotRepository;
         this.validation = validation;
         this.adminCredentials = new HashMap<>();
         this.parkedTicketRepository = parkedTicketRepository;
         this.unparkedTicketRepository = unparkedTicketRepository;
         this.userRepository = userRepository;
         changeStatusFromDatabase();
+        updateDisplayBoardFromDatabase();
         System.out.println("");
         System.out.println("MongoDB is connected");
         System.out.println("");
@@ -55,6 +59,17 @@ public class ParkingService implements IParkingService {
         adminCredentials.put("user", "user123");
     }
 
+    private void updateDisplayBoardFromDatabase() {
+        // Update display board with counts from database
+        long freeMini = parkingSpotRepository.countByTypeAndIsBooked("mini", false);
+        long freeCompact = parkingSpotRepository.countByTypeAndIsBooked("compact", false);
+        long freeLarge = parkingSpotRepository.countByTypeAndIsBooked("large", false);
+
+        displayBoard.setFreeMiniParkingSpots((int) freeMini);
+        displayBoard.setFreeCompactParkingSpots((int) freeCompact);
+        displayBoard.setFreeLargeParkingSpots((int) freeLarge);
+    }
+
     private void changeStatusFromDatabase() {
         List<ParkedTicket> activeTickets = parkedTicketRepository.findAll();
         for (ParkedTicket ticket : activeTickets) {
@@ -62,45 +77,50 @@ public class ParkingService implements IParkingService {
             String occupiedType = parkingSpotFromDB.getType();
             int occupiedLocation = parkingSpotFromDB.getLocation();
 
-            for (ParkingSpot parkingSpot : parkingLot.getParkingSpotList()) {
-                if (parkingSpot.getType().equals(occupiedType) && parkingSpot.getLocation() == occupiedLocation) {
-                    parkingSpot.setBooked(true);
-                    displayBoard.changeFreeParkingSpot(parkingSpot);
-                    break;
-                }
-            }
+            // Find and update the spot in database
+            parkingSpotRepository.findByTypeAndLocation(occupiedType, occupiedLocation)
+                    .ifPresent(spot -> {
+                        if (!spot.isBooked()) {
+                            spot.setBooked(true);
+                            parkingSpotRepository.save(spot);
+                        }
+                    });
         }
     }
 
     @Override
     public DisplayResponse getFreeParkingSpots() {
         DisplayResponse displayResponse = new DisplayResponse();
-        displayResponse.mini = displayBoard.getFreeMiniParkingSpots();
-        displayResponse.large = displayBoard.getFreeLargeParkingSpots();
-        displayResponse.compact = displayBoard.getFreeCompactParkingSpots();
+        displayResponse.mini = (int) parkingSpotRepository.countByTypeAndIsBooked("mini", false);
+        displayResponse.large = (int) parkingSpotRepository.countByTypeAndIsBooked("large", false);
+        displayResponse.compact = (int) parkingSpotRepository.countByTypeAndIsBooked("compact", false);
         return displayResponse;
     }
 
     @Override
     public ParkedTicket ParkVehicle(Map<String, String> requestBody) {
         try {
-            // type, vehicle no, email
             // Trim all the trailing and leading spaces
             String email = requestBody.get("email");
             String type = requestBody.get("type");
             String vehicleNo = requestBody.get("vehicleNo");
-            if (email != null) email = email.trim();
-            if (type != null) type = type.trim();
-            if (vehicleNo != null) vehicleNo = vehicleNo.trim();
+            if (email != null)
+                email = email.trim();
+            if (type != null)
+                type = type.trim();
+            if (vehicleNo != null)
+                vehicleNo = vehicleNo.trim();
+
+            final String finalType = type; // Make it effectively final for lambda
 
             if (email == null || email.isEmpty()) {
                 throw new ParkingLotException("Email is required for parking.");
             }
             // vehicle should oneof type mini, large, compact
-            if (type == null || type.isEmpty()) {
+            if (finalType == null || finalType.isEmpty()) {
                 throw new ParkingLotException("Vehicle type is required for parking.");
             }
-            if (!validation.isValidVehicleType(type)) {
+            if (!validation.isValidVehicleType(finalType)) {
                 throw new ParkingLotException("Invalid vehicle type. Allowed types are: mini, large, compact.");
             }
             if (vehicleNo == null || vehicleNo.isEmpty()) {
@@ -118,18 +138,42 @@ public class ParkingService implements IParkingService {
             if (parkedTicketRepository.existsByVehicleNo(vehicleNo)) {
                 throw new ParkingLotException("Vehicle with number " + vehicleNo + " is already parked.");
             }
+
+            // Try to find and book a parking spot with retry logic for concurrency
             ParkingSpot freeParkingSpot = null;
-            for (ParkingSpot parkingSpot : parkingLot.getParkingSpotList()) {
-                if (type.equals(parkingSpot.getType()) && !parkingSpot.isBooked()) {
-                    freeParkingSpot = parkingSpot;
-                    parkingSpot.setBooked(true);
-                    break;
+            int maxRetries = 5;
+            int attempt = 0;
+
+            while (attempt < maxRetries && freeParkingSpot == null) {
+                try {
+                    // Find first available spot from database
+                    freeParkingSpot = parkingSpotRepository
+                            .findFirstByTypeAndIsBooked(finalType, false)
+                            .orElseThrow(() -> new ParkingLotException(
+                                    "No free parking spots available for type: " + finalType));
+
+                    // Book the spot
+                    freeParkingSpot.setBooked(true);
+                    parkingSpotRepository.save(freeParkingSpot); // This might throw OptimisticLockingFailureException
+
+                } catch (OptimisticLockingFailureException e) {
+                    // Another user booked this spot, retry with another spot
+                    freeParkingSpot = null;
+                    attempt++;
+                    if (attempt >= maxRetries) {
+                        throw new ParkingLotException(
+                                "Unable to book parking spot due to high demand. Please try again.");
+                    }
                 }
             }
+
             if (freeParkingSpot == null) {
-                throw new ParkingLotException("No free parking spots available for type: " + type);
+                throw new ParkingLotException("No free parking spots available for type: " + finalType);
             }
-            displayBoard.changeFreeParkingSpot(freeParkingSpot);
+
+            // Update display board
+            updateDisplayBoardFromDatabase();
+
             String ticketId = generateRandomId();
             if (ticketId.isEmpty()) {
                 throw new ParkingLotException("Failed to generate unique ticket ID. Please try again.");
@@ -142,12 +186,11 @@ public class ParkingService implements IParkingService {
                     user.getContactNo(),
                     LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
                     vehicleNo,
-                    freeParkingSpot
-            );
+                    freeParkingSpot);
             parkedTicketRepository.save(parkedTicket);
             return parkedTicket;
         } catch (Exception e) {
-            return null;
+            throw new ParkingLotException(e.getMessage());
         }
     }
 
@@ -176,10 +219,19 @@ public class ParkingService implements IParkingService {
                             totalTime,
                             totalCost,
                             parkedTicket.getVehicleNo(),
-                            parkedTicket.getParkingSpot())
-            );
-            parkedTicket.getParkingSpot().setBooked(false);
-            displayBoard.changeFreeParkingSpot(parkedTicket.getParkingSpot());
+                            parkedTicket.getParkingSpot()));
+
+            // Free the parking spot in database
+            ParkingSpot spot = parkedTicket.getParkingSpot();
+            parkingSpotRepository.findByTypeAndLocation(spot.getType(), spot.getLocation())
+                    .ifPresent(parkingSpot -> {
+                        parkingSpot.setBooked(false);
+                        parkingSpotRepository.save(parkingSpot);
+                    });
+
+            // Update display board
+            updateDisplayBoardFromDatabase();
+
             return new FreeRequest(
                     parkedTicket.getFirstName(),
                     parkedTicket.getLastName(),
@@ -189,8 +241,7 @@ public class ParkingService implements IParkingService {
                     parkedTicket.getVehicleNo(),
                     parkedTicket.getId(),
                     totalCost,
-                    totalTime
-            );
+                    totalTime);
         } catch (Exception e) {
             return null;
         }
@@ -209,10 +260,11 @@ public class ParkingService implements IParkingService {
     }
 
     private String generateRandomId() {
-        /* 
-        Generate a random 8-character alphanumeric ID, starting with QP
-        Generate the id till we get a unique one, max 20 attempts, else return empty string
-        */
+        /*
+         * Generate a random 8-character alphanumeric ID, starting with QP
+         * Generate the id till we get a unique one, max 20 attempts, else return empty
+         * string
+         */
         String randomId = "QP" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
         int attempts = 0;
         while (parkedTicketRepository.existsById(randomId) && attempts < 20) {
@@ -231,8 +283,10 @@ public class ParkingService implements IParkingService {
             String vehicleNo = requestBody.get("vehicleNo");
             String type = requestBody.get("type");
             // Trim all the trailing and leading spaces
-            if (vehicleNo != null) vehicleNo = vehicleNo.trim();
-            if (type != null) type = type.trim();
+            if (vehicleNo != null)
+                vehicleNo = vehicleNo.trim();
+            if (type != null)
+                type = type.trim();
 
             // Validate inputs
             if (vehicleNo == null || vehicleNo.isEmpty()) {
@@ -303,7 +357,8 @@ public class ParkingService implements IParkingService {
     public long countRevenueThisWeek() {
         try {
             LocalDateTime today = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
-            LocalDateTime startOfWeek = today.minusDays(today.getDayOfWeek().getValue() - 1); // Monday is the start of the week
+            LocalDateTime startOfWeek = today.minusDays(today.getDayOfWeek().getValue() - 1); // Monday is the start of
+                                                                                              // the week
             List<UnparkedTicket> completedTickets = unparkedTicketRepository.findByExitTimeBetween(startOfWeek, today);
             long totalRevenue = 0;
             for (UnparkedTicket ticket : completedTickets) {
