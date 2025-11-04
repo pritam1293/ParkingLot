@@ -3,10 +3,7 @@ import React, { useState } from 'react';
 const Park = () => {
     const [formData, setFormData] = useState({
         vehicleNumber: '',
-        vehicleType: 'compact',
-        ownerName: '',
-        phoneNumber: '',
-        email: ''
+        vehicleType: 'compact'
     });
 
     const handleChange = (e) => {
@@ -73,8 +70,8 @@ const Park = () => {
                                             <label
                                                 key={type.value}
                                                 className={`relative cursor-pointer rounded-xl border-2 p-4 transition-all duration-300 ${formData.vehicleType === type.value
-                                                        ? 'border-slate-600 bg-slate-50 shadow-md'
-                                                        : 'border-slate-200 hover:border-slate-400'
+                                                    ? 'border-slate-600 bg-slate-50 shadow-md'
+                                                    : 'border-slate-200 hover:border-slate-400'
                                                     }`}
                                             >
                                                 <input
@@ -110,57 +107,13 @@ const Park = () => {
                                         name="vehicleNumber"
                                         value={formData.vehicleNumber}
                                         onChange={handleChange}
-                                        placeholder="e.g., ABC-1234"
+                                        placeholder="e.g., OD01A1234"
                                         required
                                         className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-slate-600 focus:outline-none transition-colors bg-slate-50"
                                     />
-                                </div>
-
-                                {/* Owner Name */}
-                                <div>
-                                    <label className="block text-slate-700 font-semibold mb-2">
-                                        Owner Name *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="ownerName"
-                                        value={formData.ownerName}
-                                        onChange={handleChange}
-                                        placeholder="Enter your name"
-                                        required
-                                        className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-slate-600 focus:outline-none transition-colors bg-slate-50"
-                                    />
-                                </div>
-
-                                {/* Phone Number */}
-                                <div>
-                                    <label className="block text-slate-700 font-semibold mb-2">
-                                        Phone Number *
-                                    </label>
-                                    <input
-                                        type="tel"
-                                        name="phoneNumber"
-                                        value={formData.phoneNumber}
-                                        onChange={handleChange}
-                                        placeholder="+1 (234) 567-8900"
-                                        required
-                                        className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-slate-600 focus:outline-none transition-colors bg-slate-50"
-                                    />
-                                </div>
-
-                                {/* Email */}
-                                <div>
-                                    <label className="block text-slate-700 font-semibold mb-2">
-                                        Email (Optional)
-                                    </label>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        placeholder="your.email@example.com"
-                                        className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-slate-600 focus:outline-none transition-colors bg-slate-50"
-                                    />
+                                    <p className="text-sm text-slate-500 mt-2">
+                                        Enter your vehicle registration number
+                                    </p>
                                 </div>
 
                                 {/* Submit Button */}

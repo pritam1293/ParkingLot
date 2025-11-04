@@ -30,28 +30,28 @@ const Profile = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-12">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12">
             <div className="max-w-6xl mx-auto px-4">
                 {/* Header */}
                 <div className="text-center mb-10">
-                    <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-4">
+                    <h1 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
                         My Profile
                     </h1>
-                    <p className="text-gray-600 text-lg">Manage your account settings and preferences</p>
+                    <p className="text-slate-600 text-lg">Manage your account settings and preferences</p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Sidebar */}
                     <div className="lg:col-span-1">
                         <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-                            <div className="w-32 h-32 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-5xl font-bold">
+                            <div className="w-32 h-32 bg-gradient-to-br from-slate-600 to-slate-800 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-5xl font-bold">
                                 {userData.firstName[0]}{userData.lastName[0]}
                             </div>
-                            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                            <h2 className="text-2xl font-bold text-slate-800 mb-2">
                                 {userData.firstName} {userData.lastName}
                             </h2>
-                            <p className="text-gray-600 mb-4">{userData.email}</p>
-                            <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
+                            <p className="text-slate-600 mb-4">{userData.email}</p>
+                            <div className="inline-flex items-center px-4 py-2 bg-slate-100 text-slate-800 rounded-full text-sm font-semibold">
                                 <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                                 </svg>
@@ -62,11 +62,11 @@ const Profile = () => {
                             <div className="mt-8 space-y-3">
                                 <button
                                     onClick={() => navigate('/profile/history')}
-                                    className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                                    className="w-full py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 shadow-lg hover:shadow-xl"
                                 >
                                     View History
                                 </button>
-                                <button className="w-full py-3 bg-white border-2 border-blue-600 text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-all duration-300">
+                                <button className="w-full py-3 bg-white border-2 border-slate-600 text-slate-600 font-semibold rounded-lg hover:bg-slate-50 transition-all duration-300">
                                     Change Password
                                 </button>
                             </div>
@@ -77,11 +77,11 @@ const Profile = () => {
                     <div className="lg:col-span-2">
                         <div className="bg-white rounded-2xl shadow-xl p-8">
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-2xl font-bold text-gray-800">Account Information</h2>
+                                <h2 className="text-2xl font-bold text-slate-800">Account Information</h2>
                                 {!isEditing ? (
                                     <button
                                         onClick={handleEdit}
-                                        className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-300"
+                                        className="px-6 py-2 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 shadow-lg hover:shadow-xl"
                                     >
                                         Edit Profile
                                     </button>
@@ -89,13 +89,13 @@ const Profile = () => {
                                     <div className="space-x-2">
                                         <button
                                             onClick={handleSave}
-                                            className="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-all duration-300"
+                                            className="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-all duration-300 shadow-lg"
                                         >
                                             Save
                                         </button>
                                         <button
                                             onClick={handleEdit}
-                                            className="px-6 py-2 bg-gray-400 text-white font-semibold rounded-lg hover:bg-gray-500 transition-all duration-300"
+                                            className="px-6 py-2 bg-slate-400 text-white font-semibold rounded-lg hover:bg-slate-500 transition-all duration-300"
                                         >
                                             Cancel
                                         </button>
@@ -161,26 +161,26 @@ const Profile = () => {
 
 const ProfileField = ({ label, name, value, isEditing, onChange, type = 'text' }) => (
     <div>
-        <label className="block text-gray-700 font-semibold mb-2">{label}</label>
+        <label className="block text-slate-700 font-semibold mb-2">{label}</label>
         {isEditing ? (
             <input
                 type={type}
                 name={name}
                 value={value}
                 onChange={onChange}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none transition-colors"
+                className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-slate-600 focus:outline-none transition-colors bg-slate-50"
             />
         ) : (
-            <div className="px-4 py-3 bg-gray-50 rounded-lg text-gray-800">{value}</div>
+            <div className="px-4 py-3 bg-slate-50 rounded-lg text-slate-800 border border-slate-200">{value}</div>
         )}
     </div>
 );
 
 const StatCard = ({ title, value, icon }) => (
-    <div className="bg-white rounded-xl shadow-lg p-6 text-center transform hover:scale-105 transition-all duration-300">
+    <div className="bg-gradient-to-br from-slate-700 to-slate-800 text-white rounded-xl shadow-lg p-6 text-center transform hover:scale-105 transition-all duration-300">
         <div className="text-4xl mb-2">{icon}</div>
-        <div className="text-3xl font-bold text-gray-800 mb-1">{value}</div>
-        <div className="text-gray-600 text-sm">{title}</div>
+        <div className="text-3xl font-bold mb-1">{value}</div>
+        <div className="text-slate-300 text-sm">{title}</div>
     </div>
 );
 

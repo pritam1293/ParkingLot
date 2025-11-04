@@ -71,14 +71,33 @@ const Unpark = () => {
                     </form>
 
                     {/* Helper Text */}
-                    <div className="mt-6 p-4 bg-slate-100 rounded-lg max-w-2xl mx-auto">
-                        <div className="flex items-start">
-                            <svg className="w-5 h-5 text-slate-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <p className="text-sm text-slate-600">
-                                Your ticket number can be found on the parking receipt you received when parking your vehicle.
-                            </p>
+                    <div className="mt-6 space-y-4 max-w-2xl mx-auto">
+                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div className="flex items-start">
+                                <svg className="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div>
+                                    <p className="text-sm font-semibold text-blue-800 mb-1">Forgot your ticket ID?</p>
+                                    <p className="text-sm text-blue-700">
+                                        Visit the help desk or call <span className="font-bold">1-800-QUICKPARK</span> with your vehicle number to retrieve it.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="flex items-start">
+                                <svg className="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div>
+                                    <p className="text-sm font-semibold text-green-800 mb-1">Payment Methods Accepted</p>
+                                    <p className="text-sm text-green-700">
+                                        Credit/Debit Cards, Mobile Wallets (GPay, PayPal, Apple Pay), UPI, and Cash at exit gate.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -152,31 +171,45 @@ const Unpark = () => {
                                 </div>
 
                                 {/* Payment Method Options */}
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                                    <button className="p-4 border-2 border-slate-300 rounded-lg hover:border-slate-600 hover:bg-slate-50 transition-all">
-                                        <div className="flex flex-col items-center">
-                                            <svg className="w-8 h-8 text-slate-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                                            </svg>
-                                            <span className="text-sm font-semibold text-slate-700">Card</span>
-                                        </div>
-                                    </button>
-                                    <button className="p-4 border-2 border-slate-300 rounded-lg hover:border-slate-600 hover:bg-slate-50 transition-all">
-                                        <div className="flex flex-col items-center">
-                                            <svg className="w-8 h-8 text-slate-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                            </svg>
-                                            <span className="text-sm font-semibold text-slate-700">Mobile</span>
-                                        </div>
-                                    </button>
-                                    <button className="p-4 border-2 border-slate-300 rounded-lg hover:border-slate-600 hover:bg-slate-50 transition-all">
-                                        <div className="flex flex-col items-center">
-                                            <svg className="w-8 h-8 text-slate-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                            </svg>
-                                            <span className="text-sm font-semibold text-slate-700">Cash</span>
-                                        </div>
-                                    </button>
+                                <div className="mb-6">
+                                    <h4 className="text-sm font-semibold text-slate-700 mb-3">Select Payment Method</h4>
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                        <button className="p-3 border-2 border-slate-300 rounded-lg hover:border-slate-600 hover:bg-slate-50 transition-all group">
+                                            <div className="flex flex-col items-center">
+                                                <svg className="w-7 h-7 text-slate-600 group-hover:text-slate-800 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                                </svg>
+                                                <span className="text-xs font-semibold text-slate-700">Card</span>
+                                            </div>
+                                        </button>
+                                        <button className="p-3 border-2 border-slate-300 rounded-lg hover:border-slate-600 hover:bg-slate-50 transition-all group">
+                                            <div className="flex flex-col items-center">
+                                                <svg className="w-7 h-7 text-slate-600 group-hover:text-slate-800 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                                </svg>
+                                                <span className="text-xs font-semibold text-slate-700">UPI</span>
+                                            </div>
+                                        </button>
+                                        <button className="p-3 border-2 border-slate-300 rounded-lg hover:border-slate-600 hover:bg-slate-50 transition-all group">
+                                            <div className="flex flex-col items-center">
+                                                <svg className="w-7 h-7 text-slate-600 group-hover:text-slate-800 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                                </svg>
+                                                <span className="text-xs font-semibold text-slate-700">Wallet</span>
+                                            </div>
+                                        </button>
+                                        <button className="p-3 border-2 border-slate-300 rounded-lg hover:border-slate-600 hover:bg-slate-50 transition-all group">
+                                            <div className="flex flex-col items-center">
+                                                <svg className="w-7 h-7 text-slate-600 group-hover:text-slate-800 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                </svg>
+                                                <span className="text-xs font-semibold text-slate-700">Cash</span>
+                                            </div>
+                                        </button>
+                                    </div>
+                                    <p className="text-xs text-slate-500 mt-3 text-center">
+                                        💳 All major credit/debit cards accepted | 📱 Google Pay, PayPal, Apple Pay | 💵 Cash at exit gate
+                                    </p>
                                 </div>
 
                                 <button
