@@ -6,7 +6,6 @@ import com.quickpark.parkinglot.config.JWT;
 import com.quickpark.parkinglot.entities.ParkedTicket;
 import com.quickpark.parkinglot.entities.UnparkedTicket;
 import com.quickpark.parkinglot.service.IParkingService;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

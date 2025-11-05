@@ -26,10 +26,10 @@ public class UserService implements IUserService {
     private final ParkedTicketRepository parkedTicketRepository;
     private final UnparkedTicketRepository unparkedTicketRepository;
 
-    public UserService(PasswordEncoder passwordEncoder, JWT jwtUtil, 
-        UserRepository userRepository, Validation validation, 
-        ParkedTicketRepository parkedTicketRepository, 
-        UnparkedTicketRepository unparkedTicketRepository) {
+    public UserService(PasswordEncoder passwordEncoder, JWT jwtUtil,
+            UserRepository userRepository, Validation validation,
+            ParkedTicketRepository parkedTicketRepository,
+            UnparkedTicketRepository unparkedTicketRepository) {
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
@@ -94,8 +94,8 @@ public class UserService implements IUserService {
             // Encode the password
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             userRepository.save(user);
-            // Generate and return JWT token
-            String token = jwtUtil.generateToken(user.getEmail());
+            // Generate and return JWT token with roles
+            String token = jwtUtil.generateToken(user.getEmail(), user.getRoles());
             return token;
         } catch (Exception e) {
             throw new RuntimeException("Error registering user: " + e.getMessage());
@@ -115,7 +115,7 @@ public class UserService implements IUserService {
             if (password != null) {
                 password = password.trim();
             }
-            if(password == null || password.isEmpty()) {
+            if (password == null || password.isEmpty()) {
                 throw new RuntimeException("Password is required");
             }
             User user = null;
@@ -146,8 +146,8 @@ public class UserService implements IUserService {
             if (!passwordEncoder.matches(password, user.getPassword())) {
                 throw new RuntimeException("Incorrect password");
             }
-            // Validated, generate and return JWT token
-            String token = jwtUtil.generateToken(user.getEmail());
+            // Validated, generate and return JWT token with roles
+            String token = jwtUtil.generateToken(user.getEmail(), user.getRoles());
             return token;
         } catch (Exception e) {
             throw new RuntimeException("Error validating user: " + e.getMessage());
@@ -205,8 +205,8 @@ public class UserService implements IUserService {
                 if (!validation.isValidContactNo(user.getContactNo())) {
                     throw new RuntimeException("Invalid contact number format");
                 }
-                if (!user.getContactNo().equals(existingUser.getContactNo()) && 
-                    userRepository.existsByContactNo(user.getContactNo())) {
+                if (!user.getContactNo().equals(existingUser.getContactNo()) &&
+                        userRepository.existsByContactNo(user.getContactNo())) {
                     throw new RuntimeException("Another user with this contact number already exists");
                 }
                 existingUser.setContactNo(user.getContactNo());
@@ -255,6 +255,7 @@ public class UserService implements IUserService {
             throw new RuntimeException("Error fetching user by email: " + e.getMessage());
         }
     }
+
     @Override
     public Map<String, List<Object>> getUserParkingHistory(String email) {
         try {
@@ -273,9 +274,8 @@ public class UserService implements IUserService {
             List<ParkedTicket> parkedTickets = parkedTicketRepository.findByEmail(email);
             List<UnparkedTicket> unparkedTickets = unparkedTicketRepository.findByEmail(email);
             return Map.of(
-                "parked", List.copyOf(parkedTickets),
-                "unparked", List.copyOf(unparkedTickets)
-            );
+                    "parked", List.copyOf(parkedTickets),
+                    "unparked", List.copyOf(unparkedTickets));
         } catch (Exception e) {
             throw new RuntimeException("Error fetching user parking history: " + e.getMessage());
         }

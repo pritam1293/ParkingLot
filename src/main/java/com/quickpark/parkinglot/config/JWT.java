@@ -9,7 +9,9 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 @Component
@@ -25,7 +27,14 @@ public class JWT {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    // Generate token for user
+    // Generate token for user with roles
+    public String generateToken(String email, Set<String> roles) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", roles);
+        return createToken(claims, email);
+    }
+
+    // Generate token for user without roles (backward compatibility)
     public String generateToken(String email) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, email);
@@ -53,6 +62,13 @@ public class JWT {
     // Extract email from token
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    // Extract roles from token
+    @SuppressWarnings("unchecked")
+    public List<String> extractRoles(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("roles", List.class);
     }
 
     // Extract expiration date

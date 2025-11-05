@@ -8,10 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public abstract class ParkingSpot {
     @Id
     private String id;
-
     @Version
     private Long version;
-
     private String type;
     private int cost;
     private int location;

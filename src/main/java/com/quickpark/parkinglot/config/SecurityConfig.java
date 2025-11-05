@@ -30,7 +30,14 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/quickpark/api/user/auth/signup", "/quickpark/api/user/auth/signin").permitAll()
+                        // Public endpoints - signup and signin
+                        .requestMatchers("/quickpark/api/user/auth/signup", "/quickpark/api/user/auth/signin")
+                        .permitAll()
+
+                        // Admin-only endpoints - parking spot management and statistics
+                        .requestMatchers("/quickpark/admin/api/**").hasRole("ADMIN")
+
+                        // All other endpoints require authentication (USER or ADMIN)
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

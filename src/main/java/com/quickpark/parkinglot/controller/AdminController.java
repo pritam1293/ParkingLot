@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/quickpark/api/admin/parking-spots")
+@RequestMapping("/quickpark/admin/api")
 public class AdminController {
 
     private final ParkingSpotRepository parkingSpotRepository;

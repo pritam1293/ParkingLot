@@ -52,4 +52,21 @@ public class Validation {
         String vehicleNoRegex = "^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$";
         return vehicleNo != null && vehicleNo.matches(vehicleNoRegex);
     }
+
+    public int getCostByVehicleType(String vehicleType) {
+        /*
+        Returns the parking cost per hour based on vehicle type
+        mini -> 20, compact -> 35, large -> 50
+        */
+        switch (vehicleType) {
+            case "mini":
+                return 20;
+            case "compact":
+                return 35;
+            case "large":
+                return 50;
+            default:
+                return 0;
+        }
+    }
 }
