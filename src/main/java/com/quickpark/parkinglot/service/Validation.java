@@ -1,11 +1,13 @@
 package com.quickpark.parkinglot.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class Validation {
 
-    private final String adminSecretKey = System.getenv("ADMIN_SECRET_KEY");
+    @Value("${ADMIN_SECRET_KEY}")
+    private String adminSecretKey;
     public Validation() {
     }
 

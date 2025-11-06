@@ -72,7 +72,7 @@ public class ParkingService implements IParkingService {
         for (ParkedTicket ticket : activeTickets) {
             ParkingSpot parkingSpotFromDB = ticket.getParkingSpot();
             String occupiedType = parkingSpotFromDB.getType();
-            int occupiedLocation = parkingSpotFromDB.getLocation();
+            String occupiedLocation = parkingSpotFromDB.getLocation();
 
             // Find and update the spot in database
             parkingSpotRepository.findByTypeAndLocation(occupiedType, occupiedLocation)
@@ -260,7 +260,8 @@ public class ParkingService implements IParkingService {
     private String generateRandomId() {
         /*
          * Generate a random 8-character alphanumeric ID, starting with QP
-         * Generate the id till we get a unique one, max 10 attempts, else return empty string
+         * Generate the id till we get a unique one, max 10 attempts, else return empty
+         * string
          */
         String randomId = "QP-" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
         int attempts = 0;
