@@ -40,62 +40,99 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public synchronized String registerUser(User user) {
+    public synchronized String registerUser(Map<String, String> signupRequest) {
         try {
+            String firstName = signupRequest.get("firstName");
+            String lastName = signupRequest.get("lastName");
+            String email = signupRequest.get("email");
+            String contactNo = signupRequest.get("contactNo");
+            String password = signupRequest.get("password");
+            String address = signupRequest.get("address");
+            String secretKey = signupRequest.get("secretKey");
+            String role = "USER"; // Default role is USER, will be changed to ADMIN if valid secret key is provided
             // Trim the trailing and leading spaces from all string fields
-            if (user.getFirstName() != null) {
-                user.setFirstName(user.getFirstName().trim());
+            if (firstName != null) {
+                firstName = firstName.trim();
+            }   
+            if (lastName != null) {
+                lastName = lastName.trim();
             }
-            if (user.getLastName() != null) {
-                user.setLastName(user.getLastName().trim());
+            if (email != null) {
+                email = email.trim();
             }
-            if (user.getEmail() != null) {
-                user.setEmail(user.getEmail().trim());
+            if (contactNo != null) {
+                contactNo = contactNo.trim();
             }
-            if (user.getContactNo() != null) {
-                user.setContactNo(user.getContactNo().trim());
+            if (password != null) {
+                password = password.trim();
             }
-            if (user.getPassword() != null) {
-                user.setPassword(user.getPassword().trim());
+            if (address != null) {
+                address = address.trim();
             }
-            // User object validation
-            if (user.getEmail() == null || user.getEmail().isEmpty()) {
+            if (secretKey != null) {
+                secretKey = secretKey.trim();
+            }
+            // Mandatory fields check
+            if (email == null || email.isEmpty()) {
                 throw new RuntimeException("Email is required");
             }
-            if (user.getContactNo() == null || user.getContactNo().isEmpty()) {
-                throw new RuntimeException("Contact number is required");
-            }
-            if (user.getPassword() == null || user.getPassword().isEmpty()) {
-                throw new RuntimeException("Password is required");
-            }
-            // Validate email and contact number formats
-            if (!validation.isValidEmail(user.getEmail())) {
+            if (validation.isValidEmail(email) == false) {
                 throw new RuntimeException("Invalid email format");
             }
-            if (!validation.isValidContactNo(user.getContactNo())) {
+            if (contactNo == null || contactNo.isEmpty()) {
+                throw new RuntimeException("Contact number is required");
+            }
+            if (validation.isValidContactNo(contactNo) == false) {
                 throw new RuntimeException("Invalid contact number format");
             }
-            if (!validation.isValidPassword(user.getPassword())) {
-                throw new RuntimeException("Invalid password format");
+            if (password == null || password.isEmpty()) {
+                throw new RuntimeException("Password is required");
             }
-            if (user.getFirstName() == null) {
-                user.setFirstName(user.getEmail());
+            if (validation.isValidPassword(password) == false) {
+                throw new RuntimeException("Invalid password format, password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character");
             }
-            if (user.getLastName() == null) {
-                user.setLastName("");
+            if (secretKey != null && !secretKey.isEmpty()) {
+                /*
+                 * If secret key is provided, check if it is valid for admin user creation
+                 * The provided secret key should also contain extra characters to avoid easy guessing
+                 * So the actual admin secret key is subsequence of the provided secret key
+                 * The length of the provided secret key should be between 40 to 60 characters
+                */
+                if (!validation.isAdminSecretKeyValid(secretKey)) {
+                    throw new RuntimeException("Invalid admin secret key");
+                }
+                role = "ADMIN"; // Promote to ADMIN role
             }
-            if (userRepository.findByEmail(user.getEmail()) != null) {
+            // Check if user with same email or contact number already exists
+            if (userRepository.existsByEmail(email)) {
                 throw new RuntimeException("User with this email already exists");
             }
-            if (userRepository.findByContactNo(user.getContactNo()) != null) {
+            if (userRepository.existsByContactNo(contactNo)) {
                 throw new RuntimeException("User with this contact number already exists");
             }
-            user.setCreatedAt(LocalDate.now());
-            // Encode the password
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            userRepository.save(user);
-            // Generate and return JWT token with roles
-            String token = jwtUtil.generateToken(user.getEmail(), user.getRoles());
+            if (firstName == null || firstName.isEmpty()) {
+                firstName = email.substring(0, email.indexOf('@'));
+            }
+            if (lastName == null) {
+                lastName = "";
+            }
+            if (address == null) {
+                address = "";
+            }
+            // Create new user
+            User newUser = new User(
+                    firstName,
+                    lastName,
+                    email,
+                    contactNo,
+                    passwordEncoder.encode(password),
+                    address,
+                    role,
+                    LocalDate.now());
+
+            userRepository.save(newUser);
+            // Generate JWT token with roles
+            String token = jwtUtil.generateToken(newUser.getEmail(), newUser.getRole());
             return token;
         } catch (Exception e) {
             throw new RuntimeException("Error registering user: " + e.getMessage());
@@ -147,7 +184,7 @@ public class UserService implements IUserService {
                 throw new RuntimeException("Incorrect password");
             }
             // Validated, generate and return JWT token with roles
-            String token = jwtUtil.generateToken(user.getEmail(), user.getRoles());
+            String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
             return token;
         } catch (Exception e) {
             throw new RuntimeException("Error validating user: " + e.getMessage());

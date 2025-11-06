@@ -34,11 +34,8 @@ public class ParkingService implements IParkingService {
     private Map<String, String> adminCredentials;
     private final Validation validation;
 
-    public ParkingService(ParkingSpotRepository parkingSpotRepository,
-            ParkedTicketRepository parkedTicketRepository,
-            UnparkedTicketRepository unparkedTicketRepository,
-            UserRepository userRepository,
-            Validation validation) {
+    public ParkingService(ParkingSpotRepository parkingSpotRepository, ParkedTicketRepository parkedTicketRepository,
+            UnparkedTicketRepository unparkedTicketRepository, UserRepository userRepository, Validation validation) {
         this.displayBoard = DisplayBoard.getInstance();
         this.parkingSpotRepository = parkingSpotRepository;
         this.validation = validation;

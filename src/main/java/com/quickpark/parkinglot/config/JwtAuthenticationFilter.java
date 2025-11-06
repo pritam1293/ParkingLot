@@ -16,7 +16,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -47,14 +46,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Validate token and set authentication
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             if (jwtUtil.validateToken(jwt, email)) {
-                // Extract roles from token
-                List<String> roles = jwtUtil.extractRoles(jwt);
+                // Extract role from token
+                String role = jwtUtil.extractRole(jwt);
                 List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
-                if (roles != null && !roles.isEmpty()) {
-                    authorities = roles.stream()
-                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                            .collect(Collectors.toList());
+                if (role != null && !role.isEmpty()) {
+                    // If user has ADMIN role, grant both USER and ADMIN authorities
+                    if ("ADMIN".equals(role)) {
+                        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+                        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                    } else {
+                        // Otherwise just grant the USER authority
+                        authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+                    }
                 }
 
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(

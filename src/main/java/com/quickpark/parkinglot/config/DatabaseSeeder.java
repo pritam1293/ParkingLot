@@ -8,11 +8,11 @@ import com.quickpark.parkinglot.repository.ParkingSpotRepository;
 import com.quickpark.parkinglot.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
-@Component
+// Database seeder is disabled - parking spots and admin users will be managed manually by admins
+// @Component
 public class DatabaseSeeder implements CommandLineRunner {
 
     private final ParkingSpotRepository parkingSpotRepository;
@@ -87,7 +87,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             adminUser.setLastName("User");
             adminUser.setPassword(passwordEncoder.encode("Admin@123"));
             adminUser.setCreatedAt(LocalDate.now());
-            adminUser.addRole("ADMIN");
+            adminUser.setRole("ADMIN");
 
             userRepository.save(adminUser);
 

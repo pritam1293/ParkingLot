@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class Validation {
+
+    private final String adminSecretKey = System.getenv("ADMIN_SECRET_KEY");
     public Validation() {
     }
 
@@ -68,5 +70,20 @@ public class Validation {
             default:
                 return 0;
         }
+    }
+
+    public boolean isAdminSecretKeyValid(String secretKey) {
+        // admin secret key is subsequence of actual secret key
+        int n = secretKey.length();
+        if(n < 40 || n > 60) return false; // Length must be between 40 and 60
+        int m = adminSecretKey.length();
+        int i = 0, j = 0;
+        while (i < n && j < m) {
+            if (secretKey.charAt(i) == adminSecretKey.charAt(j)) {
+                j++;
+            }
+            i++;
+        }
+        return j == m;
     }
 }

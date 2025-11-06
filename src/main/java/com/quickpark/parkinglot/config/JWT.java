@@ -9,44 +9,37 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 @Component
 public class JWT {
 
-    @Value("${jwt.secret:myDefaultSecretKeyForJWTTokenGenerationAndValidation12345678}")
+    @Value("${JWT_SECRET}")
     private String secret;
 
-    @Value("${jwt.expiration:86400000}") // 24 hours in milliseconds
+    @Value("${JWT_EXPIRATION:86400000}") // 24 hours in milliseconds
     private Long expiration;
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    // Generate token for user with roles
-    public String generateToken(String email, Set<String> roles) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", roles);
-        return createToken(claims, email);
+    // Generate token for user with role
+    public String generateToken(String email, String role) {
+        return createToken(email, role);
     }
 
-    // Generate token for user without roles (backward compatibility)
-    public String generateToken(String email) {
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, email);
-    }
-
-    private String createToken(Map<String, Object> claims, String subject) {
+    private String createToken(String email, String role) {
         Date now = new Date();
         Date expirationDate = new Date(now.getTime() + expiration);
 
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+
         return Jwts.builder()
                 .claims(claims)
-                .subject(subject)
+                .subject(email)
                 .issuedAt(now)
                 .expiration(expirationDate)
                 .signWith(getSigningKey())
@@ -64,11 +57,10 @@ public class JWT {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // Extract roles from token
-    @SuppressWarnings("unchecked")
-    public List<String> extractRoles(String token) {
+    // Extract role from token
+    public String extractRole(String token) {
         Claims claims = extractAllClaims(token);
-        return claims.get("roles", List.class);
+        return claims.get("role", String.class);
     }
 
     // Extract expiration date

@@ -30,15 +30,14 @@ public class UserController {
     }
 
     @PostMapping("/auth/signup")
-    public ResponseEntity<?> signup(@RequestBody User user) {
+    public ResponseEntity<?> signup(@RequestBody Map<String, String> signupRequest) {
         try {
             // Register user and get JWT token
-            String token = userService.registerUser(user);
+            String token = userService.registerUser(signupRequest);
 
             // Prepare response
             Map<String, Object> response = new HashMap<>();
             response.put("message", "User registered successfully");
-            response.put("email", user.getEmail());
             response.put("token", token);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
