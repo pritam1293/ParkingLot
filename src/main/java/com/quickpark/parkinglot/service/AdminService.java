@@ -18,27 +18,31 @@ import java.util.Map;
 public class AdminService implements IAdminService {
 
     private final ParkingSpotRepository parkingSpotRepository;
+    private final Validation validation;
 
-    public AdminService(ParkingSpotRepository parkingSpotRepository) {
+    public AdminService(ParkingSpotRepository parkingSpotRepository, Validation validation) {
         this.parkingSpotRepository = parkingSpotRepository;
+        this.validation = validation;
     }
 
     @Override
     public Map<String, Object> addParkingSpots(Map<String, Integer> parkingSpotRequest) {
         try {
+            if (parkingSpotRequest == null || parkingSpotRequest.isEmpty()) {
+                throw new RuntimeException("Request body cannot be empty. Provide spot types and counts (e.g., {\"mini\": 10, \"compact\": 20})");
+            }
             Map<String, Object> response = new HashMap<>();
             Map<String, Integer> addedSpots = new HashMap<>();
             int totalAdded = 0;
 
             // Process each type of parking spot request
             for (Map.Entry<String, Integer> entry : parkingSpotRequest.entrySet()) {
-                String type = entry.getKey().toLowerCase();
+                String type = entry.getKey().toLowerCase().trim();
                 Integer count = entry.getValue();
 
                 // Validate type
-                if (!type.equals("mini") && !type.equals("compact") && !type.equals("large")) {
-                    throw new RuntimeException(
-                            "Invalid parking spot type: " + type + ". Allowed values: mini, compact, large");
+                if (!validation.isValidVehicleType(type)) {
+                    throw new RuntimeException("Invalid parking spot type: " + type);
                 }
 
                 // Validate count
@@ -93,17 +97,13 @@ public class AdminService implements IAdminService {
             response.put("added", addedSpots);
             response.put("totalAdded", totalAdded);
             response.put("currentTotals", getCurrentTotals());
-
             return response;
-
         } catch (Exception e) {
             throw new RuntimeException("Error adding parking spots: " + e.getMessage());
         }
     }
 
-    /**
-     * Get section number based on parking spot type
-     */
+    // Get section number based on parking spot type
     private int getSectionNumber(String type) {
         switch (type.toLowerCase()) {
             case "mini":
@@ -117,9 +117,7 @@ public class AdminService implements IAdminService {
         }
     }
 
-    /**
-     * Get the next available position (row, column) for a given type
-     */
+    // Get the next available position (row, column) for a given type
     private Map<String, Integer> getNextAvailablePosition(String type, int sectionNumber) {
         Map<String, Integer> position = new HashMap<>();
 
@@ -163,9 +161,7 @@ public class AdminService implements IAdminService {
         return position;
     }
 
-    /**
-     * Create a parking spot instance based on type
-     */
+    // Create a parking spot instance based on type
     private ParkingSpot createParkingSpot(String type, String location) {
         switch (type.toLowerCase()) {
             case "mini":
@@ -179,9 +175,7 @@ public class AdminService implements IAdminService {
         }
     }
 
-    /**
-     * Get current totals of all parking spot types
-     */
+    // Get current totals of all parking spot types (both active and inactive)
     private Map<String, Long> getCurrentTotals() {
         Map<String, Long> totals = new HashMap<>();
         totals.put("mini", parkingSpotRepository.findByType("mini").stream().count());
@@ -189,5 +183,53 @@ public class AdminService implements IAdminService {
         totals.put("large", parkingSpotRepository.findByType("large").stream().count());
         totals.put("total", parkingSpotRepository.count());
         return totals;
+    }
+
+    @Override
+    public Map<String, Object> updateParkingSpotStatus(Map<String, Boolean> statusRequest) {
+        try {
+            if(statusRequest == null || statusRequest.isEmpty()) {
+                throw new RuntimeException("Status request cannot be null or empty");
+            }
+            Map<String, Object> response = new HashMap<>();
+            List<String> updated = new ArrayList<>();
+            List<String> notFound = new ArrayList<>();
+
+            for (Map.Entry<String, Boolean> entry : statusRequest.entrySet()) {
+                String location = entry.getKey();
+                Boolean isActive = entry.getValue();
+                if (location != null) {
+                    location = location.trim();
+                }
+
+                if (location == null || location.isEmpty() || isActive == null) {
+                    continue;
+                }
+
+                ParkingSpot spot = parkingSpotRepository.findByLocation(location).orElse(null);
+                if (spot == null) {
+                    notFound.add(location);
+                    continue;
+                }
+                spot.setActive(isActive);
+                spot.setUpdatedAt(LocalDateTime.now());
+                parkingSpotRepository.save(spot);
+                updated.add(location);
+            }
+            response.put("updated", updated);
+            response.put("not_found", notFound);
+            return response;
+        } catch (Exception e) {
+            throw new RuntimeException("Error updating parking spot status: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Map<String, List<ParkingSpot>> getAllParkingSpots() {
+        Map<String, List<ParkingSpot>> spotsByType = new HashMap<>();
+        spotsByType.put("mini", parkingSpotRepository.findByType("mini"));
+        spotsByType.put("compact", parkingSpotRepository.findByType("compact"));
+        spotsByType.put("large", parkingSpotRepository.findByType("large"));
+        return spotsByType;
     }
 }

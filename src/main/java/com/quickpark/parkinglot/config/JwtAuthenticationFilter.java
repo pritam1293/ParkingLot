@@ -32,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String email = null;
         String jwt = null;
+        boolean isTokenInvalid = false;
 
         // Extract JWT token from Authorization header
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
@@ -40,6 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 email = jwtUtil.extractEmail(jwt);
             } catch (Exception e) {
                 logger.error("JWT token extraction failed: " + e.getMessage());
+                isTokenInvalid = true;
             }
         }
 
@@ -65,7 +67,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         email, null, authorities);
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            } else {
+                isTokenInvalid = true;
             }
+        }
+
+        // If token is invalid and it's a protected endpoint, send unauthorized response
+        if (isTokenInvalid && authorizationHeader != null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter()
+                    .write("{\"error\": \"Not authorized\", \"message\": \"Invalid or expired JWT token\"}");
+            return;
         }
 
         filterChain.doFilter(request, response);

@@ -45,6 +45,7 @@ public abstract class ParkingSpot {
         this.cost = cost;
         this.location = location;
         this.isBooked = false;
+        this.isActive = true;
     }
 
     public String getType() {
