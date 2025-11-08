@@ -16,14 +16,16 @@ public interface ParkingSpotRepository extends MongoRepository<ParkingSpot, Stri
     // Find spots by type and booking status
     List<ParkingSpot> findByTypeAndIsBooked(String type, boolean isBooked);
 
+    // Find spots by type and active status
+    List<ParkingSpot> findByTypeAndIsActive(String type, boolean isActive);
+
+    List<ParkingSpot> findByTypeAndIsBookedAndIsActive(String type, boolean isBooked, boolean isActive);
+
     // Find first available spot by type
     Optional<ParkingSpot> findFirstByTypeAndIsBooked(String type, boolean isBooked);
 
     // Find by location
-    Optional<ParkingSpot> findByLocation(String location);
-
-    // Find by type and location
-    Optional<ParkingSpot> findByTypeAndLocation(String type, String location);
+    ParkingSpot findByLocation(String location);
 
     // Check if location exists
     boolean existsByLocation(String location);

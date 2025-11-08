@@ -5,9 +5,13 @@ import org.springframework.stereotype.Service;
 import com.quickpark.parkinglot.entities.CompactParkingSpot;
 import com.quickpark.parkinglot.entities.LargeParkingSpot;
 import com.quickpark.parkinglot.entities.MiniParkingSpot;
+import com.quickpark.parkinglot.entities.ParkedTicket;
 import com.quickpark.parkinglot.entities.ParkingSpot;
+import com.quickpark.parkinglot.entities.UnparkedTicket;
 import com.quickpark.parkinglot.repository.ParkingSpotRepository;
-
+import com.quickpark.parkinglot.repository.UnparkedTicketRepository;
+import com.quickpark.parkinglot.repository.ParkedTicketRepository;
+import com.quickpark.parkinglot.custom.Pair;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,10 +22,15 @@ import java.util.Map;
 public class AdminService implements IAdminService {
 
     private final ParkingSpotRepository parkingSpotRepository;
+    private final UnparkedTicketRepository unparkedTicketRepository;
+    private final ParkedTicketRepository parkedTicketRepository;
     private final Validation validation;
 
-    public AdminService(ParkingSpotRepository parkingSpotRepository, Validation validation) {
+    public AdminService(ParkingSpotRepository parkingSpotRepository, UnparkedTicketRepository unparkedTicketRepository,
+            ParkedTicketRepository parkedTicketRepository, Validation validation) {
         this.parkingSpotRepository = parkingSpotRepository;
+        this.unparkedTicketRepository = unparkedTicketRepository;
+        this.parkedTicketRepository = parkedTicketRepository;
         this.validation = validation;
     }
 
@@ -29,7 +38,8 @@ public class AdminService implements IAdminService {
     public Map<String, Object> addParkingSpots(Map<String, Integer> parkingSpotRequest) {
         try {
             if (parkingSpotRequest == null || parkingSpotRequest.isEmpty()) {
-                throw new RuntimeException("Request body cannot be empty. Provide spot types and counts (e.g., {\"mini\": 10, \"compact\": 20})");
+                throw new RuntimeException(
+                        "Request body cannot be empty. Provide spot types and counts (e.g., {\"mini\": 10, \"compact\": 20})");
             }
             Map<String, Object> response = new HashMap<>();
             Map<String, Integer> addedSpots = new HashMap<>();
@@ -188,7 +198,7 @@ public class AdminService implements IAdminService {
     @Override
     public Map<String, Object> updateParkingSpotStatus(Map<String, Boolean> statusRequest) {
         try {
-            if(statusRequest == null || statusRequest.isEmpty()) {
+            if (statusRequest == null || statusRequest.isEmpty()) {
                 throw new RuntimeException("Status request cannot be null or empty");
             }
             Map<String, Object> response = new HashMap<>();
@@ -206,7 +216,7 @@ public class AdminService implements IAdminService {
                     continue;
                 }
 
-                ParkingSpot spot = parkingSpotRepository.findByLocation(location).orElse(null);
+                ParkingSpot spot = parkingSpotRepository.findByLocation(location);
                 if (spot == null) {
                     notFound.add(location);
                     continue;
@@ -225,11 +235,119 @@ public class AdminService implements IAdminService {
     }
 
     @Override
-    public Map<String, List<ParkingSpot>> getAllParkingSpots() {
-        Map<String, List<ParkingSpot>> spotsByType = new HashMap<>();
-        spotsByType.put("mini", parkingSpotRepository.findByType("mini"));
-        spotsByType.put("compact", parkingSpotRepository.findByType("compact"));
-        spotsByType.put("large", parkingSpotRepository.findByType("large"));
-        return spotsByType;
+    public Map<String, Object> getAllParkingSpots() {
+        try {
+            Map<String, Object> spotsByType = new HashMap<>();
+            List<ParkingSpot> miniSpots = parkingSpotRepository.findByType("mini");
+            List<ParkingSpot> compactSpots = parkingSpotRepository.findByType("compact");
+            List<ParkingSpot> largeSpots = parkingSpotRepository.findByType("large");
+
+            spotsByType.put("mini_count", miniSpots.size());
+            spotsByType.put("compact_count", compactSpots.size());
+            spotsByType.put("large_count", largeSpots.size());
+            spotsByType.put("total_count", parkingSpotRepository.count());
+            spotsByType.put("mini", miniSpots);
+            spotsByType.put("compact", compactSpots);
+            spotsByType.put("large", largeSpots);
+            return spotsByType;
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching parking spots: " + e.getMessage());
+        }
+    }
+
+    // Return all parked spots with details of who booked them
+    @Override
+    public List<Pair> getAllParkedSpots() {
+        try {
+            List<Pair> parkedSpots = new ArrayList<>();
+            List<ParkedTicket> miniSpots = parkedTicketRepository.findByParkingSpotType("mini");
+            List<ParkedTicket> compactSpots = parkedTicketRepository.findByParkingSpotType("compact");
+            List<ParkedTicket> largeSpots = parkedTicketRepository.findByParkingSpotType("large");
+
+            parkedSpots.add(new Pair("mini_count", miniSpots.size()));
+            parkedSpots.add(new Pair("compact_count", compactSpots.size()));
+            parkedSpots.add(new Pair("large_count", largeSpots.size()));
+            parkedSpots.add(new Pair("total_count", miniSpots.size() + compactSpots.size() + largeSpots.size()));
+            parkedSpots.add(new Pair("mini", miniSpots));
+            parkedSpots.add(new Pair("compact", compactSpots));
+            parkedSpots.add(new Pair("large", largeSpots));
+            return parkedSpots;
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching parked spots: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Pair> getAllAvailableSpots() {
+        try {
+            List<Pair> availableSpots = new ArrayList<>();
+            List<ParkingSpot> miniSpots = parkingSpotRepository.findByTypeAndIsBookedAndIsActive("mini", false, true);
+            List<ParkingSpot> compactSpots = parkingSpotRepository.findByTypeAndIsBookedAndIsActive("compact", false, true);
+            List<ParkingSpot> largeSpots = parkingSpotRepository.findByTypeAndIsBookedAndIsActive("large", false, true);
+            availableSpots.add(new Pair("mini_count", miniSpots.size()));
+            availableSpots.add(new Pair("compact_count", compactSpots.size()));
+            availableSpots.add(new Pair("large_count", largeSpots.size()));
+            availableSpots.add(new Pair("total_count", miniSpots.size() + compactSpots.size() + largeSpots.size()));
+            availableSpots.add(new Pair("mini", miniSpots));
+            availableSpots.add(new Pair("compact", compactSpots));
+            availableSpots.add(new Pair("large", largeSpots));
+            return availableSpots;
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching available spots: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Pair> getAllSpotsByActiveStatus(boolean active) {
+        try {
+            List<Pair> spots = new ArrayList<>();
+            List<ParkingSpot> miniSpots = parkingSpotRepository.findByTypeAndIsActive("mini", active);
+            List<ParkingSpot> compactSpots = parkingSpotRepository.findByTypeAndIsActive("compact", active);
+            List<ParkingSpot> largeSpots = parkingSpotRepository.findByTypeAndIsActive("large", active);
+            spots.add(new Pair("mini_count", miniSpots.size()));
+            spots.add(new Pair("compact_count", compactSpots.size()));
+            spots.add(new Pair("large_count", largeSpots.size()));
+            spots.add(new Pair("total_count", miniSpots.size() + compactSpots.size() + largeSpots.size()));
+            spots.add(new Pair("mini", miniSpots));
+            spots.add(new Pair("compact", compactSpots));
+            spots.add(new Pair("large", largeSpots));
+            return spots;
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching spots by active status: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public long calculateRevenueBetweenDates(String startDateStr, String endDateStr) {
+        try {
+            if (startDateStr != null) {
+                startDateStr = startDateStr.trim();
+            }
+            if (endDateStr != null) {
+                endDateStr = endDateStr.trim();
+            }
+            if( startDateStr == null || startDateStr.isEmpty()) {
+                throw new RuntimeException("Start date cannot be null or empty");
+            }
+            if( endDateStr == null || endDateStr.isEmpty()) {
+                throw new RuntimeException("End date cannot be null or empty");
+            }
+            if (!validation.isValidDateString(startDateStr)) {
+                throw new RuntimeException("Invalid start date format. Expected format: YYYY-MM-DDTHH:MM:SS");
+            }
+            if (!validation.isValidDateString(endDateStr)) {
+                throw new RuntimeException("Invalid end date format. Expected format: YYYY-MM-DDTHH:MM:SS");
+            }
+            LocalDateTime startDate = LocalDateTime.parse(startDateStr);
+            LocalDateTime endDate = LocalDateTime.parse(endDateStr);
+            List<UnparkedTicket> tickets = unparkedTicketRepository.findByExitTimeBetween(startDate, endDate);
+            long totalRevenue = 0;
+            for (UnparkedTicket ticket : tickets) {
+                totalRevenue += ticket.getTotalCost();
+            }
+            return totalRevenue;
+        } catch (Exception e) {
+            throw new RuntimeException("Error calculating revenue: " + e.getMessage());
+        }
     }
 }

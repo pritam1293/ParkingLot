@@ -98,6 +98,9 @@ public class UserController {
 
             User user = userService.getUserByEmail(email);
             return ResponseEntity.ok(user);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error fetching profile: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error fetching profile: " + e.getMessage());
@@ -112,6 +115,9 @@ public class UserController {
 
             Map<String, List<Object>> history = userService.getUserParkingHistory(email);
             return ResponseEntity.ok(history);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error fetching history: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error fetching history: " + e.getMessage());
@@ -123,7 +129,6 @@ public class UserController {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new RuntimeException("Invalid or missing Authorization header");
         }
-
         String token = authHeader.substring(7); // Remove "Bearer " prefix
         return jwtUtil.extractEmail(token);
     }

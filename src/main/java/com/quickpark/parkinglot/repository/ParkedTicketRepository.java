@@ -8,19 +8,23 @@ import java.util.List;
 
 @Repository
 public interface ParkedTicketRepository extends MongoRepository<ParkedTicket, String> {
-    
+
     ParkedTicket findByVehicleNo(String vehicleNo);
 
     boolean existsByVehicleNo(String vehicleNo);
 
-    boolean existsById(@NonNull String id);  
-    
+    boolean existsById(@NonNull String id);
+
     @NonNull
     List<ParkedTicket> findAll();
+
+    List<ParkedTicket> findByParkingSpotType(String type);
 
     List<ParkedTicket> findByEmail(String email);
 
     List<ParkedTicket> findByOwnerContact(String ownerContact);
+
+    ParkedTicket findByParkingSpotLocation(String location);
 
     void deleteByVehicleNo(String vehicleNo);
 }

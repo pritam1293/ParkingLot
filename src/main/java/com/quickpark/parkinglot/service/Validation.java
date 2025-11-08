@@ -2,6 +2,7 @@ package com.quickpark.parkinglot.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
 
 @Service
 public class Validation {
@@ -87,5 +88,62 @@ public class Validation {
             i++;
         }
         return j == m;
+    }
+
+    public boolean isValidDateString(String dateStr) {
+        /*
+        Validates date string in the format YYYY-MM-DDTHH:MM:SS
+        Example: 
+        Valid : 2025-11-09T10:30:00
+        Invalid : 2025-13-99T25:61:99
+        */
+        String dateRegex = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$";
+        if(!dateStr.matches(dateRegex)) return false;
+        String year, month, day, hour, minute, second;
+        try {
+            year = dateStr.substring(0, 4);
+            month = dateStr.substring(5, 7);
+            day = dateStr.substring(8, 10);
+            hour = dateStr.substring(11, 13);
+            minute = dateStr.substring(14, 16);
+            second = dateStr.substring(17, 19);
+        } catch (Exception e) {
+            return false; // Substring failed due to incorrect length
+        }
+        // Validate each component
+        int currentYear = LocalDate.now().getYear();
+        if (stringToInteger(year) > currentYear || stringToInteger(year) < 2020) return false;
+        if (stringToInteger(month) < 1 || stringToInteger(month) > 12) return false;
+        if (stringToInteger(day) < 1 || stringToInteger(day) > 31) return false;
+        if (!isMonthAndDayValid(stringToInteger(year), stringToInteger(month), stringToInteger(day))) return false;
+        if (stringToInteger(hour) < 0 || stringToInteger(hour) > 23) return false;
+        if (stringToInteger(minute) < 0 || stringToInteger(minute) > 59) return false;
+        if (stringToInteger(second) < 0 || stringToInteger(second) > 59) return false;
+        return true;
+    }
+
+    private int stringToInteger(String str) {
+        try {
+            return Integer.parseInt(str);
+        } catch (NumberFormatException e) {
+            return -1; // Invalid integer
+        }
+    }
+
+    private boolean isMonthAndDayValid(int year, int month, int day) {
+        // Check for months with 30 days
+        if (month == 4 || month == 6 || month == 9 || month == 11) {
+            return day <= 30;
+        }
+        // Check for February
+        if (month == 2) {
+            // Leap year check
+            if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) {
+                return day <= 29;
+            } else {
+                return day <= 28;
+            }
+        }
+        return true; // Months with 31 days
     }
 }
