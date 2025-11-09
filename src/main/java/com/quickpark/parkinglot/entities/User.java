@@ -1,6 +1,6 @@
 package com.quickpark.parkinglot.entities;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -17,13 +17,15 @@ public class User {
     private String password;
     private String address;
     private String role;
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
+    private String otp;
+    private LocalDateTime expiresIn;
 
     public User() {
     }
 
-    public User(String firstName, String lastName, String email, String contactNo,
-            String password, String address, String role, LocalDate createdAt) {
+    public User(String firstName, String lastName, String email, String contactNo, String password, 
+                String address, String role, LocalDateTime createdAt, String otp, LocalDateTime expiresIn) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -32,6 +34,8 @@ public class User {
         this.address = address;
         this.role = role;
         this.createdAt = createdAt;
+        this.otp = otp;
+        this.expiresIn = expiresIn;
     }
 
     public String getFirstName() {
@@ -90,12 +94,28 @@ public class User {
         this.role = role;
     }
 
-    public LocalDate getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDate createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getOtp() {
+        return otp;
+    }
+
+    public void setOtp(String otp) {
+        this.otp = otp;
+    }
+
+    public LocalDateTime getExpiresIn() {
+        return expiresIn;
+    }
+
+    public void setExpiresIn(LocalDateTime expiresIn) {
+        this.expiresIn = expiresIn;
     }
 
     @Override

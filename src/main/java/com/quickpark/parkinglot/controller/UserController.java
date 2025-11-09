@@ -101,14 +101,105 @@ public class UserController {
         try {
             // Extract email from JWT token
             String email = extractEmailFromToken(authHeader);
-            userService.updateUserDetails(email, user);
+            Map<String, String> result = userService.updateUserDetails(email, user);
 
+            try {
+                emailService.sendUpdateEmail(
+                    result.get("email"),
+                    result.get("firstName"), 
+                    result.get("lastName")
+                );
+            } catch (Exception e) {
+                // Log the email sending failure but do not fail the update process
+                System.out.println("");
+                System.err.println("Failed to send update email: " + e.getMessage());
+                System.err.println("email: " + result.get("email"));
+                System.out.println("");
+            }
             return ResponseEntity.ok("User updated successfully");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error updating user: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/auth/otp/generate")
+    public ResponseEntity<?> generateOTP(@RequestBody String email, @RequestHeader("Authorization") String authHeader) {
+        try {
+            // Extract email from JWT token
+            String authEmail = extractEmailFromToken(authHeader);
+            boolean isOTPSent = userService.generateAndSendOTP(email, authEmail);
+            if (isOTPSent) {
+                return ResponseEntity.ok("OTP sent successfully to " + email);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to send OTP");
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error generating OTP: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/auth/otp/verify")
+    public ResponseEntity<?> verifyOTP(@RequestBody Map<String, String> otpRequest, @RequestHeader("Authorization") String authHeader) {
+        try {
+            String email = otpRequest.get("email");
+            String otp = otpRequest.get("otp");
+            // Extract email from JWT token
+            String authEmail = extractEmailFromToken(authHeader);
+            boolean isOTPValid = userService.verifyOTP(email, authEmail, otp);
+            if (isOTPValid) {
+                return ResponseEntity.ok("OTP verified successfully");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid OTP");
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error verifying OTP: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/auth/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody String newPassword, @RequestHeader("Authorization") String authHeader) {
+        try {
+            // Extract email from JWT token
+            String email = extractEmailFromToken(authHeader);
+            boolean isPasswordReset = userService.resetPassword(email, newPassword);
+            if (isPasswordReset) {
+                return ResponseEntity.ok("Password reset successfully");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to reset password");
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error resetting password: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/auth/reset-contact")
+    public ResponseEntity<?> resetContactNumber(@RequestBody String newContactNo, @RequestHeader("Authorization") String authHeader) {
+        try {
+            // Extract email from JWT token
+            String email = extractEmailFromToken(authHeader);
+            boolean isContactReset = userService.resetContactNumber(email, newContactNo);
+            if (isContactReset) {
+                return ResponseEntity.ok("Contact number reset successfully");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to reset contact number");
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error resetting contact number: " + e.getMessage());
         }
     }
 

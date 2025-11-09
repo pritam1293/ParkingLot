@@ -65,6 +65,25 @@ public class EmailService {
         }
     }
 
+    public void sendUpdateEmail(String toEmail, String firstName, String lastName) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject("QuickPark - Profile Updated Successfully");
+            String fullName = firstName + " " + lastName;
+            fullName = fullName.trim();
+            String htmlContent = buildUpdateEmailHtml(fullName);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send profile update email: " + e.getMessage());
+        }
+    }
+
     public void sendPasswordChangeEmail(String toEmail, String firstName, String lastName) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -196,6 +215,50 @@ public class EmailService {
                                 If this wasn't you, please change your password immediately and contact our support team.
                             </div>
                             <p>Stay secure and enjoy our services!</p>
+                        </div>
+                        <div class="footer">
+                            <p>© 2025 QuickPark. All rights reserved.</p>
+                            <p>This is an automated email. Please do not reply to this message.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """
+                .formatted(fullName, currentDateTime);
+    }
+
+    private String buildUpdateEmailHtml(String fullName) {
+        String currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"));
+
+        return """
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                        .header { background-color: #FF9800; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+                        .content { background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px; }
+                        .success { background-color: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; }
+                        .footer { text-align: center; padding: 20px; color: #777; font-size: 12px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h1>📝 Profile Updated</h1>
+                        </div>
+                        <div class="content">
+                            <h2>Hello %s!</h2>
+                            <div class="success">
+                                <strong>✅ Success!</strong><br>
+                                Your profile has been updated successfully.
+                            </div>
+                            <p><strong>Update Details:</strong></p>
+                            <ul>
+                                <li>Date & Time: %s</li>
+                            </ul>
+                            <p>If you did not make this change, please contact our support team immediately.</p>
                         </div>
                         <div class="footer">
                             <p>© 2025 QuickPark. All rights reserved.</p>
