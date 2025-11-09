@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.quickpark.parkinglot.config.JWT;
+import com.quickpark.parkinglot.service.EmailService;
 import com.quickpark.parkinglot.service.IUserService;
 import com.quickpark.parkinglot.entities.User;
 
@@ -23,22 +24,30 @@ import java.util.List;
 public class UserController {
     private final IUserService userService;
     private final JWT jwtUtil;
+    private final EmailService emailService;
 
-    public UserController(IUserService userService, JWT jwtUtil) {
+    public UserController(IUserService userService, JWT jwtUtil, EmailService emailService) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
+        this.emailService = emailService;
     }
 
     @PostMapping("/auth/signup")
     public ResponseEntity<?> signup(@RequestBody Map<String, String> signupRequest) {
         try {
             // Register user and get JWT token
-            String token = userService.registerUser(signupRequest);
+            Map<String, String> result = userService.registerUser(signupRequest);
 
             // Prepare response
             Map<String, Object> response = new HashMap<>();
             response.put("message", "User registered successfully");
-            response.put("token", token);
+            response.put("token", result.get("token"));
+            
+            emailService.sendSignupEmail(
+                result.get("email"),
+                result.get("firstName"), 
+                result.get("lastName")
+                );
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
@@ -57,14 +66,27 @@ public class UserController {
             String password = loginRequest.get("password");
 
             // Validate user and get JWT token
-            String token = userService.validateUser(email, contactNo, password);
+            Map<String, String> result = userService.validateUser(email, contactNo, password);
 
             // Prepare response
             Map<String, Object> response = new HashMap<>();
             response.put("message", "User signed in successfully");
             response.put("email", email);
-            response.put("token", token);
+            response.put("token", result.get("token"));
 
+            try {
+                emailService.sendSigninEmail(
+                    result.get("email"),
+                    result.get("firstName"), 
+                    result.get("lastName")
+                );
+            } catch (Exception e) {
+                // Log the email sending failure but do not fail the signin process
+                System.out.println("");
+                System.err.println("Failed to send signin email: " + e.getMessage());
+                System.err.println("email: " + result.get("email"));
+                System.out.println("");
+            }
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());

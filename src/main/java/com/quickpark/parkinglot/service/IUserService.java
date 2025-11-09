@@ -6,9 +6,9 @@ import java.util.List;
 import com.quickpark.parkinglot.entities.User;
 
 public interface IUserService {
-    String registerUser(Map<String, String> signupRequest);
+    Map<String, String> registerUser(Map<String, String> signupRequest);
 
-    String validateUser(String email, String contactNo, String password);
+    Map<String, String> validateUser(String email, String contactNo, String password);
 
     String updateUserDetails(String email,User user);
 

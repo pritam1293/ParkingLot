@@ -40,7 +40,7 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public synchronized String registerUser(Map<String, String> signupRequest) {
+    public synchronized Map<String, String> registerUser(Map<String, String> signupRequest) {
         try {
             String firstName = signupRequest.get("firstName");
             String lastName = signupRequest.get("lastName");
@@ -132,15 +132,19 @@ public class UserService implements IUserService {
 
             userRepository.save(newUser);
             // Generate JWT token with roles
-            String token = jwtUtil.generateToken(newUser.getEmail(), newUser.getRole());
-            return token;
+            String token = jwtUtil.generateToken(email, role);
+            return Map.of(
+                    "email", email,
+                    "token", token,
+                    "firstName", newUser.getFirstName(),
+                    "lastName", newUser.getLastName());
         } catch (Exception e) {
             throw new RuntimeException("Error registering user: " + e.getMessage());
         }
     }
 
     @Override
-    public String validateUser(String email, String contactNo, String password) {
+    public Map<String, String> validateUser(String email, String contactNo, String password) {
         try {
             // Trim the trailing and leading spaces from all string fields
             if (email != null) {
@@ -184,8 +188,12 @@ public class UserService implements IUserService {
                 throw new RuntimeException("Incorrect password");
             }
             // Validated, generate and return JWT token with roles
-            String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
-            return token;
+            String token = jwtUtil.generateToken(email, user.getRole());
+            return Map.of(
+                    "email", email,
+                    "token", token,
+                    "firstName", user.getFirstName(),
+                    "lastName", user.getLastName());
         } catch (Exception e) {
             throw new RuntimeException("Error validating user: " + e.getMessage());
         }
