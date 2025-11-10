@@ -15,12 +15,14 @@ public abstract class Ticket {
     private LocalDateTime entryTime;
     @Indexed(unique = true)
     private String vehicleNo;
+    private String vehicleModel;
     private ParkingSpot parkingSpot;
 
     public Ticket() {
     }
 
-    public Ticket(String id, String firstName, String lastName, String email, String ownerContact, LocalDateTime entryTime, String vehicleNo, ParkingSpot parkingSpot) {
+    public Ticket(String id, String firstName, String lastName, String email, String ownerContact, 
+        LocalDateTime entryTime, String vehicleNo, String vehicleModel, ParkingSpot parkingSpot) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -28,6 +30,7 @@ public abstract class Ticket {
         this.ownerContact = ownerContact;
         this.entryTime = entryTime;
         this.vehicleNo = vehicleNo;
+        this.vehicleModel = vehicleModel;
         this.parkingSpot = parkingSpot;
     }
 
@@ -87,6 +90,14 @@ public abstract class Ticket {
         this.vehicleNo = vehicleNo;
     }
 
+    public String getVehicleModel() {
+        return vehicleModel;
+    }
+
+    public void setVehicleModel(String vehicleModel) {
+        this.vehicleModel = vehicleModel;
+    }
+
     public ParkingSpot getParkingSpot() {
         return parkingSpot;
     }
@@ -105,6 +116,7 @@ public abstract class Ticket {
                 ", ownerContact='" + ownerContact + '\'' +
                 ", entryTime=" + entryTime +
                 ", vehicleNo='" + vehicleNo + '\'' +
+                ", vehicleModel='" + vehicleModel + '\'' +
                 ", parkingSpot=" + parkingSpot +
                 '}';
     }

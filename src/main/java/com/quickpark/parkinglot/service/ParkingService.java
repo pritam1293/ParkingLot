@@ -70,16 +70,25 @@ public class ParkingService implements IParkingService {
             // Trim all the trailing and leading spaces
             String email = requestBody.get("email");
             String type = requestBody.get("type");
+            String vehicleModel = requestBody.get("vehicleModel");
             String vehicleNo = requestBody.get("vehicleNo");
-            if (email != null)
+            if (email != null) {
                 email = email.trim();
-            if (type != null)
+            }
+            if (type != null) {
                 type = type.trim();
-            if (vehicleNo != null)
+            }
+            if (vehicleNo != null) {
                 vehicleNo = vehicleNo.trim();
-
+            }
+            if (vehicleModel != null) {
+                vehicleModel = vehicleModel.trim();
+            }
             final String finalType = type; // Make it effectively final for lambda
-
+            if (vehicleModel == null) {
+                // Based on type set it as default model name
+                vehicleModel = getDefaultVehicleModel(finalType);
+            }
             if (email == null || email.isEmpty()) {
                 throw new ParkingLotException("Email is required for parking.");
             }
@@ -153,11 +162,25 @@ public class ParkingService implements IParkingService {
                     user.getContactNo(),
                     LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
                     vehicleNo,
+                    vehicleModel,
                     freeParkingSpot);
             parkedTicketRepository.save(parkedTicket);
             return parkedTicket;
         } catch (Exception e) {
             throw new ParkingLotException(e.getMessage());
+        }
+    }
+
+    private String getDefaultVehicleModel(String vehicleType) {
+        switch (vehicleType) {
+            case "mini":
+                return "Mini Model X";
+            case "compact":
+                return "Compact Model Y";
+            case "large":
+                return "Large Model Z";
+            default:
+                return "Unknown Model";
         }
     }
 
@@ -182,14 +205,15 @@ public class ParkingService implements IParkingService {
                     parkedTicket.getId(),
                     parkedTicket.getFirstName(),
                     parkedTicket.getLastName(),
-                            parkedTicket.getEmail(),
-                            parkedTicket.getOwnerContact(),
-                            parkedTicket.getEntryTime(),
-                            LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
-                            totalTime,
-                            totalCost,
-                            parkedTicket.getVehicleNo(),
-                            parkedTicket.getParkingSpot());
+                    parkedTicket.getEmail(),
+                    parkedTicket.getOwnerContact(),
+                    parkedTicket.getEntryTime(),
+                    LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
+                    totalTime,
+                    totalCost,
+                    parkedTicket.getVehicleNo(),
+                    parkedTicket.getVehicleModel(),
+                    parkedTicket.getParkingSpot());
             unparkedTicketRepository.save(unparkedTicket);
             // Free the parking spot in database
             ParkingSpot spot = parkedTicket.getParkingSpot();

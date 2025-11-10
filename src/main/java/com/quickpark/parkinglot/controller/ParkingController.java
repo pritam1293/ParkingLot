@@ -11,7 +11,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 
 @RestController
-@RequestMapping("/quickpark/api")
+@RequestMapping("/quickpark/api/")
 public class ParkingController {
 
     private final IParkingService parkingService;
@@ -27,7 +27,7 @@ public class ParkingController {
         return "Welcome to the QUICK PARK parking lot, Have a nice day";
     }
 
-    @GetMapping("/free-parking-spots")
+    @GetMapping("/status")
     public ResponseEntity<?> display() {    
         try {
             return ResponseEntity.ok(parkingService.getFreeParkingSpots());
