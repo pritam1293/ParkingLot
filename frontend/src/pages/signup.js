@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { validateSignupForm } from '../services/validation';
 import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../services/UserAPI';
 
 function Signup() {
     const navigate = useNavigate();
@@ -12,11 +13,13 @@ function Signup() {
         email: '',
         contactNo: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        address: ''
     });
     const [errors, setErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const validateForm = () => {
         const validationErrors = validateSignupForm(formData);
@@ -38,36 +41,54 @@ function Signup() {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!validateForm()) {
             return;
         }
 
-        // TODO: Replace this with actual API call
-        console.log('Form submitted:', {
-            firstName: formData.firstName.trim(),
-            lastName: formData.lastName.trim(),
-            email: formData.email.trim(),
-            contactNo: formData.contactNo.trim(),
-            password: formData.password
-        });
+        setIsLoading(true);
+        setErrors({});
 
-        // Simulate successful signup
-        // In production, replace this with actual API response
-        const mockUserData = {
-            email: formData.email,
-            firstName: formData.firstName,
-            lastName: formData.lastName
-        };
-        const mockToken = 'mock-jwt-token-' + Date.now();
+        try {
+            // Call signup API
+            const response = await authAPI.signup({
+                firstName: formData.firstName.trim(),
+                lastName: formData.lastName.trim(),
+                email: formData.email.trim(),
+                contactNo: formData.contactNo.trim(),
+                password: formData.password,
+                address: formData.address.trim()
+            });
 
-        // Store authentication data
-        login(mockUserData, mockToken);
+            // Extract token and user data from response
+            const token = response.token;
+            const userData = {
+                email: formData.email,
+                firstName: formData.firstName,
+                lastName: formData.lastName
+            };
 
-        // Redirect to home page
-        navigate('/home');
+            // Store authentication data
+            login(userData, token);
+
+            // Redirect to home page
+            navigate('/home');
+        } catch (error) {
+            console.error('Signup error:', error);
+
+            // Handle error and display to user
+            if (typeof error === 'string') {
+                setErrors({ general: error });
+            } else if (error.message) {
+                setErrors({ general: error.message });
+            } else {
+                setErrors({ general: 'Signup failed. Please try again.' });
+            }
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -210,6 +231,30 @@ function Signup() {
                             )}
                         </div>
 
+                        {/* Address */}
+                        <div>
+                            <label htmlFor="address" className="block text-sm font-medium text-slate-800 mb-1.5">
+                                Address
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                                <input
+                                    id="address"
+                                    name="address"
+                                    type="text"
+                                    value={formData.address}
+                                    onChange={handleChange}
+                                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-transparent rounded-xl focus:outline-none focus:bg-white focus:border-slate-300 transition-all duration-200 text-slate-800 placeholder-slate-400"
+                                    placeholder="Enter your address"
+                                />
+                            </div>
+                        </div>
+
                         {/* Password */}
                         <div>
                             <label htmlFor="password" className="block text-sm font-medium text-slate-800 mb-1.5">
@@ -296,12 +341,35 @@ function Signup() {
                             )}
                         </div>
 
+                        {/* General Error Message */}
+                        {errors.general && (
+                            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                                <div className="flex items-start">
+                                    <svg className="w-5 h-5 text-red-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                    </svg>
+                                    <p className="text-red-700 text-sm">{errors.general}</p>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Submit Button */}
                         <button
                             type="submit"
-                            className="w-full mt-6 py-3.5 px-4 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-slate-300"
+                            disabled={isLoading}
+                            className="w-full mt-6 py-3.5 px-4 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-slate-300 disabled:bg-slate-400 disabled:cursor-not-allowed flex items-center justify-center"
                         >
-                            Create Account
+                            {isLoading ? (
+                                <>
+                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Creating Account...
+                                </>
+                            ) : (
+                                'Create Account'
+                            )}
                         </button>
 
                         {/* Sign In Link */}

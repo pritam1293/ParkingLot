@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { validateSigninForm } from '../services/validation';
 import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../services/UserAPI';
 
 function Signin() {
     const navigate = useNavigate();
@@ -14,6 +15,7 @@ function Signin() {
     const [errors, setErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
     const [loginMethod, setLoginMethod] = useState('email');
+    const [isLoading, setIsLoading] = useState(false);
 
     const validateForm = () => {
         const validationErrors = validateSigninForm(formData);
@@ -41,34 +43,51 @@ function Signin() {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!validateForm()) {
             return;
         }
 
-        // TODO: Replace this with actual API call
-        console.log('Form submitted:', {
-            email: formData.email.trim() || null,
-            contactNo: formData.contactNo.trim() || null,
-            password: formData.password
-        });
+        setIsLoading(true);
+        setErrors({});
 
-        // Simulate successful login
-        // In production, replace this with actual API response
-        const mockUserData = {
-            email: formData.email || formData.contactNo,
-            firstName: 'User',
-            lastName: 'Name'
-        };
-        const mockToken = 'mock-jwt-token-' + Date.now();
+        try {
+            // Call signin API
+            const response = await authAPI.signin({
+                email: formData.email.trim() || null,
+                contactNo: formData.contactNo.trim() || null,
+                password: formData.password
+            });
 
-        // Store authentication data
-        login(mockUserData, mockToken);
+            // Extract token and user data from response
+            const token = response.token;
+            const userData = {
+                email: response.email || formData.email || formData.contactNo,
+                firstName: 'User', // API doesn't return this in signin response
+                lastName: 'Name'
+            };
 
-        // Redirect to home page
-        navigate('/home');
+            // Store authentication data
+            login(userData, token);
+
+            // Redirect to home page
+            navigate('/home');
+        } catch (error) {
+            console.error('Signin error:', error);
+
+            // Handle error and display to user
+            if (typeof error === 'string') {
+                setErrors({ general: error });
+            } else if (error.message) {
+                setErrors({ general: error.message });
+            } else {
+                setErrors({ general: 'Login failed. Please check your credentials.' });
+            }
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -259,13 +278,36 @@ function Signin() {
                             </Link>
                         </div>
 
+                        {/* General Error Message */}
+                        {errors.general && (
+                            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                                <div className="flex items-start">
+                                    <svg className="w-5 h-5 text-red-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                    </svg>
+                                    <p className="text-red-700 text-sm">{errors.general}</p>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Submit Button */}
                         <button
                             type="button"
                             onClick={handleSubmit}
-                            className="w-full py-3.5 px-4 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-slate-300"
+                            disabled={isLoading}
+                            className="w-full py-3.5 px-4 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-slate-300 disabled:bg-slate-400 disabled:cursor-not-allowed flex items-center justify-center"
                         >
-                            Sign In
+                            {isLoading ? (
+                                <>
+                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Signing In...
+                                </>
+                            ) : (
+                                'Sign In'
+                            )}
                         </button>
 
                         {/* Sign Up Link */}

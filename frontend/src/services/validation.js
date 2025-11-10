@@ -1,49 +1,45 @@
-/**
- * Validation utility functions for form validation
- */
-
-/**
- * Validates email format
- * @param {string} email - Email address to validate
- * @returns {boolean} - True if valid, false otherwise
- */
+/*
+* Simple regex for email validation
+* Example: user@example.com
+*/
 export const validateEmail = (email) => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
 };
 
-/**
- * Validates Indian contact number (10 digits starting with 6-9)
- * @param {string} contactNo - Contact number to validate
- * @returns {boolean} - True if valid, false otherwise
- */
+/*
+* A 10 digit contact number with no leading zero and starts with digits 6-9
+* Example: 9876543210, 6123456789, 7890123456, 890123456
+*/
 export const validateContactNo = (contactNo) => {
     const contactRegex = /^[6-9][0-9]{9}$/;
     return contactRegex.test(contactNo);
 };
 
-/**
- * Validates password strength
- * @param {string} password - Password to validate
- * @param {number} minLength - Minimum length (default: 6)
- * @returns {object} - { isValid: boolean, message: string }
- */
-export const validatePassword = (password, minLength = 6) => {
+/*
+* Password length must be 6-15 characters,
+* containing at least one uppercase, one lowercase, one digit,
+* and one special character
+* Example: Abc@1234
+*/
+export const validatePassword = (password) => {
     if (!password) {
         return { isValid: false, message: 'Password is required' };
     }
-    if (password.length < minLength) {
-        return { isValid: false, message: `Password must be at least ${minLength} characters` };
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,15}$/;
+    if (!passwordRegex.test(password)) {
+        return { 
+            isValid: false, 
+            message: 'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character' 
+        };
     }
     return { isValid: true, message: '' };
 };
 
-/**
- * Validates if two passwords match
- * @param {string} password - Original password
- * @param {string} confirmPassword - Confirmation password
- * @returns {object} - { isValid: boolean, message: string }
- */
+/*
+* Validates if password and confirmPassword match 
+* Example: password: Abc@1234, confirmPassword: Abc@1234
+*/
 export const validatePasswordMatch = (password, confirmPassword) => {
     if (!confirmPassword) {
         return { isValid: false, message: 'Please confirm your password' };
