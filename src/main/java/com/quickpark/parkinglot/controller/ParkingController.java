@@ -4,6 +4,7 @@ import com.quickpark.parkinglot.Exceptions.ParkingLotException;
 import com.quickpark.parkinglot.config.JWT;
 import com.quickpark.parkinglot.entities.ParkedTicket;
 import com.quickpark.parkinglot.entities.UnparkedTicket;
+import com.quickpark.parkinglot.service.EmailService;
 import com.quickpark.parkinglot.service.IParkingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +17,12 @@ public class ParkingController {
 
     private final IParkingService parkingService;
     private final JWT jwtUtil;
+    private final EmailService emailService;
 
-    public ParkingController(IParkingService parkingService, JWT jwtUtil) {
+    public ParkingController(IParkingService parkingService, JWT jwtUtil, EmailService emailService) {
         this.parkingService = parkingService;
         this.jwtUtil = jwtUtil;
+        this.emailService = emailService;
     }
 
     @GetMapping("/home")
@@ -48,6 +51,15 @@ public class ParkingController {
             requestBody.put("email", userEmail);
             ParkedTicket ticket = parkingService.ParkVehicle(requestBody);
             if(ticket != null) {
+                // Send email notification
+                try {
+                    emailService.SendParkingTicketEmail(userEmail, ticket);
+                } catch (Exception e) {
+                    // Log the email sending failure but do not fail the parking operation
+                    System.out.println("");
+                    System.err.println("Failed to send parking ticket email to " + userEmail + ": " + e.getMessage());
+                    System.out.println("");
+                }
                 return ResponseEntity.ok(ticket);
             } else {
                 // Return the actual error instead of a generic message
@@ -65,6 +77,15 @@ public class ParkingController {
         try {
             UnparkedTicket unparkedTicket = parkingService.UnparkVehicle(ticketId);
             if (unparkedTicket != null) {
+                // Send email notification
+                try {
+                    emailService.sendUnparkingReceiptEmail(unparkedTicket.getEmail(), unparkedTicket);
+                } catch (Exception e) {
+                    // Log the email sending failure but do not fail the unparking operation
+                    System.out.println("");
+                    System.err.println("Failed to send unparking receipt email to " + unparkedTicket.getEmail() + ": " + e.getMessage());
+                    System.out.println("");
+                }
                 return ResponseEntity.ok(unparkedTicket);
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unparking failed");
