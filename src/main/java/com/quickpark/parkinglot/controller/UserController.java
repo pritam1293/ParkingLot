@@ -9,12 +9,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import com.quickpark.parkinglot.config.JWT;
 import com.quickpark.parkinglot.service.EmailService;
 import com.quickpark.parkinglot.service.IUserService;
 import com.quickpark.parkinglot.entities.User;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -37,7 +35,6 @@ public class UserController {
         try {
             // Register user and get JWT token
             Map<String, String> result = userService.registerUser(signupRequest);
-
             // Prepare response
             Map<String, Object> response = new HashMap<>();
             response.put("message", "User registered successfully");
@@ -48,7 +45,6 @@ public class UserController {
                 result.get("firstName"), 
                 result.get("lastName")
                 );
-
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -64,16 +60,13 @@ public class UserController {
             String email = loginRequest.get("email");
             String contactNo = loginRequest.get("contactNo");
             String password = loginRequest.get("password");
-
             // Validate user and get JWT token
             Map<String, String> result = userService.validateUser(email, contactNo, password);
-
             // Prepare response
             Map<String, Object> response = new HashMap<>();
             response.put("message", "User signed in successfully");
             response.put("email", email);
             response.put("token", result.get("token"));
-
             try {
                 emailService.sendSigninEmail(
                     result.get("email"),
@@ -102,7 +95,6 @@ public class UserController {
             // Extract email from JWT token
             String email = extractEmailFromToken(authHeader);
             Map<String, String> result = userService.updateUserDetails(email, user);
-
             try {
                 emailService.sendUpdateEmail(
                     result.get("email"),
@@ -208,7 +200,6 @@ public class UserController {
         try {
             // Extract email from JWT token
             String email = extractEmailFromToken(authHeader);
-
             User user = userService.getUserByEmail(email);
             return ResponseEntity.ok(user);
         } catch (RuntimeException e) {
@@ -225,7 +216,6 @@ public class UserController {
         try {
             // Extract email from JWT token
             String email = extractEmailFromToken(authHeader);
-
             Map<String, List<Object>> history = userService.getUserParkingHistory(email);
             return ResponseEntity.ok(history);
         } catch (RuntimeException e) {

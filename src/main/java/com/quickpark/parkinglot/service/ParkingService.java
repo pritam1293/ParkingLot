@@ -164,6 +164,9 @@ public class ParkingService implements IParkingService {
     @Override
     public UnparkedTicket UnparkVehicle(String ParkingTicketId) {
         try {
+            if (ParkingTicketId != null) {
+                ParkingTicketId = ParkingTicketId.trim();
+            }
             if (ParkingTicketId == null || ParkingTicketId.isEmpty()) {
                 throw new ParkingLotException("Ticket ID is required for unparking.");
             }
