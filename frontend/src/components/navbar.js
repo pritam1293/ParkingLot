@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const navigate = useNavigate();
+    const { logout } = useAuth();
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -11,6 +13,12 @@ const Navbar = () => {
 
     const handleNavigation = (path) => {
         navigate(path);
+        setIsMenuOpen(false);
+    };
+
+    const handleLogout = () => {
+        logout();
+        navigate('/signin');
         setIsMenuOpen(false);
     };
 
@@ -82,6 +90,17 @@ const Navbar = () => {
                                 />
                             </svg>
                         </button>
+
+                        {/* Logout Button */}
+                        <button
+                            onClick={handleLogout}
+                            className="ml-2 px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-all duration-300 shadow-lg hover:shadow-red-500/50 font-medium flex items-center"
+                        >
+                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            Logout
+                        </button>
                     </div>
 
                     {/* Mobile Hamburger Button */}
@@ -146,6 +165,15 @@ const Navbar = () => {
                         </svg>
                         Profile
                     </MobileNavButton>
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center w-full px-4 py-3 rounded-lg text-white bg-red-600 hover:bg-red-700 font-medium transition-all duration-200 text-base shadow-md"
+                    >
+                        <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Logout
+                    </button>
                 </div>
             </div>
         </nav>

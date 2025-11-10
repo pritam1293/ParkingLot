@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { validateSignupForm } from '../services/validation';
+import { useAuth } from '../context/AuthContext';
 
 function Signup() {
+    const navigate = useNavigate();
+    const { login } = useAuth();
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -42,6 +45,7 @@ function Signup() {
             return;
         }
 
+        // TODO: Replace this with actual API call
         console.log('Form submitted:', {
             firstName: formData.firstName.trim(),
             lastName: formData.lastName.trim(),
@@ -50,7 +54,20 @@ function Signup() {
             password: formData.password
         });
 
-        alert('Form validated successfully! Ready for API integration.');
+        // Simulate successful signup
+        // In production, replace this with actual API response
+        const mockUserData = {
+            email: formData.email,
+            firstName: formData.firstName,
+            lastName: formData.lastName
+        };
+        const mockToken = 'mock-jwt-token-' + Date.now();
+
+        // Store authentication data
+        login(mockUserData, mockToken);
+
+        // Redirect to home page
+        navigate('/home');
     };
 
     return (

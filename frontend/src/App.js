@@ -1,4 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
 import Navbar from './components/navbar';
 import Footer from './components/footer';
 import Home from './pages/home';
@@ -21,16 +24,16 @@ function AppContent() {
       {!isAuthPage && <Navbar />}
       <div className="flex-grow">
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/signin" element={<Signin />} />
-          <Route path="/park" element={<Park />} />
-          <Route path="/unpark" element={<Unpark />} />
-          <Route path="/status" element={<Status />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/profile/history" element={<History />} />
+          <Route path="/" element={<PublicRoute><Signin /></PublicRoute>} />
+          <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+          <Route path="/signin" element={<PublicRoute><Signin /></PublicRoute>} />
+          <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/park" element={<ProtectedRoute><Park /></ProtectedRoute>} />
+          <Route path="/unpark" element={<ProtectedRoute><Unpark /></ProtectedRoute>} />
+          <Route path="/status" element={<ProtectedRoute><Status /></ProtectedRoute>} />
+          <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/profile/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
         </Routes>
       </div>
       <Footer isAuthPage={isAuthPage} />
@@ -41,7 +44,9 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <AppContent />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </Router>
   );
 }
