@@ -208,7 +208,7 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public synchronized Map<String, String> updateUserDetails(String email, User user) {
+    public synchronized User updateUserDetails(String email, Map<String, String> userDetails) {
         try {
             /*
              * Only firstName, lastName, address will be updated
@@ -229,20 +229,30 @@ public class UserService implements IUserService {
             if (existingUser == null) {
                 throw new RuntimeException("User with this email does not exist");
             }
-            if (user.getFirstName() != null && !user.getFirstName().isEmpty()) {
-                existingUser.setFirstName(user.getFirstName().trim());
+            String firstName = userDetails.get("firstName");
+            String lastName = userDetails.get("lastName");
+            String address = userDetails.get("address");
+            // Trim the trailing and leading spaces from all string fields
+            if (firstName != null) {
+                firstName = firstName.trim();
             }
-            if (user.getLastName() != null && !user.getLastName().isEmpty()) {
-                existingUser.setLastName(user.getLastName().trim());
+            if (lastName != null) {
+                lastName = lastName.trim();
             }
-            if (user.getAddress() != null && !user.getAddress().isEmpty()) {
-                existingUser.setAddress(user.getAddress().trim());
+            if (address != null) {
+                address = address.trim();
+            }
+            if(firstName != null && !firstName.isEmpty()) {
+                existingUser.setFirstName(firstName);
+            }
+            if(lastName != null && !lastName.isEmpty()) {
+                existingUser.setLastName(lastName);
+            }
+            if(address != null && !address.isEmpty()) {
+                existingUser.setAddress(address);
             }
             userRepository.save(existingUser);
-            return Map.of(
-                    "email", email,
-                    "firstName", existingUser.getFirstName(),
-                    "lastName", existingUser.getLastName());
+            return existingUser;
         } catch (Exception e) {
             throw new RuntimeException("Error updating user details: " + e.getMessage());
         }

@@ -34,32 +34,6 @@ const Home = () => {
                 </div>
             </div>
 
-            {/* Vehicle Types Section */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <h2 className="text-4xl font-bold text-center text-slate-800 mb-4">Parking for Every Vehicle</h2>
-                <p className="text-center text-slate-600 mb-12 text-lg">We accommodate all types of vehicles with specialized parking spots</p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <VehicleTypeCard
-                        icon={<CompactCarIcon />}
-                        title="Compact Cars"
-                        description="Perfect spots for small cars, hatchbacks, and sedans with easy access."
-                        features={["Standard parking", "Easy maneuverability", "Affordable rates"]}
-                    />
-                    <VehicleTypeCard
-                        icon={<SUVIcon />}
-                        title="SUVs & Large Cars"
-                        description="Spacious parking designed for SUVs, minivans, and large vehicles."
-                        features={["Extra space", "Wide parking spots", "Premium security"]}
-                    />
-                    <VehicleTypeCard
-                        icon={<BikeIcon />}
-                        title="Motorcycles & Bikes"
-                        description="Dedicated two-wheeler parking with enhanced security measures."
-                        features={["Secure zones", "Quick access", "Special rates"]}
-                    />
-                </div>
-            </div>
-
             {/* Features Section */}
             <div className="bg-slate-200 py-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -91,22 +65,24 @@ const Home = () => {
 
             {/* How It Works Section */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <h2 className="text-4xl font-bold text-center text-slate-800 mb-12">How It Works</h2>
+                <h2 className="text-4xl font-bold text-center text-slate-800 mb-4">How It Works</h2>
+                <p className="text-center text-slate-600 mb-12 text-lg">Simple steps to secure your parking spot</p>
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <StepCard
                         number="1"
-                        title="Select Vehicle Type"
-                        description="Choose from compact, large, or two-wheeler parking based on your vehicle."
+                        title="Find Your Vehicle Category"
+                        description="Enter your vehicle model or name to discover which parking category suits your vehicle best."
                     />
                     <StepCard
                         number="2"
-                        title="Park & Get Ticket"
-                        description="Park your vehicle and receive a digital ticket with all details."
+                        title="Park & Get Instant Ticket"
+                        description="Park your vehicle in the designated zone and receive a digital ticket with spot details and pricing."
                     />
                     <StepCard
                         number="3"
-                        title="Pay & Exit"
-                        description="When leaving, simply pay based on duration and exit smoothly."
+                        title="Pay & Exit Seamlessly"
+                        description="When ready to leave, pay based on your parking duration and exit without any hassle."
                     />
                 </div>
             </div>
@@ -115,10 +91,10 @@ const Home = () => {
             <div className="bg-gradient-to-r from-slate-800 to-slate-700 py-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
-                        <StatCard number="1000+" label="Parking Spots" />
-                        <StatCard number="50K+" label="Happy Customers" />
+                        <StatCard number="150+" label="Parking Spots" />
+                        <StatCard number="2K+" label="Happy Customers" />
                         <StatCard number="24/7" label="Support" />
-                        <StatCard number="99.9%" label="Uptime" />
+                        <StatCard number="98%" label="Uptime" />
                     </div>
                 </div>
             </div>
@@ -139,26 +115,6 @@ const Home = () => {
         </div>
     );
 };
-
-const VehicleTypeCard = ({ icon, title, description, features }) => (
-    <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-slate-200">
-        <div className="flex justify-center mb-6">
-            {icon}
-        </div>
-        <h3 className="text-2xl font-bold text-slate-800 mb-4 text-center">{title}</h3>
-        <p className="text-slate-600 text-center mb-6 leading-relaxed">{description}</p>
-        <ul className="space-y-2">
-            {features.map((feature, index) => (
-                <li key={index} className="flex items-center text-slate-700">
-                    <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    {feature}
-                </li>
-            ))}
-        </ul>
-    </div>
-);
 
 const FeatureCard = ({ icon, title, description }) => (
     <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
@@ -189,25 +145,6 @@ const StatCard = ({ number, label }) => (
         <div className="text-4xl md:text-5xl font-bold mb-2">{number}</div>
         <div className="text-lg md:text-xl opacity-90">{label}</div>
     </div>
-);
-
-// Vehicle Type Icons
-const CompactCarIcon = () => (
-    <svg className="w-20 h-20 text-slate-700" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" />
-    </svg>
-);
-
-const SUVIcon = () => (
-    <svg className="w-20 h-20 text-slate-700" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M18.92 5.01C18.72 4.42 18.16 4 17.5 4h-11c-.66 0-1.21.42-1.42 1.01L3 11v9c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-9l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 10l1.5-4.5h11L19 10H5z" />
-    </svg>
-);
-
-const BikeIcon = () => (
-    <svg className="w-20 h-20 text-slate-700" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M15.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM5 12c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5zm5.8-10l2.4-2.4.8.8c1.3 1.3 3 2.1 5.1 2.1V9c-1.5 0-2.7-.6-3.6-1.5l-1.9-1.9c-.5-.4-1-.6-1.6-.6s-1.1.2-1.4.6L7.8 8.4c-.4.4-.6.9-.6 1.4 0 .6.2 1.1.6 1.4L11 14v5h2v-6.2l-2.2-2.3zM19 12c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5z" />
-    </svg>
 );
 
 // Feature Icons

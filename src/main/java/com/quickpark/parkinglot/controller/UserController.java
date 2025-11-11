@@ -90,22 +90,22 @@ public class UserController {
     }
 
     @PutMapping("/auth/update")
-    public ResponseEntity<?> updateUser(@RequestBody User user, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> updateUser(@RequestBody Map<String, String> requestBody, @RequestHeader("Authorization") String authHeader) {
         try {
             // Extract email from JWT token
             String email = extractEmailFromToken(authHeader);
-            Map<String, String> result = userService.updateUserDetails(email, user);
+            User updatedUser = userService.updateUserDetails(email, requestBody);
             try {
                 emailService.sendUpdateEmail(
-                    result.get("email"),
-                    result.get("firstName"), 
-                    result.get("lastName")
+                    updatedUser.getEmail(),
+                    updatedUser.getFirstName(),
+                    updatedUser.getLastName()
                 );
             } catch (Exception e) {
                 // Log the email sending failure but do not fail the update process
                 System.out.println("");
                 System.err.println("Failed to send update email: " + e.getMessage());
-                System.err.println("email: " + result.get("email"));
+                System.err.println("email: " + updatedUser.getEmail());
                 System.out.println("");
             }
             return ResponseEntity.ok("User updated successfully");

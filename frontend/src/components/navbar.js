@@ -1,11 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
     const navigate = useNavigate();
     const { logout } = useAuth();
+    const dropdownRef = useRef(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsProfileDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -20,6 +36,16 @@ const Navbar = () => {
         logout();
         navigate('/signin');
         setIsMenuOpen(false);
+        setIsProfileDropdownOpen(false);
+    };
+
+    const toggleProfileDropdown = () => {
+        setIsProfileDropdownOpen(!isProfileDropdownOpen);
+    };
+
+    const handleProfileMenuClick = (path) => {
+        navigate(path);
+        setIsProfileDropdownOpen(false);
     };
 
     return (
@@ -71,36 +97,77 @@ const Navbar = () => {
                             About
                         </NavButton>
 
-                        {/* Profile Button */}
-                        <button
-                            onClick={() => handleNavigation('/profile')}
-                            className="ml-4 p-2 rounded-full bg-slate-700 text-white hover:bg-slate-600 transition-all duration-300 shadow-lg hover:shadow-slate-500/50 transform hover:scale-110 ring-2 ring-slate-600/50"
-                        >
-                            <svg
-                                className="h-6 w-6"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
+                        {/* Profile Dropdown Button */}
+                        <div className="relative ml-4" ref={dropdownRef}>
+                            <button
+                                onClick={toggleProfileDropdown}
+                                className="p-2 rounded-full bg-slate-700 text-white hover:bg-slate-600 transition-all duration-300 shadow-lg hover:shadow-slate-500/50 transform hover:scale-110 ring-2 ring-slate-600/50"
                             >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                                />
-                            </svg>
-                        </button>
+                                <svg
+                                    className="h-6 w-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                    />
+                                </svg>
+                            </button>
 
-                        {/* Logout Button */}
-                        <button
-                            onClick={handleLogout}
-                            className="ml-2 px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-all duration-300 shadow-lg hover:shadow-red-500/50 font-medium flex items-center"
-                        >
-                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                            </svg>
-                            Logout
-                        </button>
+                            {/* Dropdown Menu */}
+                            {isProfileDropdownOpen && (
+                                <div className="absolute right-0 mt-2 w-56 bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden z-50 animate-fadeIn">
+                                    <div className="py-2">
+                                        <DropdownItem
+                                            onClick={() => handleProfileMenuClick('/profile')}
+                                            icon={
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                </svg>
+                                            }
+                                        >
+                                            Profile
+                                        </DropdownItem>
+                                        <DropdownItem
+                                            onClick={() => handleProfileMenuClick('/change-password')}
+                                            icon={
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                </svg>
+                                            }
+                                        >
+                                            Change Password
+                                        </DropdownItem>
+                                        <DropdownItem
+                                            onClick={() => handleProfileMenuClick('/change-contact')}
+                                            icon={
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                                </svg>
+                                            }
+                                        >
+                                            Change Contact Number
+                                        </DropdownItem>
+                                        <div className="border-t border-slate-700 my-2"></div>
+                                        <DropdownItem
+                                            onClick={handleLogout}
+                                            icon={
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                                </svg>
+                                            }
+                                            className="text-red-400 hover:bg-red-600 hover:text-white"
+                                        >
+                                            Logout
+                                        </DropdownItem>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Mobile Hamburger Button */}
@@ -165,6 +232,18 @@ const Navbar = () => {
                         </svg>
                         Profile
                     </MobileNavButton>
+                    <MobileNavButton onClick={() => handleNavigation('/change-password')}>
+                        <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        Change Password
+                    </MobileNavButton>
+                    <MobileNavButton onClick={() => handleNavigation('/change-contact')}>
+                        <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                        Change Contact Number
+                    </MobileNavButton>
                     <button
                         onClick={handleLogout}
                         className="flex items-center w-full px-4 py-3 rounded-lg text-white bg-red-600 hover:bg-red-700 font-medium transition-all duration-200 text-base shadow-md"
@@ -196,6 +275,17 @@ const MobileNavButton = ({ onClick, children }) => (
         onClick={onClick}
         className="flex items-center w-full px-4 py-3 rounded-lg text-slate-200 hover:text-white hover:bg-slate-700 font-medium transition-all duration-200 text-base shadow-md border border-slate-700 hover:border-slate-600 backdrop-blur-sm"
     >
+        {children}
+    </button>
+);
+
+// Dropdown Item Component
+const DropdownItem = ({ onClick, icon, children, className = '' }) => (
+    <button
+        onClick={onClick}
+        className={`flex items-center w-full px-4 py-3 text-slate-200 hover:bg-slate-700 hover:text-white transition-all duration-200 text-sm ${className}`}
+    >
+        <span className="mr-3">{icon}</span>
         {children}
     </button>
 );

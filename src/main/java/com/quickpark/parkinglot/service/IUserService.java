@@ -10,7 +10,7 @@ public interface IUserService {
 
     Map<String, String> validateUser(String email, String contactNo, String password);
 
-    Map<String, String> updateUserDetails(String email, User user);
+    User updateUserDetails(String email, Map<String, String> userDetails);
 
     boolean generateAndSendOTP(String email, String authEmail);
 
