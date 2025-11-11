@@ -9,7 +9,7 @@ const Unpark = () => {
     const [vehicleInfo, setVehicleInfo] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [isUnparking, setIsUnparking] = useState(false);
+    // const [isUnparking, setIsUnparking] = useState(false);
 
     // Helper function to format duration from minutes to readable format
     const formatDuration = (minutes) => {
@@ -46,6 +46,8 @@ const Unpark = () => {
             const parkingFee = response.totalCost || 0;
             const tax = 0; // Backend seems to include everything in totalCost
 
+            console.log("Unpark API response:", response);
+
             // Format the response data to match our UI
             setVehicleInfo({
                 ticketNumber: response.id || ticketNumber,
@@ -77,9 +79,8 @@ const Unpark = () => {
     };
 
     const handleUnpark = () => {
-        // Vehicle is already unparked when we searched
         const totalAmount = vehicleInfo ? vehicleInfo.parkingFee : 0;
-        alert(`Vehicle unparked successfully!\n\nTotal Amount: ₹${totalAmount.toFixed(2)}\n\nThank you for using QuickPark!`);
+        alert(`Payment Completed Successfully!\n\nTotal Amount Paid: ₹${totalAmount.toFixed(2)}\n\nThank you for using QuickPark!\n\nNote: This is a simulated payment. Payment gateway integration is pending.`);
         setVehicleInfo(null);
         setTicketNumber('');
         // Optionally navigate to home or history page
@@ -216,7 +217,7 @@ const Unpark = () => {
         html2pdf().set(opt).from(element).save();
     };
 
-    const total = vehicleInfo ? vehicleInfo.parkingFee : 0;
+    // const total = vehicleInfo ? vehicleInfo.parkingFee : 0;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12">
@@ -457,12 +458,27 @@ const Unpark = () => {
                                     Download Receipt
                                 </button>
 
-                                <button
-                                    onClick={handleUnpark}
-                                    className="w-full py-4 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold text-lg rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-                                >
-                                    Complete Payment & Exit
-                                </button>
+                                {/* Conditional Exit Button based on parking fee */}
+                                {vehicleInfo.parkingFee === 0 ? (
+                                    <button
+                                        className="w-full py-4 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold text-lg rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center"
+                                    >
+                                        <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        No Charge - First 30 Minutes Free!
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={handleUnpark}
+                                        className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold text-lg rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center"
+                                    >
+                                        <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                        Complete Payment & Exit
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

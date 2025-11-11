@@ -52,6 +52,8 @@ export const parkingAPI = {
     // Unpark a vehicle
     unparkVehicle: async (ticketId) => {
         try {
+            console.log("Unparking vehicle with ticket ID:", ticketId);
+            console.log("method: DELETE, endpoint: /unpark");
             const response = await apiClient.delete('/unpark', {
                 params: {
                     ticketId: ticketId
