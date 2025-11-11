@@ -47,20 +47,30 @@ public class ParkingService implements IParkingService {
     private void updateDisplayBoardFromDatabase() {
         // Update display board with counts from database
         long freeMini = parkingSpotRepository.countByTypeAndIsBooked("mini", false);
+        long bookedMini = parkingSpotRepository.countByTypeAndIsBooked("mini", true);
         long freeCompact = parkingSpotRepository.countByTypeAndIsBooked("compact", false);
+        long bookedCompact = parkingSpotRepository.countByTypeAndIsBooked("compact", true);
         long freeLarge = parkingSpotRepository.countByTypeAndIsBooked("large", false);
+        long bookedLarge = parkingSpotRepository.countByTypeAndIsBooked("large", true);
 
         displayBoard.setFreeMiniParkingSpots((int) freeMini);
         displayBoard.setFreeCompactParkingSpots((int) freeCompact);
         displayBoard.setFreeLargeParkingSpots((int) freeLarge);
+        displayBoard.setBookedMiniParkingSpots((int) bookedMini);
+        displayBoard.setBookedCompactParkingSpots((int) bookedCompact);
+        displayBoard.setBookedLargeParkingSpots((int) bookedLarge);
     }
+
 
     @Override
     public DisplayResponse getFreeParkingSpots() {
         DisplayResponse displayResponse = new DisplayResponse();
-        displayResponse.mini = (int) parkingSpotRepository.countByTypeAndIsBooked("mini", false);
-        displayResponse.large = (int) parkingSpotRepository.countByTypeAndIsBooked("large", false);
-        displayResponse.compact = (int) parkingSpotRepository.countByTypeAndIsBooked("compact", false);
+        displayResponse.freeMini = (int) parkingSpotRepository.countByTypeAndIsBooked("mini", false);
+        displayResponse.freeLarge = (int) parkingSpotRepository.countByTypeAndIsBooked("large", false);
+        displayResponse.freeCompact = (int) parkingSpotRepository.countByTypeAndIsBooked("compact", false);
+        displayResponse.bookedMini = (int) parkingSpotRepository.countByTypeAndIsBooked("mini", true);
+        displayResponse.bookedLarge = (int) parkingSpotRepository.countByTypeAndIsBooked("large", true);
+        displayResponse.bookedCompact = (int) parkingSpotRepository.countByTypeAndIsBooked("compact", true);
         return displayResponse;
     }
 
