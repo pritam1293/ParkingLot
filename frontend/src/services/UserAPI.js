@@ -35,7 +35,7 @@ export const authAPI = {
                 email: userData.email || '',
                 contactNo: userData.contactNo || '',
                 password: userData.password || '',
-                address: userData.address || '' // Optional field
+                address: userData.address || ''
             });
             return response.data;
         } catch (error) {

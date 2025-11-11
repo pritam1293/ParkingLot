@@ -44,9 +44,6 @@ const Unpark = () => {
 
             // Calculate tax (assuming 10% of parking fee or could be included in totalCost)
             const parkingFee = response.totalCost || 0;
-            const tax = 0; // Backend seems to include everything in totalCost
-
-            console.log("Unpark API response:", response);
 
             // Format the response data to match our UI
             setVehicleInfo({
@@ -64,7 +61,6 @@ const Unpark = () => {
                 duration: formatDuration(response.totalDuration),
                 durationMinutes: response.totalDuration || 0,
                 parkingFee: parkingFee,
-                tax: tax,
                 spotNumber: response.parkingSpot?.location || 'N/A',
                 floor: response.parkingSpot?.location ? response.parkingSpot.location.split('-')[0] : 'N/A',
                 spotDetails: response.parkingSpot,
@@ -80,7 +76,44 @@ const Unpark = () => {
 
     const handleUnpark = () => {
         const totalAmount = vehicleInfo ? vehicleInfo.parkingFee : 0;
-        alert(`Payment Completed Successfully!\n\nTotal Amount Paid: ₹${totalAmount.toFixed(2)}\n\nThank you for using QuickPark!\n\nNote: This is a simulated payment. Payment gateway integration is pending.`);
+        // Show success message instead of alert
+        const successMessage = document.createElement('div');
+        successMessage.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            z-index: 1000;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        `;
+        
+        successMessage.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+            <svg style="width: 48px; height: 48px; margin-right: 12px;" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <h3 style="margin: 0; font-size: 20px; font-weight: bold;">Payment Successful!</h3>
+            </div>
+            <p style="margin: 0 0 12px 0; font-size: 16px;">Total Amount Paid: ₹${totalAmount.toFixed(2)}</p>
+            <p style="margin: 0 0 16px 0; font-size: 14px; opacity: 0.9;">Thank you for using QuickPark!</p>
+            <p style="margin: 0; font-size: 12px; opacity: 0.8;">Note: This is a simulated payment. Payment gateway integration is pending.</p>
+        `;
+        
+        document.body.appendChild(successMessage);
+        
+        // Remove the message after 3 seconds
+        setTimeout(() => {
+            if (document.body.contains(successMessage)) {
+            document.body.removeChild(successMessage);
+            }
+        }, 3000);
         setVehicleInfo(null);
         setTicketNumber('');
         // Optionally navigate to home or history page
