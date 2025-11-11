@@ -11,7 +11,7 @@ public interface IParkingService {
 
     public ParkedTicket ParkVehicle(Map<String, String> requestBody);
 
-    public UnparkedTicket UnparkVehicle(String ticketId);
+    public UnparkedTicket UnparkVehicle(String ticketId, String userEmail);
 
     public ParkedTicket UpdateParkedVehicle(String ticketId, String vehicleNo);
 }

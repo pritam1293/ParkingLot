@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "parking_spots")
@@ -12,7 +11,7 @@ public abstract class ParkingSpot {
     @Id
     private String id; // unique identifier for the parking spot
     @Version
-    private Long version; // for optimistic locking 
+    private Long version; // for optimistic locking
     private String type; // Mini, Compact, Large
     private int cost; // cost per hour
     /*
@@ -24,21 +23,25 @@ public abstract class ParkingSpot {
      * for Large parking spots: S3-R1-C1 means Section 3, Row 1, Column 1
      * rows are numbered from 1 to n (number of rows per section)
      * columns are numbered from 1 to m (number of columns per row)
-    */
-    @Indexed(unique = true)
+     */
     private String location; // defination above ↑
     /*
-     * isActive indicates if the spot is active or deactivated, does not affect booking status,
-     * even if deactivated, isBooked can be true, if the spot was booked before deactivation
+     * isActive indicates if the spot is active or deactivated, does not affect
+     * booking status,
+     * even if deactivated, isBooked can be true, if the spot was booked before
+     * deactivation
      * the deactivated spots won't be available for booking by users
-     * when admin reactivates the spot, it can be booked again based on isBooked status
+     * when admin reactivates the spot, it can be booked again based on isBooked
+     * status
      * it is just the case that deactivated spots won't appear in user searches
-     * the activation and deactivation is managed by admin only, so regular users cannot change this status
-    */
+     * the activation and deactivation is managed by admin only, so regular users
+     * cannot change this status
+     */
     private boolean isActive; // defination above ↑
     private boolean isBooked; // indicates if the spot is currently booked or not
     private LocalDateTime createdAt; // timestamp when the spot was created
-    private LocalDateTime updatedAt; // timestamp when the spot was last updated either booking status or activation status
+    private LocalDateTime updatedAt; // timestamp when the spot was last updated either booking status or activation
+                                     // status
 
     public ParkingSpot(String type, int cost, String location) {
         this.type = type;

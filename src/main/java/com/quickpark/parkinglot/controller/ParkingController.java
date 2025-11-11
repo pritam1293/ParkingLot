@@ -73,9 +73,13 @@ public class ParkingController {
     }
 
     @DeleteMapping(path = "/unpark")
-    public ResponseEntity<?> UnparkVehicle(@RequestParam String ticketId) {
+    public ResponseEntity<?> UnparkVehicle(@RequestParam String ticketId, @RequestHeader("Authorization") String authHeader) {
         try {
-            UnparkedTicket unparkedTicket = parkingService.UnparkVehicle(ticketId);
+            String userEmail = extractEmailFromToken(authHeader);
+            if(userEmail == null || userEmail.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user token");
+            }
+            UnparkedTicket unparkedTicket = parkingService.UnparkVehicle(ticketId, userEmail);
             if (unparkedTicket != null) {
                 // Send email notification
                 try {

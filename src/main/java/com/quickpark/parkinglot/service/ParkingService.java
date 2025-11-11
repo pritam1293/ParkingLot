@@ -111,10 +111,6 @@ public class ParkingService implements IParkingService {
                 throw new ParkingLotException("User with email " + email + " does not exist.");
             }
 
-            if (parkedTicketRepository.existsByVehicleNo(vehicleNo)) {
-                throw new ParkingLotException("Vehicle with number " + vehicleNo + " is already parked.");
-            }
-
             // Try to find and book a parking spot with retry logic for concurrency
             ParkingSpot freeParkingSpot = null;
             int maxRetries = 5;
@@ -122,6 +118,12 @@ public class ParkingService implements IParkingService {
 
             while (attempt < maxRetries && freeParkingSpot == null) {
                 try {
+                    // Check if vehicle is already parked (inside retry loop to avoid race
+                    // condition)
+                    if (parkedTicketRepository.existsByVehicleNo(vehicleNo)) {
+                        throw new ParkingLotException("Vehicle with number " + vehicleNo + " is already parked.");
+                    }
+
                     // Find first available spot from database
                     freeParkingSpot = parkingSpotRepository
                             .findFirstByTypeAndIsBooked(finalType, false)
@@ -130,6 +132,7 @@ public class ParkingService implements IParkingService {
 
                     // Book the spot
                     freeParkingSpot.setBooked(true);
+                    freeParkingSpot.setUpdatedAt(LocalDateTime.now());
                     parkingSpotRepository.save(freeParkingSpot); // This might throw OptimisticLockingFailureException
 
                 } catch (OptimisticLockingFailureException e) {
@@ -139,6 +142,13 @@ public class ParkingService implements IParkingService {
                     if (attempt >= maxRetries) {
                         throw new ParkingLotException(
                                 "Unable to book parking spot due to high demand. Please try again.");
+                    }
+                    // Small delay before retry to reduce contention
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        throw new ParkingLotException("Parking operation was interrupted. Please try again.");
                     }
                 }
             }
@@ -152,8 +162,21 @@ public class ParkingService implements IParkingService {
 
             String ticketId = generateRandomId();
             if (ticketId.isEmpty()) {
+                // Rollback: Free the spot again
+                try {
+                    freeParkingSpot.setBooked(false);
+                    freeParkingSpot.setUpdatedAt(LocalDateTime.now());
+                    parkingSpotRepository.save(freeParkingSpot);
+                    updateDisplayBoardFromDatabase();
+                } catch (OptimisticLockingFailureException e) {
+                    // If rollback fails due to version mismatch, the spot might already be freed or rebooked
+                    // Log this but don't throw - the original error is more important
+                    System.err.println("Warning: Failed to rollback parking spot booking: " + e.getMessage());
+                }
                 throw new ParkingLotException("Failed to generate unique ticket ID. Please try again.");
             }
+
+            // Create and save the parked ticket
             ParkedTicket parkedTicket = new ParkedTicket(
                     ticketId,
                     user.getFirstName(),
@@ -164,10 +187,28 @@ public class ParkingService implements IParkingService {
                     vehicleNo,
                     vehicleModel,
                     freeParkingSpot);
-            parkedTicketRepository.save(parkedTicket);
+
+            try {
+                parkedTicketRepository.save(parkedTicket);
+            } catch (Exception e) {
+                // Rollback: Free the parking spot if ticket creation fails
+                try {
+                    freeParkingSpot.setBooked(false);
+                    freeParkingSpot.setUpdatedAt(LocalDateTime.now());
+                    parkingSpotRepository.save(freeParkingSpot);
+                    updateDisplayBoardFromDatabase();
+                } catch (OptimisticLockingFailureException ole) {
+                    System.err.println(
+                            "Warning: Failed to rollback parking spot after ticket save failure: " + ole.getMessage());
+                }
+                throw new ParkingLotException("Failed to create parking ticket: " + e.getMessage());
+            }
+
             return parkedTicket;
+        } catch (ParkingLotException e) {
+            throw e;
         } catch (Exception e) {
-            throw new ParkingLotException(e.getMessage());
+            throw new ParkingLotException("Unexpected error during parking: " + e.getMessage());
         }
     }
 
@@ -185,7 +226,7 @@ public class ParkingService implements IParkingService {
     }
 
     @Override
-    public UnparkedTicket UnparkVehicle(String ParkingTicketId) {
+    public UnparkedTicket UnparkVehicle(String ParkingTicketId, String userEmail) {
         try {
             if (ParkingTicketId != null) {
                 ParkingTicketId = ParkingTicketId.trim();
@@ -193,14 +234,26 @@ public class ParkingService implements IParkingService {
             if (ParkingTicketId == null || ParkingTicketId.isEmpty()) {
                 throw new ParkingLotException("Ticket ID is required for unparking.");
             }
+
+            // Fetch the parked ticket
             ParkedTicket parkedTicket = parkedTicketRepository.findById(ParkingTicketId).orElse(null);
             if (parkedTicket == null) {
                 throw new ParkingLotException("Invalid ticket ID or the vehicle is already unparked");
             }
-            parkedTicketRepository.delete(parkedTicket);
+
+            // Authorization check
+            if (!parkedTicket.getEmail().equals(userEmail)) {
+                throw new ParkingLotException("Unauthorized unparking attempt for ticket ID: " + ParkingTicketId);
+            }
+
+            // Calculate time and cost
             long totalTime = countTimeInMinutes(parkedTicket.getEntryTime());
             long totalCost = calculateCost(parkedTicket, totalTime);
-            parkedTicket.getParkingSpot().setBooked(false);
+
+            // Get the parking spot location before deletion
+            String parkingSpotLocation = parkedTicket.getParkingSpot().getLocation();
+
+            // Create unparked ticket with embedded parking spot info
             UnparkedTicket unparkedTicket = new UnparkedTicket(
                     parkedTicket.getId(),
                     parkedTicket.getFirstName(),
@@ -214,19 +267,85 @@ public class ParkingService implements IParkingService {
                     parkedTicket.getVehicleNo(),
                     parkedTicket.getVehicleModel(),
                     parkedTicket.getParkingSpot());
-            unparkedTicketRepository.save(unparkedTicket);
-            // Free the parking spot in database
-            ParkingSpot spot = parkedTicket.getParkingSpot();
-            ParkingSpot parkingSpot = parkingSpotRepository.findByLocation(spot.getLocation());
-            if (parkingSpot != null) {
-                parkingSpot.setBooked(false);
-                parkingSpotRepository.save(parkingSpot);
+
+            // Unpark with retry logic for race condition handling
+            int maxRetries = 5;
+            int attempt = 0;
+            boolean success = false;
+
+            while (attempt < maxRetries && !success) {
+                try {
+                    // Step 1: Save unparked ticket first (to ensure history is captured)
+                    unparkedTicketRepository.save(unparkedTicket);
+
+                    // Step 2: Delete parked ticket
+                    parkedTicketRepository.delete(parkedTicket);
+
+                    // Step 3: Free the parking spot in database with optimistic locking
+                    ParkingSpot parkingSpot = parkingSpotRepository.findByLocation(parkingSpotLocation);
+                    if (parkingSpot == null) {
+                        throw new ParkingLotException("Parking spot not found: " + parkingSpotLocation);
+                    }
+                    parkingSpot.setBooked(false);
+                    parkingSpot.setUpdatedAt(LocalDateTime.now());
+                    parkingSpotRepository.save(parkingSpot); // May throw OptimisticLockingFailureException
+
+                    success = true;
+
+                } catch (OptimisticLockingFailureException e) {
+                    // Concurrent modification on parking spot, retry
+                    attempt++;
+                    if (attempt >= maxRetries) {
+                        // Rollback: Try to restore parked ticket and delete unparked ticket
+                        try {
+                            unparkedTicketRepository.delete(unparkedTicket);
+                            parkedTicketRepository.save(parkedTicket);
+                        } catch (Exception rollbackException) {
+                            System.err.println(
+                                    "CRITICAL: Failed to rollback unpark operation for ticket " + ParkingTicketId
+                                            + ": " + rollbackException.getMessage());
+                        }
+                        throw new ParkingLotException(
+                                "Unable to complete unpark operation due to high system load. Please try again.");
+                    }
+
+                    // Small delay before retry
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        throw new ParkingLotException("Unpark operation was interrupted. Please try again.");
+                    }
+
+                } catch (Exception e) {
+                    // Other exception occurred, try to rollback
+                    try {
+                        unparkedTicketRepository.delete(unparkedTicket);
+                        // Don't restore parked ticket if it was already deleted
+                        if (!parkedTicketRepository.existsById(ParkingTicketId)) {
+                            parkedTicketRepository.save(parkedTicket);
+                        }
+                    } catch (Exception rollbackException) {
+                        System.err.println("CRITICAL: Failed to rollback unpark operation for ticket " + ParkingTicketId
+                                + ": " + rollbackException.getMessage());
+                    }
+                    throw new ParkingLotException("Error occurred while unparking vehicle: " + e.getMessage());
+                }
             }
+
+            if (!success) {
+                throw new ParkingLotException("Failed to complete unpark operation after multiple attempts.");
+            }
+
             // Update display board
             updateDisplayBoardFromDatabase();
+
             return unparkedTicket;
+
+        } catch (ParkingLotException e) {
+            throw e;
         } catch (Exception e) {
-            throw new ParkingLotException("Error occurred while unparking vehicle: " + e.getMessage());
+            throw new ParkingLotException("Unexpected error occurred while unparking vehicle: " + e.getMessage());
         }
     }
 
@@ -245,7 +364,8 @@ public class ParkingService implements IParkingService {
     private String generateRandomId() {
         /*
          * Generate a random 8-character alphanumeric ID, starting with QP
-         * Generate the id till we get a unique one, max 10 attempts, else return empty string
+         * Generate the id till we get a unique one, max 10 attempts, else return empty
+         * string
          */
         String randomId = "QP-" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
         int attempts = 0;
