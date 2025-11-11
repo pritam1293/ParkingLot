@@ -52,8 +52,10 @@ export const parkingAPI = {
     // Unpark a vehicle
     unparkVehicle: async (ticketId) => {
         try {
-            const response = await apiClient.post('/unpark', {
-                ticketId: ticketId
+            const response = await apiClient.delete('/unpark', {
+                params: {
+                    ticketId: ticketId
+                }
             });
             return response.data;
         } catch (error) {

@@ -1,35 +1,222 @@
 import React, { useState } from 'react';
+import { parkingAPI } from '../services/ParkingAPI';
+import { useNavigate } from 'react-router-dom';
+import html2pdf from 'html2pdf.js';
 
 const Unpark = () => {
+    const navigate = useNavigate();
     const [ticketNumber, setTicketNumber] = useState('');
     const [vehicleInfo, setVehicleInfo] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [isUnparking, setIsUnparking] = useState(false);
 
-    const handleSearch = (e) => {
+    // Helper function to format duration from minutes to readable format
+    const formatDuration = (minutes) => {
+        if (!minutes || minutes === 0) return 'Less than a minute';
+
+        const days = Math.floor(minutes / 1440);
+        const hours = Math.floor((minutes % 1440) / 60);
+        const mins = minutes % 60;
+
+        const parts = [];
+        if (days > 0) parts.push(`${days} day${days > 1 ? 's' : ''}`);
+        if (hours > 0) parts.push(`${hours} hour${hours > 1 ? 's' : ''}`);
+        if (mins > 0) parts.push(`${mins} minute${mins > 1 ? 's' : ''}`);
+
+        return parts.join(' ') || 'Less than a minute';
+    };
+
+    // Helper function to capitalize vehicle type
+    const formatVehicleType = (type) => {
+        if (!type) return 'Standard';
+        return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+    };
+
+    const handleSearch = async (e) => {
         e.preventDefault();
-        // Mock data - replace with API call
-        setVehicleInfo({
-            ticketNumber: ticketNumber,
-            vehicleNumber: 'ABC-1234',
-            vehicleType: 'Compact Car',
-            ownerName: 'John Doe',
-            phoneNumber: '+1 (234) 567-8900',
-            entryTime: '10:30 AM',
-            currentTime: '1:00 PM',
-            duration: '2 hours 30 minutes',
-            parkingFee: 12.50,
-            tax: 1.25,
-            spotNumber: 'A-23',
-            floor: 'Level 2'
-        });
+        setError('');
+        setIsLoading(true);
+
+        try {
+            // Call the unpark API to get vehicle details and unpark
+            const response = await parkingAPI.unparkVehicle(ticketNumber.trim());
+
+            // Calculate tax (assuming 10% of parking fee or could be included in totalCost)
+            const parkingFee = response.totalCost || 0;
+            const tax = 0; // Backend seems to include everything in totalCost
+
+            // Format the response data to match our UI
+            setVehicleInfo({
+                ticketNumber: response.id || ticketNumber,
+                vehicleNumber: response.vehicleNo || 'N/A',
+                vehicleModel: response.vehicleModel || 'Not specified',
+                vehicleType: formatVehicleType(response.parkingSpot?.type),
+                ownerName: response.firstName && response.lastName
+                    ? `${response.firstName} ${response.lastName}`
+                    : 'N/A',
+                phoneNumber: response.ownerContact || 'N/A',
+                email: response.email || 'N/A',
+                entryTime: response.entryTime ? new Date(response.entryTime).toLocaleString() : 'N/A',
+                exitTime: response.exitTime ? new Date(response.exitTime).toLocaleString() : 'N/A',
+                duration: formatDuration(response.totalDuration),
+                durationMinutes: response.totalDuration || 0,
+                parkingFee: parkingFee,
+                tax: tax,
+                spotNumber: response.parkingSpot?.location || 'N/A',
+                floor: response.parkingSpot?.location ? response.parkingSpot.location.split('-')[0] : 'N/A',
+                spotDetails: response.parkingSpot,
+                rawResponse: response // Store the full response for reference
+            });
+        } catch (err) {
+            setError(err.message || 'Failed to retrieve vehicle information. Please check your ticket number.');
+            setVehicleInfo(null);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleUnpark = () => {
-        alert('Vehicle unparked successfully! Thank you for using QuickPark.');
+        // Vehicle is already unparked when we searched
+        const totalAmount = vehicleInfo ? vehicleInfo.parkingFee : 0;
+        alert(`Vehicle unparked successfully!\n\nTotal Amount: ₹${totalAmount.toFixed(2)}\n\nThank you for using QuickPark!`);
         setVehicleInfo(null);
         setTicketNumber('');
+        // Optionally navigate to home or history page
+        navigate('/home');
     };
 
-    const total = vehicleInfo ? vehicleInfo.parkingFee + vehicleInfo.tax : 0;
+    const handleDownloadReceipt = () => {
+        if (!vehicleInfo) return;
+
+        // Check if parking is free (first 30 minutes)
+        const isFree = vehicleInfo.parkingFee === 0;
+
+        // Create a container element for the PDF content
+        const element = document.createElement('div');
+        element.style.padding = '12px';
+        element.style.width = '400px';
+        element.style.fontFamily = 'Arial, sans-serif';
+        element.style.backgroundColor = 'white';
+        element.style.color = 'black';
+
+        // Build the receipt HTML
+        element.innerHTML = `
+            <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 8px;">
+                <h1 style="margin: 3px 0; font-size: 18px; font-weight: bold;">QUICKPARK</h1>
+                <p style="margin: 2px 0; font-size: 12px;">PARKING RECEIPT</p>
+            </div>
+            
+            <div style="background: ${isFree ? '#10b981' : '#3b82f6'}; padding: 6px; margin-bottom: 8px; border-radius: 4px; text-align: center;">
+                <p style="margin: 0; font-size: 10px; color: white;">${isFree ? '🎉 COMPLIMENTARY PARKING' : '💳 PAYMENT DUE AT EXIT'}</p>
+                <p style="margin: 3px 0 0 0; font-size: 14px; font-weight: bold; color: white;">TICKET ID: ${vehicleInfo.ticketNumber}</p>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+                <h3 style="font-size: 11px; font-weight: bold; margin: 0 0 4px 0; color: #333; text-transform: uppercase; border-bottom: 1px solid #ccc; padding-bottom: 3px;">Owner Information</h3>
+                <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 2px 0; color: #666;">Name:</td>
+                        <td style="padding: 2px 0; text-align: right; font-weight: 600;">${vehicleInfo.ownerName}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 2px 0; color: #666;">Contact:</td>
+                        <td style="padding: 2px 0; text-align: right; font-weight: 600;">${vehicleInfo.phoneNumber}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 2px 0; color: #666;">Email:</td>
+                        <td style="padding: 2px 0; text-align: right; font-weight: 600; font-size: 10px;">${vehicleInfo.email}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+                <h3 style="font-size: 11px; font-weight: bold; margin: 0 0 4px 0; color: #333; text-transform: uppercase; border-bottom: 1px solid #ccc; padding-bottom: 3px;">Vehicle Details</h3>
+                <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 2px 0; color: #666;">Number:</td>
+                        <td style="padding: 2px 0; text-align: right; font-weight: 600;">${vehicleInfo.vehicleNumber}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 2px 0; color: #666;">Model:</td>
+                        <td style="padding: 2px 0; text-align: right; font-weight: 600;">${vehicleInfo.vehicleModel}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 2px 0; color: #666;">Type:</td>
+                        <td style="padding: 2px 0; text-align: right; font-weight: 600; text-transform: capitalize;">${vehicleInfo.vehicleType}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+                <h3 style="font-size: 11px; font-weight: bold; margin: 0 0 4px 0; color: #333; text-transform: uppercase; border-bottom: 1px solid #ccc; padding-bottom: 3px;">Parking Details</h3>
+                <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 2px 0; color: #666;">Spot:</td>
+                        <td style="padding: 2px 0; text-align: right; font-weight: 600;">${vehicleInfo.spotNumber}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 2px 0; color: #666;">Entry Time:</td>
+                        <td style="padding: 2px 0; text-align: right; font-weight: 600; font-size: 10px;">${vehicleInfo.entryTime}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 2px 0; color: #666;">Exit Time:</td>
+                        <td style="padding: 2px 0; text-align: right; font-weight: 600; font-size: 10px;">${vehicleInfo.exitTime}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 2px 0; color: #666;">Duration:</td>
+                        <td style="padding: 2px 0; text-align: right; font-weight: 600;">${vehicleInfo.duration}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div style="background: ${isFree ? '#ecfdf5' : '#f3f4f6'}; padding: 8px; border-radius: 6px; margin-bottom: 8px; ${isFree ? 'border: 2px solid #10b981;' : ''}">
+                <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 3px 0; color: #666;">Total Duration:</td>
+                        <td style="padding: 3px 0; text-align: right; font-weight: 600;">${vehicleInfo.durationMinutes} minutes</td>
+                    </tr>
+                    <tr style="border-top: 2px solid ${isFree ? '#a7f3d0' : '#d1d5db'};">
+                        <td style="padding: 5px 0; font-weight: bold; font-size: 13px;">Amount ${isFree ? '' : 'Due'}:</td>
+                        <td style="padding: 5px 0; text-align: right; font-weight: bold; font-size: 15px; color: ${isFree ? '#059669' : '#dc2626'};">₹${vehicleInfo.parkingFee.toFixed(2)}</td>
+                    </tr>
+                </table>
+                <p style="margin: 5px 0 0 0; font-size: 8px; color: #6b7280; text-align: center;">* All taxes and charges included</p>
+            </div>
+
+            ${isFree ? `
+                <div style="background: #d1fae5; border-left: 3px solid #10b981; padding: 6px; margin-bottom: 8px;">
+                    <p style="margin: 0; font-size: 10px; color: #065f46; font-weight: 600;">🎉 No charges applied!</p>
+                    <p style="margin: 3px 0 0 0; font-size: 9px; color: #047857;">You parked within our complimentary 30-minute window. Thank you for visiting QuickPark!</p>
+                </div>
+            ` : `
+                <div style="background: #fef3c7; border-left: 3px solid #f59e0b; padding: 6px; margin-bottom: 8px;">
+                    <p style="margin: 0; font-size: 10px; color: #92400e; font-weight: 600;">⚠️ Please proceed to the exit gate</p>
+                    <p style="margin: 3px 0 0 0; font-size: 9px; color: #b45309;">Payment must be completed at the exit counter before departure.</p>
+                </div>
+            `}
+
+            <div style="text-align: center; font-size: 9px; color: #999; border-top: 1px solid #ddd; padding-top: 6px;">
+                <p style="margin: 1px 0;">24/7 Security • CCTV Monitored</p>
+                <p style="margin: 1px 0;">QuickPark Parking Services</p>
+                <p style="margin: 4px 0 0 0; font-size: 8px;">Visit us again!</p>
+            </div>
+        `;
+
+        // PDF options
+        const opt = {
+            margin: [10, 10, 10, 10],
+            filename: `parking-receipt-${vehicleInfo.vehicleNumber}-${Date.now()}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
+        };
+
+        // Generate and download PDF
+        html2pdf().set(opt).from(element).save();
+    };
+
+    const total = vehicleInfo ? vehicleInfo.parkingFee : 0;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12">
@@ -62,13 +249,41 @@ const Unpark = () => {
                             <div className="sm:pt-8">
                                 <button
                                     type="submit"
-                                    className="w-full sm:w-auto px-8 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                                    disabled={isLoading || !ticketNumber.trim()}
+                                    className="w-full sm:w-auto px-8 py-3 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:bg-slate-400 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
                                 >
-                                    Search
+                                    {isLoading ? (
+                                        <>
+                                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Searching...
+                                        </>
+                                    ) : (
+                                        'Search'
+                                    )}
                                 </button>
                             </div>
                         </div>
                     </form>
+
+                    {/* Error Message */}
+                    {error && (
+                        <div className="mt-6 max-w-2xl mx-auto">
+                            <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4">
+                                <div className="flex items-start">
+                                    <svg className="w-6 h-6 text-red-500 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                    </svg>
+                                    <div>
+                                        <p className="font-semibold text-red-800 mb-1">Error</p>
+                                        <p className="text-sm text-red-700">{error}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Helper Text */}
                     <div className="mt-6 space-y-4 max-w-2xl mx-auto">
@@ -140,10 +355,12 @@ const Unpark = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                                 <DetailCard icon={<CarNumberIcon />} label="Vehicle Number" value={vehicleInfo.vehicleNumber} />
                                 <DetailCard icon={<VehicleTypeIcon />} label="Vehicle Type" value={vehicleInfo.vehicleType} />
+                                <DetailCard icon={<ModelIcon />} label="Vehicle Model" value={vehicleInfo.vehicleModel} />
                                 <DetailCard icon={<PersonIcon />} label="Owner Name" value={vehicleInfo.ownerName} />
                                 <DetailCard icon={<PhoneIcon />} label="Phone Number" value={vehicleInfo.phoneNumber} />
-                                <DetailCard icon={<LocationIcon />} label="Parking Spot" value={`${vehicleInfo.spotNumber} - ${vehicleInfo.floor}`} />
+                                <DetailCard icon={<LocationIcon />} label="Parking Spot" value={vehicleInfo.spotNumber} />
                                 <DetailCard icon={<ClockIcon />} label="Entry Time" value={vehicleInfo.entryTime} />
+                                <DetailCard icon={<EmailIcon />} label="Email" value={vehicleInfo.email} />
                             </div>
 
                             {/* Parking Duration */}
@@ -154,8 +371,8 @@ const Unpark = () => {
                                         <p className="text-2xl font-bold text-slate-800">{vehicleInfo.duration}</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-slate-600 text-sm mb-1">Current Time</p>
-                                        <p className="text-lg font-semibold text-slate-700">{vehicleInfo.currentTime}</p>
+                                        <p className="text-slate-600 text-sm mb-1">Exit Time</p>
+                                        <p className="text-lg font-semibold text-slate-700">{vehicleInfo.exitTime}</p>
                                     </div>
                                 </div>
                             </div>
@@ -170,17 +387,19 @@ const Unpark = () => {
                                 </h3>
                                 <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 mb-6">
                                     <div className="space-y-4">
-                                        <div className="flex justify-between items-center pb-3 border-b border-slate-300">
-                                            <span className="text-slate-700 font-medium">Parking Fee</span>
-                                            <span className="text-lg font-semibold text-slate-800">${vehicleInfo.parkingFee.toFixed(2)}</span>
+                                        <div className="flex justify-between items-center pb-3">
+                                            <div>
+                                                <span className="text-slate-700 font-medium">Total Parking Duration</span>
+                                                <p className="text-xs text-slate-500 mt-1">{vehicleInfo.durationMinutes} minutes</p>
+                                            </div>
+                                            <span className="text-lg font-semibold text-slate-800">{vehicleInfo.duration}</span>
                                         </div>
-                                        <div className="flex justify-between items-center pb-3 border-b border-slate-300">
-                                            <span className="text-slate-700 font-medium">Service Tax (10%)</span>
-                                            <span className="text-lg font-semibold text-slate-800">${vehicleInfo.tax.toFixed(2)}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center pt-2">
-                                            <span className="text-xl font-bold text-slate-900">Total Amount</span>
-                                            <span className="text-3xl font-bold text-slate-800">${total.toFixed(2)}</span>
+                                        <div className="border-t border-slate-300 pt-4">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xl font-bold text-slate-900">Total Amount</span>
+                                                <span className="text-3xl font-bold text-green-600">₹{vehicleInfo.parkingFee.toFixed(2)}</span>
+                                            </div>
+                                            <p className="text-xs text-slate-500 mt-2">* All taxes and charges included</p>
                                         </div>
                                     </div>
                                 </div>
@@ -226,6 +445,17 @@ const Unpark = () => {
                                         💳 All major credit/debit cards accepted | 📱 Google Pay, PayPal, Apple Pay | 💵 Cash at exit gate
                                     </p>
                                 </div>
+
+                                {/* Download Receipt Button */}
+                                <button
+                                    onClick={handleDownloadReceipt}
+                                    className="w-full py-4 mb-3 bg-slate-800 text-white font-bold text-lg rounded-lg hover:bg-slate-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center"
+                                >
+                                    <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Download Receipt
+                                </button>
 
                                 <button
                                     onClick={handleUnpark}
@@ -289,6 +519,18 @@ const LocationIcon = () => (
 const ClockIcon = () => (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+);
+
+const ModelIcon = () => (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+    </svg>
+);
+
+const EmailIcon = () => (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
     </svg>
 );
 
