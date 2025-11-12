@@ -118,11 +118,9 @@ public class UserController {
     }
 
     @PostMapping("/auth/otp/generate")
-    public ResponseEntity<?> generateOTP(@RequestBody String email, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> generateOTP(@RequestBody String email) {
         try {
-            // Extract email from JWT token
-            String authEmail = extractEmailFromToken(authHeader);
-            boolean isOTPSent = userService.generateAndSendOTP(email, authEmail);
+            boolean isOTPSent = userService.generateAndSendOTP(email);
             if (isOTPSent) {
                 return ResponseEntity.ok("OTP sent successfully to " + email);
             } else {
@@ -137,13 +135,11 @@ public class UserController {
     }
 
     @PostMapping("/auth/otp/verify")
-    public ResponseEntity<?> verifyOTP(@RequestBody Map<String, String> otpRequest, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> verifyOTP(@RequestBody Map<String, String> otpRequest) {
         try {
             String email = otpRequest.get("email");
             String otp = otpRequest.get("otp");
-            // Extract email from JWT token
-            String authEmail = extractEmailFromToken(authHeader);
-            boolean isOTPValid = userService.verifyOTP(email, authEmail, otp);
+            boolean isOTPValid = userService.verifyOTP(email, otp);
             if (isOTPValid) {
                 return ResponseEntity.ok("OTP verified successfully");
             } else {
@@ -158,15 +154,20 @@ public class UserController {
     }
 
     @PutMapping("/auth/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody String newPassword, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> passwordRequest) {
         try {
-            // Extract email from JWT token
-            String email = extractEmailFromToken(authHeader);
-            boolean isPasswordReset = userService.resetPassword(email, newPassword);
-            if (isPasswordReset) {
+            String email = passwordRequest.get("email");
+            String newPassword = passwordRequest.get("newPassword");
+            Map<String, Object> response = userService.resetPassword(email, newPassword);
+            if ((boolean) response.get("success")) {
+                // Send password change email
+                String toEmail = (String) response.get("email");
+                String firstName = (String) response.get("firstName");
+                String lastName = (String) response.get("lastName");
+                emailService.sendPasswordChangeEmail(toEmail, firstName, lastName);
                 return ResponseEntity.ok("Password reset successfully");
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to reset password");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.get("message"));
             }
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -177,10 +178,10 @@ public class UserController {
     }
 
     @PutMapping("/auth/reset-contact")
-    public ResponseEntity<?> resetContactNumber(@RequestBody String newContactNo, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> resetContactNumber(@RequestBody Map<String, String> contactRequest) {
         try {
-            // Extract email from JWT token
-            String email = extractEmailFromToken(authHeader);
+            String email = contactRequest.get("email");
+            String newContactNo = contactRequest.get("newContactNo");
             boolean isContactReset = userService.resetContactNumber(email, newContactNo);
             if (isContactReset) {
                 return ResponseEntity.ok("Contact number reset successfully");

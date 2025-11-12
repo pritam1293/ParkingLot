@@ -13,11 +13,12 @@ import Profile from './pages/profile';
 import History from './pages/history';
 import Signup from './pages/signup';
 import Signin from './pages/signin';
+import ForgotPassword from './pages/forgotPassword';
 import './App.css';
 
 function AppContent() {
   const location = useLocation();
-  const isAuthPage = location.pathname === '/signup' || location.pathname === '/signin';
+  const isAuthPage = location.pathname === '/signup' || location.pathname === '/signin' || location.pathname === '/forgot-password';
 
   return (
     <div className="App min-h-screen bg-gray-100 flex flex-col">
@@ -27,6 +28,7 @@ function AppContent() {
           <Route path="/" element={<PublicRoute><Signin /></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
           <Route path="/signin" element={<PublicRoute><Signin /></PublicRoute>} />
+          <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/park" element={<ProtectedRoute><Park /></ProtectedRoute>} />
           <Route path="/unpark" element={<ProtectedRoute><Unpark /></ProtectedRoute>} />

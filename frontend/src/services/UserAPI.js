@@ -70,7 +70,12 @@ export const authAPI = {
     // Generate OTP
     generateOTP: async (email) => {
         try {
-            const response = await apiClient.post('/auth/otp/generate', email ? email : {});
+            // Send as plain text, not JSON
+            const response = await apiClient.post('/auth/otp/generate', email, {
+                headers: {
+                    'Content-Type': 'text/plain'
+                }
+            });
             return response.data;
         } catch (error) {
             throw error.response?.data || error.message;
@@ -91,9 +96,12 @@ export const authAPI = {
     },
 
     // Reset password
-    resetPassword: async (newPassword) => {
+    resetPassword: async (email, newPassword) => {
         try {
-            const response = await apiClient.put('/auth/reset-password', newPassword ? newPassword : '');
+            const response = await apiClient.put('/auth/reset-password', {
+                email: email || '',
+                newPassword: newPassword || ''
+            });
             return response.data;
         } catch (error) {
             throw error.response?.data || error.message;

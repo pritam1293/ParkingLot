@@ -259,37 +259,42 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public boolean generateAndSendOTP(String email, String authEmail) {
+    public boolean generateAndSendOTP(String email) {
         try {
             if (email != null)
                 email = email.trim();
             if (email == null || email.isEmpty()) {
+                System.out.println("empty email");
                 throw new RuntimeException("Email is required");
             }
             if (!validation.isValidEmail(email)) {
+                System.out.println("Invalid email format for email " + email);
                 throw new RuntimeException("Invalid email format");
-            }
-            if (email != authEmail) {
-                throw new RuntimeException("Unauthorized to perform this action");
             }
             User user = userRepository.findByEmail(email);
             if (user == null) {
+                System.out.println("no user found with email " + email);
                 throw new RuntimeException("User with this email does not exist");
             }
             // Generate OTP - a 6 digit random number
             String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
+            System.out.println("");
+            System.out.println("OTP for email " + email);
+            System.out.println(" otp: " + otp);
+            System.out.println("");
             // Try sending the email first, if successful then save OTP to database
             // This way, if email sending fails, OTP is not updated in database
-            boolean emailSent = false;
+            boolean emailSent = true;
             try {
                 emailService.sendOtpEmail(email, user.getFirstName(), user.getLastName(), otp, 10);
-                emailSent = true;
             } catch (Exception e) {
                 emailSent = false;
             }
             if (emailSent == false) {
                 throw new SendFailedException("Failed to send OTP email, please try again later");
             }
+            System.out.println("otp sent");
+            // Save OTP and expiry time to database
             user.setOtp(otp);
             user.setExpiresIn(LocalDateTime.now().plusMinutes(10)); // OTP valid for 10 minutes
             userRepository.save(user);
@@ -300,7 +305,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public boolean verifyOTP(String email, String authEmail, String otp) {
+    public boolean verifyOTP(String email, String otp) {
         try {
             if (email != null)
                 email = email.trim();
@@ -314,9 +319,6 @@ public class UserService implements IUserService {
             }
             if (!validation.isValidEmail(email)) {
                 throw new RuntimeException("Invalid email format");
-            }
-            if (email != authEmail) {
-                throw new RuntimeException("Unauthorized to perform this action");
             }
             User user = userRepository.findByEmail(email);
             if (user == null) {
@@ -343,7 +345,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public boolean resetPassword(String email, String newPassword) {
+    public Map<String, Object> resetPassword(String email, String newPassword) {
         try {
             if (email != null)
                 email = email.trim();
@@ -372,9 +374,17 @@ public class UserService implements IUserService {
             }
             user.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(user);
-            return true;
+            return Map.of(
+                    "success", true,
+                    "email", email,
+                    "firstName", user.getFirstName(),
+                    "lastName", user.getLastName()
+            );
         } catch (Exception e) {
-            return false;
+            return Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            );
         }
     }
 

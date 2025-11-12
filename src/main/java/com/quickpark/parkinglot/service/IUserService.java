@@ -12,11 +12,11 @@ public interface IUserService {
 
     User updateUserDetails(String email, Map<String, String> userDetails);
 
-    boolean generateAndSendOTP(String email, String authEmail);
+    boolean generateAndSendOTP(String email);
 
-    boolean verifyOTP(String email, String authEmail, String otp);
+    boolean verifyOTP(String email, String otp);
 
-    boolean resetPassword(String email, String newPassword);
+    Map<String, Object> resetPassword(String email, String newPassword);
 
     boolean resetContactNumber(String email, String newContactNo);
 

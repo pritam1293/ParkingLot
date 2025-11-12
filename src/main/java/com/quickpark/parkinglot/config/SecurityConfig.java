@@ -34,9 +34,12 @@ public class SecurityConfig {
                                 .cors(cors -> cors.configure(http)) // Enable CORS
                                 .csrf(csrf -> csrf.disable())
                                 .authorizeHttpRequests(auth -> auth
-                                                // Public endpoints - signup and signin
+                                                // Public endpoints - signup, signin, and password reset
                                                 .requestMatchers("/quickpark/api/user/auth/signup",
-                                                                "/quickpark/api/user/auth/signin")
+                                                                "/quickpark/api/user/auth/signin",
+                                                                "/quickpark/api/user/auth/otp/generate",
+                                                                "/quickpark/api/user/auth/otp/verify",
+                                                                "/quickpark/api/user/auth/reset-password")
                                                 .permitAll()
 
                                                 // Admin-only endpoints - parking spot management and statistics
