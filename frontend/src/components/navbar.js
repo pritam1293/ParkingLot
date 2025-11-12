@@ -25,11 +25,25 @@ const Navbar = () => {
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
+        // Prevent body scroll when mobile menu is open
+        if (!isMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
     };
+
+    // Clean up body overflow on unmount
+    useEffect(() => {
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, []);
 
     const handleNavigation = (path) => {
         navigate(path);
         setIsMenuOpen(false);
+        document.body.style.overflow = 'unset';
     };
 
     const handleLogout = () => {
@@ -37,6 +51,7 @@ const Navbar = () => {
         navigate('/signin');
         setIsMenuOpen(false);
         setIsProfileDropdownOpen(false);
+        document.body.style.overflow = 'unset';
     };
 
     const toggleProfileDropdown = () => {
@@ -198,10 +213,11 @@ const Navbar = () => {
 
             {/* Mobile Menu */}
             <div
-                className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                    }`}
+                className={`md:hidden fixed left-0 right-0 bg-slate-800 border-t border-slate-700 transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-[calc(100vh-5rem)] opacity-100' : 'max-h-0 opacity-0'
+                    } overflow-y-auto overflow-x-hidden`}
+                style={{ top: '5rem' }}
             >
-                <div className="px-4 pt-2 pb-4 space-y-2 bg-slate-800 border-t border-slate-700">
+                <div className="px-4 pt-2 pb-4 space-y-2">
                     <MobileNavButton onClick={() => handleNavigation('/park')}>
                         <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
