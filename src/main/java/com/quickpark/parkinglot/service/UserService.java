@@ -264,24 +264,17 @@ public class UserService implements IUserService {
             if (email != null)
                 email = email.trim();
             if (email == null || email.isEmpty()) {
-                System.out.println("empty email");
                 throw new RuntimeException("Email is required");
             }
             if (!validation.isValidEmail(email)) {
-                System.out.println("Invalid email format for email " + email);
                 throw new RuntimeException("Invalid email format");
             }
             User user = userRepository.findByEmail(email);
             if (user == null) {
-                System.out.println("no user found with email " + email);
                 throw new RuntimeException("User with this email does not exist");
             }
             // Generate OTP - a 6 digit random number
             String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
-            System.out.println("");
-            System.out.println("OTP for email " + email);
-            System.out.println(" otp: " + otp);
-            System.out.println("");
             // Try sending the email first, if successful then save OTP to database
             // This way, if email sending fails, OTP is not updated in database
             boolean emailSent = true;
@@ -293,7 +286,6 @@ public class UserService implements IUserService {
             if (emailSent == false) {
                 throw new SendFailedException("Failed to send OTP email, please try again later");
             }
-            System.out.println("otp sent");
             // Save OTP and expiry time to database
             user.setOtp(otp);
             user.setExpiresIn(LocalDateTime.now().plusMinutes(10)); // OTP valid for 10 minutes
