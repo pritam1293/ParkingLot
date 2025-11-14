@@ -519,7 +519,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👨‍💻 Author & Contact
 
-**Pritam Bhattacharjee**
+**Pritam Behera**
 
 - GitHub: [@pritam1293](https://github.com/pritam1293)
 - Repository: [ParkingLot](https://github.com/pritam1293/ParkingLot)
@@ -559,7 +559,7 @@ Future enhancements planned:
 
 <div align="center">
 
-**Built with ❤️ by [Pritam Bhattacharjee](https://github.com/pritam1293)**
+**Built with ❤️ by [Pritam Behera](https://github.com/pritam1293)**
 
 _Making parking simple, secure, and efficient for everyone_
 
