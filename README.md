@@ -937,7 +937,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 For questions, support, or feedback:
 
 - **GitHub Issues**: [Report a bug or request a feature](https://github.com/pritam1293/ParkingLot/issues)
-- **Email**: support@quickpark.com
+- **Email**: beherapritam2003@gmail.com
 - **Phone**: +91 86585 35505
 
 ## 🚀 Future Enhancements
