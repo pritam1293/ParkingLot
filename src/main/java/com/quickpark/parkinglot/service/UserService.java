@@ -389,6 +389,55 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public boolean changePassword(String email, String currentPassword, String newPassword) {
+        try {
+            if (email != null)
+                email = email.trim();
+            if (currentPassword != null)
+                currentPassword = currentPassword.trim();
+            if (newPassword != null)
+                newPassword = newPassword.trim();
+            if (email == null || email.isEmpty()) {
+                throw new RuntimeException("Email is required");
+            }
+            if (currentPassword == null || currentPassword.isEmpty()) {
+                throw new RuntimeException("Current password is required");
+            }
+            if (newPassword == null || newPassword.isEmpty()) {
+                throw new RuntimeException("New password is required");
+            }
+            if (!validation.isValidEmail(email)) {
+                throw new RuntimeException("Invalid email format");
+            }
+            User user = userRepository.findByEmail(email);
+            if (user == null) {
+                throw new RuntimeException("User with this email does not exist");
+            }
+            // Validate current password
+            if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+                throw new RuntimeException("Incorrect current password");
+            }
+            // New password should be different from the old password
+            if (passwordEncoder.matches(newPassword, user.getPassword())) {
+                throw new RuntimeException("New password must be different from the old password");
+            }
+            if (!validation.isValidPassword(newPassword)) {
+                throw new RuntimeException(
+                        "Invalid password format, password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character");
+            }
+            user.setPassword(passwordEncoder.encode(newPassword));
+            try {
+                userRepository.save(user);
+            } catch (Exception e) {
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public synchronized boolean resetContactNumber(String email, String newContactNo) {
         try {

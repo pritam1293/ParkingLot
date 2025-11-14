@@ -14,6 +14,8 @@ import History from './pages/history';
 import Signup from './pages/signup';
 import Signin from './pages/signin';
 import ForgotPassword from './pages/forgotPassword';
+import ChangeContact from './pages/changeContact';
+import ChangePassword from './pages/changePassword';
 import './App.css';
 
 function AppContent() {
@@ -28,7 +30,7 @@ function AppContent() {
           <Route path="/" element={<PublicRoute><Signin /></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
           <Route path="/signin" element={<PublicRoute><Signin /></PublicRoute>} />
-          <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/park" element={<ProtectedRoute><Park /></ProtectedRoute>} />
           <Route path="/unpark" element={<ProtectedRoute><Unpark /></ProtectedRoute>} />
@@ -37,6 +39,8 @@ function AppContent() {
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
           <Route path="/profile/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
+          <Route path="/change-contact" element={<ProtectedRoute><ChangeContact /></ProtectedRoute>} />
+          <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
         </Routes>
       </div>
       <Footer isAuthPage={isAuthPage} />

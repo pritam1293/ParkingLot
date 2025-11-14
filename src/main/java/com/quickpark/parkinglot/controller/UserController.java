@@ -177,12 +177,32 @@ public class UserController {
         }
     }
 
-    @PutMapping("/auth/reset-contact")
-    public ResponseEntity<?> resetContactNumber(@RequestBody Map<String, String> contactRequest) {
+    @PutMapping("/auth/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> passwordRequest, @RequestHeader("Authorization") String authHeader) {
         try {
-            String email = contactRequest.get("email");
-            String newContactNo = contactRequest.get("newContactNo");
-            boolean isContactReset = userService.resetContactNumber(email, newContactNo);
+            // Extract email from JWT token
+            String email = extractEmailFromToken(authHeader);
+            String currentPassword = passwordRequest.get("currentPassword");
+            String newPassword = passwordRequest.get("newPassword");
+            boolean isPasswordChanged = userService.changePassword(email, currentPassword, newPassword);
+            if (isPasswordChanged) {
+                return ResponseEntity.ok("Password changed successfully");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to change password");
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error changing password: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/auth/reset-contact")
+    public ResponseEntity<?> resetContactNumber(@RequestBody String newContactNumber, @RequestHeader("Authorization") String authHeader) {
+        try {
+            String email = extractEmailFromToken(authHeader);
+            boolean isContactReset = userService.resetContactNumber(email, newContactNumber);
             if (isContactReset) {
                 return ResponseEntity.ok("Contact number reset successfully");
             } else {

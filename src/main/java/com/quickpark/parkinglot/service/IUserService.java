@@ -18,6 +18,8 @@ public interface IUserService {
 
     Map<String, Object> resetPassword(String email, String newPassword);
 
+    boolean changePassword(String email, String currentPassword, String newPassword);
+
     boolean resetContactNumber(String email, String newContactNo);
 
     User getUserByEmail(String email);

@@ -145,7 +145,24 @@ export const authAPI = {
     // Reset contact number
     resetContactNumber: async (newContactNo) => {
         try {
-            const response = await apiClient.put('/auth/reset-contact', newContactNo ? newContactNo : '');
+            const response = await apiClient.put('/auth/reset-contact', newContactNo ? newContactNo : '', {
+                headers: {
+                    'Content-Type': 'text/plain'
+                }
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error.message;
+        }
+    },
+
+    // Change password (requires current password)
+    changePassword: async (currentPassword, newPassword) => {
+        try {
+            const response = await apiClient.put('/auth/change-password', {
+                currentPassword: currentPassword || '',
+                newPassword: newPassword || ''
+            });
             return response.data;
         } catch (error) {
             throw error.response?.data || error.message;
