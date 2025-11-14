@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { validateSigninForm } from '../services/validation';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/UserAPI';
 
 function Signin() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { login } = useAuth();
     const [formData, setFormData] = useState({
         email: '',
@@ -16,6 +17,18 @@ function Signin() {
     const [showPassword, setShowPassword] = useState(false);
     const [loginMethod, setLoginMethod] = useState('email');
     const [isLoading, setIsLoading] = useState(false);
+    const [sessionExpiredMessage, setSessionExpiredMessage] = useState(false);
+
+    // Check if redirected due to session expiration
+    useEffect(() => {
+        // Check if there's no token in localStorage (user was logged out)
+        const hasToken = localStorage.getItem('authToken');
+        if (!hasToken && location.state?.from) {
+            setSessionExpiredMessage(true);
+            // Auto-hide after 10 seconds
+            setTimeout(() => setSessionExpiredMessage(false), 10000);
+        }
+    }, [location]);
 
     const validateForm = () => {
         const validationErrors = validateSigninForm(formData);
@@ -110,6 +123,31 @@ function Signin() {
 
                 {/* Main Card */}
                 <div className="bg-white rounded-3xl shadow-2xl p-8">
+                    {/* Session Expired Message */}
+                    {sessionExpiredMessage && (
+                        <div className="mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg animate-slideIn">
+                            <div className="flex items-start">
+                                <svg className="w-6 h-6 text-yellow-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div className="flex-1">
+                                    <h3 className="text-sm font-medium text-yellow-800">Session Expired</h3>
+                                    <p className="text-sm text-yellow-700 mt-1">
+                                        Your session has expired. Please sign in again to continue.
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setSessionExpiredMessage(false)}
+                                    className="ml-3 text-yellow-400 hover:text-yellow-600"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="space-y-5">
                         {/* Login Method Toggle */}
                         <div>
