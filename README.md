@@ -1,436 +1,284 @@
+<div align="center">
+
 # 🚗 QuickPark - Smart Parking Management System
 
-A comprehensive parking lot management system built with Spring Boot backend and React frontend, featuring JWT authentication, user management, real-time parking operations, and administrative analytics.
+[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.2-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![React](https://img.shields.io/badge/React-19.2.0-blue.svg)](https://reactjs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green.svg)](https://www.mongodb.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## 📋 Table of Contents
+**A modern, full-stack parking management solution with JWT authentication, real-time operations, and administrative analytics**
 
-- [Overview](#overview)
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Installation & Setup](#installation--setup)
-- [Configuration](#configuration)
-- [API Endpoints](#api-endpoints)
-- [Frontend Pages](#frontend-pages)
-- [Database Schema](#database-schema)
-- [Security Features](#security-features)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
+[Quick Start](#-quick-start) • [Features](#-features) • [Tech Stack](#-tech-stack) • [API Docs](#-api-endpoints) • [Contributing](#-contributing)
+
+</div>
+
+---
 
 ## 🎯 Overview
 
-QuickPark is a modern, full-stack parking management solution that provides:
+<table>
+<tr>
+<td width="50%">
 
-- **User Authentication & Authorization**: Secure JWT-based authentication with session management
-- **Real-time Parking Operations**: Live availability tracking and instant ticket generation
-- **Multi-tier Vehicle Classification**: Support for Mini, Compact, and Large vehicles
-- **Dynamic Pricing System**: Automatic fee calculation based on vehicle type and duration
-- **User Profile Management**: Update profile, change password, and contact information with OTP verification
-- **Administrative Dashboard**: Comprehensive analytics and system management
-- **Responsive Design**: Mobile-first approach with TailwindCSS styling
+**User Features**
+
+- 🔐 JWT Authentication & Session Management
+- 👤 Profile & Password Management
+- 🅿️ Real-time Parking Operations
+- 📜 Complete Parking History
+- 📱 Mobile-Responsive Design
+- 📄 PDF Ticket & Bill Generation
+
+</td>
+<td width="50%">
+
+**Admin Features**
+
+- 📊 Revenue Analytics Dashboard
+- 🚗 Vehicle Management (Active/Completed)
+- 👥 User Management
+- 📈 Utilization Statistics
+- ⚙️ System Configuration
+- 🔍 Advanced Reporting
+
+</td>
+</tr>
+</table>
 
 ## ✨ Features
 
-### User Management & Authentication
+<details>
+<summary><b>🔑 Authentication & User Management</b> (Click to expand)</summary>
 
-- ✅ **User Registration & Login**: Secure signup/signin with JWT token authentication
-- ✅ **Session Management**: Automatic token expiration handling with seamless logout
-- ✅ **Profile Management**: Update personal information (name, address, contact)
-- ✅ **Password Management**: Change password with current password validation
-- ✅ **Contact Update**: OTP-based contact number change with email verification
-- ✅ **Forgot Password**: Email-based password reset with OTP verification
+- ✅ User Registration & Login with JWT
+- ✅ Session Management with automatic token expiration
+- ✅ Profile Management (update name, address, contact)
+- ✅ Password Change with current password validation
+- ✅ OTP-based Contact Update via email
+- ✅ Forgot Password with email verification
+- ✅ Password Strength Indicator
 
-### Parking Operations
+</details>
 
-- ✅ **Vehicle Parking**: Automated spot allocation with instant ticket generation
-- ✅ **Vehicle Unparking**: Quick retrieval with automatic fee calculation and bill generation
-- ✅ **Real-time Status**: Live availability monitoring across all parking zones
-- ✅ **Parking History**: View complete parking history with dates, times, and fees
-- ✅ **Multi-vehicle Support**: Categorized parking for Mini, Compact, and Large vehicles
-- ✅ **Print Functionality**: Generate printable tickets and bills (PDF export)
+<details>
+<summary><b>🅿️ Parking Operations</b> (Click to expand)</summary>
 
-### Administrative Features
+- ✅ Automated Spot Allocation (Mini/Compact/Large)
+- ✅ Instant Ticket Generation with 10-digit ID
+- ✅ Quick Vehicle Unparking with bill calculation
+- ✅ Real-time Availability Monitoring
+- ✅ Complete Parking History tracking
+- ✅ Print Tickets & Bills (PDF export)
+- ✅ Dynamic Pricing based on vehicle type & duration
 
-- ✅ **Admin Dashboard**: Comprehensive analytics and management interface
-- ✅ **Revenue Analytics**: Track daily, weekly, and monthly revenue
-- ✅ **Vehicle Management**: Monitor active and completed parking sessions
-- ✅ **User Management**: View and manage registered users
-- ✅ **Utilization Statistics**: Parking usage distribution and trends
-- ✅ **System Configuration**: Manage parking rates and spot availability
+</details>
 
-### UI/UX Features
+<details>
+<summary><b>📊 Administrative Tools</b> (Click to expand)</summary>
 
-- ✅ **Responsive Design**: Mobile-first design with TailwindCSS
-- ✅ **Protected Routes**: Route guards for authenticated and public pages
-- ✅ **Error Handling**: Global error boundary with graceful fallback UI
-- ✅ **Loading States**: Reusable loading spinner component
-- ✅ **404 Page**: Custom not found page with navigation
-- ✅ **Form Validation**: Client-side validation with real-time feedback
-- ✅ **Password Strength Indicator**: Visual password requirements checker
-- ✅ **Session Expired Notifications**: Auto-redirect with user-friendly messages
+- ✅ Comprehensive Analytics Dashboard
+- ✅ Daily/Weekly/Monthly Revenue Reports
+- ✅ Active & Completed Session Monitoring
+- ✅ User Management & Activity Tracking
+- ✅ Parking Utilization Statistics
+- ✅ System Configuration Management
 
-## 🛠 Technology Stack
+</details>
 
-### Backend
+<details>
+<summary><b>🎨 UI/UX Excellence</b> (Click to expand)</summary>
 
-- **Framework**: Spring Boot 3.4.2
-- **Language**: Java 17
-- **Database**: MongoDB Atlas
-- **Build Tool**: Maven 3.6+
-- **Security**: Spring Security with JWT (JSON Web Tokens)
-- **Email Service**: Spring Boot Mail (for OTP verification)
-- **Key Dependencies**:
-  - Spring Boot Starter Web
-  - Spring Boot Starter Data MongoDB
-  - Spring Boot Starter Security
-  - Spring Boot Starter Mail
-  - JWT (io.jsonwebtoken:jjwt-api:0.12.6)
-  - Dotenv Java (3.0.0)
+- ✅ Mobile-First Responsive Design (TailwindCSS)
+- ✅ Protected & Public Route Guards
+- ✅ Global Error Boundary
+- ✅ Reusable Loading Components
+- ✅ Custom 404 Page
+- ✅ Real-time Form Validation
+- ✅ Session Expired Notifications
 
-### Frontend
+</details>
 
-- **Framework**: React 19.2.0
-- **Build Tool**: Create React App (react-scripts 5.0.1)
-- **Routing**: React Router DOM 7.9.5
-- **HTTP Client**: Axios 1.13.1
-- **Styling**: TailwindCSS 3.4.18
-- **Icons**: Lucide React 0.553.0
-- **PDF Generation**: html2pdf.js 0.12.1
-- **Testing**: Jest, React Testing Library
+## 🛠 Tech Stack
 
-### Development Tools
+<table>
+<tr>
+<td width="50%" valign="top">
 
-- **Version Control**: Git
-- **IDE**: VS Code / IntelliJ IDEA
-- **API Testing**: Postman / Thunder Client
-- **Package Manager**: npm (frontend), Maven (backend)
+**Backend**
 
-## 📁 Project Structure
+- ⚙️ Spring Boot 3.4.2
+- ☕ Java 17
+- 🍃 MongoDB Atlas
+- 🔐 Spring Security + JWT
+- 📧 Spring Boot Mail
+- 🔧 Maven 3.6+
 
-```
-ParkingLot/
-├── 📁 frontend/                              # React frontend application
-│   ├── � public/                            # Static assets
-│   │   ├── �📄 index.html                     # HTML template
-│   │   ├── 📄 manifest.json                  # PWA manifest
-│   │   ├── 📄 robots.txt                     # Search engine crawler rules
-│   │   └── 📁 images/                        # Static images
-│   ├── 📁 src/                               # Source code
-│   │   ├── 📁 components/                    # Reusable components
-│   │   │   ├── 📄 navbar.js                  # Navigation bar with mobile menu
-│   │   │   ├── 📄 footer.js                  # Footer component
-│   │   │   ├── 📄 ProtectedRoute.js          # Auth-required route guard
-│   │   │   ├── 📄 PublicRoute.js             # Public-only route guard
-│   │   │   ├── 📄 LoadingSpinner.js          # Reusable loading component
-│   │   │   ├── 📄 ErrorBoundary.js           # React error boundary
-│   │   │   └── 📄 NotFound.js                # 404 error page
-│   │   ├── 📁 context/                       # React context providers
-│   │   │   └── 📄 AuthContext.js             # Authentication state management
-│   │   ├── 📁 pages/                         # Page components
-│   │   │   ├── 📄 home.js                    # Landing page
-│   │   │   ├── 📄 signin.js                  # User login
-│   │   │   ├── 📄 signup.js                  # User registration
-│   │   │   ├── 📄 profile.js                 # User profile management
-│   │   │   ├── 📄 park.js                    # Vehicle parking interface
-│   │   │   ├── 📄 unpark.js                  # Vehicle unparking & billing
-│   │   │   ├── 📄 status.js                  # Real-time parking status
-│   │   │   ├── 📄 history.js                 # Parking history
-│   │   │   ├── 📄 about.js                   # About page
-│   │   │   ├── 📄 changePassword.js          # Password change with validation
-│   │   │   ├── 📄 changeContact.js           # OTP-based contact update
-│   │   │   └── 📄 forgotPassword.js          # Password reset flow
-│   │   ├── 📁 services/                      # API service layer
-│   │   │   ├── 📄 axiosConfig.js             # Shared axios configuration
-│   │   │   ├── 📄 UserAPI.js                 # User-related API calls
-│   │   │   ├── 📄 ParkingAPI.js              # Parking-related API calls
-│   │   │   ├── 📄 validation.js              # Form validation utilities
-│   │   │   └── 📄 vehicleCategories.js       # Vehicle type definitions
-│   │   ├── 📄 App.js                         # Main app component with routing
-│   │   ├── 📄 index.js                       # React entry point
-│   │   └── 📄 index.css                      # Global styles with Tailwind
-│   ├── 📄 package.json                       # npm dependencies
-│   ├── 📄 tailwind.config.js                 # TailwindCSS configuration
-│   └── 📄 .env                               # Frontend environment variables
-│
-├── 📁 src/main/java/com/quickpark/parkinglot/  # Backend source code
-│   ├── 📁 config/                            # Configuration classes
-│   │   ├── 📄 DotEnvConfig.java              # Environment variable loader
-│   │   ├── 📄 JWT.java                       # JWT utility methods
-│   │   ├── 📄 JwtAuthenticationEntryPoint.java # JWT error handler
-│   │   ├── 📄 JwtAuthenticationFilter.java   # JWT request filter
-│   │   ├── 📄 MongoConfig.java               # MongoDB configuration
-│   │   ├── 📄 SecurityConfig.java            # Spring Security config
-│   │   └── 📄 WebConfig.java                 # CORS and web configuration
-│   ├── 📁 controller/                        # REST API controllers
-│   │   ├── 📄 AdminController.java           # Admin operations
-│   │   ├── 📄 ParkingController.java         # Parking operations
-│   │   └── 📄 UserController.java            # User authentication & management
-│   ├── 📁 custom/                            # Custom utility classes
-│   │   ├── 📄 Pair.java                      # Generic pair class
-│   │   └── 📄 Tuple.java                     # Generic tuple class
-│   ├── 📁 entities/                          # MongoDB entities
-│   │   ├── 📄 CompactParkingSpot.java        # Compact vehicle spots
-│   │   ├── 📄 DisplayBoard.java              # Display board entity
-│   │   ├── 📄 Gate.java                      # Gate entity
-│   │   ├── 📄 LargeParkingSpot.java          # Large vehicle spots
-│   │   ├── 📄 MiniParkingSpot.java           # Mini vehicle spots
-│   │   ├── 📄 ParkedTicket.java              # Active parking ticket
-│   │   ├── 📄 ParkingSpot.java               # Base parking spot
-│   │   ├── 📄 Ticket.java                    # Completed parking ticket
-│   │   └── 📄 User.java                      # User entity
-│   ├── 📁 Exceptions/                        # Custom exception classes
-│   │   └── [Custom exception handlers]
-│   ├── 📁 repository/                        # MongoDB repositories
-│   │   ├── 📄 UserRepository.java            # User data operations
-│   │   ├── 📄 TicketRepository.java          # Ticket data operations
-│   │   └── 📄 ParkedTicketRepository.java    # Active ticket operations
-│   ├── 📁 response/                          # Response DTOs
-│   │   └── [Response models]
-│   ├── 📁 service/                           # Business logic layer
-│   │   ├── 📄 ParkingService.java            # Parking operations service
-│   │   ├── 📄 UserService.java               # User management service
-│   │   └── 📄 EmailService.java              # Email/OTP service
-│   └── 📄 ParkinglotApplication.java         # Spring Boot main class
-│
-├── 📁 src/main/resources/
-│   ├── 📄 application.properties             # Application configuration
-│   └── 📁 META-INF/
-│       └── 📄 spring.factories               # Spring Boot auto-configuration
-│
-├── 📁 target/                                # Maven build output
-├── 📄 pom.xml                                # Maven dependencies
-├── 📄 mvnw                                   # Maven wrapper (Unix)
-├── 📄 mvnw.cmd                               # Maven wrapper (Windows)
-├── 📄 .env                                   # Backend environment variables
-└── 📄 README.md                              # Project documentation
-```
+</td>
+<td width="50%" valign="top">
 
-## 📋 Prerequisites
+**Frontend**
 
-Before running this application, ensure you have:
+- ⚛️ React 19.2.0
+- 🎨 TailwindCSS 3.4.18
+- 🔄 React Router DOM 7.9.5
+- 📡 Axios 1.13.1
+- 🎭 Lucide React (Icons)
+- 📄 html2pdf.js
 
-- **Java 17** or higher installed
-- **Maven 3.6+** for backend dependency management
-- **Node.js 16+** and **npm** for frontend
-- **MongoDB Atlas** account or local MongoDB server
-- **Email Service** (Gmail SMTP or similar) for OTP functionality
-- **Modern web browser** (Chrome, Firefox, Safari, Edge)
-- **Git** for version control
+</td>
+</tr>
+</table>
 
-## 🚀 Installation & Setup
+<details>
+<summary><b>📦 Complete Dependency List</b> (Click to expand)</summary>
 
-### 1. Clone the Repository
+**Backend Dependencies:**
+
+- Spring Boot Starter Web, Data MongoDB, Security, Mail
+- JWT (io.jsonwebtoken:jjwt-api:0.12.6)
+- Dotenv Java (3.0.0)
+- Spring Boot Starter Test
+
+**Frontend Dependencies:**
+
+- React 19.2.0 & React DOM
+- React Router DOM 7.9.5
+- Axios 1.13.1
+- TailwindCSS 3.4.18
+- Lucide React 0.553.0
+- html2pdf.js 0.12.1
+- Jest & React Testing Library
+
+</details>
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Java 17+, Maven 3.6+, Node.js 16+, MongoDB Atlas account
+
+### Installation
 
 ```bash
+# 1. Clone repository
 git clone https://github.com/pritam1293/ParkingLot.git
 cd ParkingLot
+
+# 2. Backend Setup
+# Create .env file in root with MongoDB URI, JWT secret, and email config
+mvn clean install
+mvn spring-boot:run
+
+# 3. Frontend Setup
+cd frontend
+npm install
+npm start
 ```
 
-### 2. Backend Setup
+<details>
+<summary><b>⚙️ Environment Variables Configuration</b> (Click to expand)</summary>
 
-#### Database Configuration
-
-Create a MongoDB Atlas cluster or ensure local MongoDB is running:
-
-- **MongoDB Atlas**: Create a free cluster at [mongodb.com/cloud/atlas](https://mongodb.com/cloud/atlas)
-- **Local MongoDB**: Start MongoDB service on your system
-
-#### Environment Variables
-
-Create a `.env` file in the **root directory** (not in frontend):
+**Backend `.env` (root directory):**
 
 ```env
-# MongoDB Configuration
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/quickpark?retryWrites=true&w=majority
-
-# JWT Configuration
-JWT_SECRET=your-secret-key-here-change-in-production
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/quickpark
+JWT_SECRET=your-secret-key-here
 JWT_EXPIRATION_MS=86400000
-
-# Email Configuration (for OTP)
 SPRING_MAIL_HOST=smtp.gmail.com
 SPRING_MAIL_PORT=587
 SPRING_MAIL_USERNAME=your-email@gmail.com
-SPRING_MAIL_PASSWORD=your-app-specific-password
-SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
-SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
-
-# Admin Configuration
+SPRING_MAIL_PASSWORD=your-app-password
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=admin123
 ```
 
-> **Note**: For Gmail, enable 2-factor authentication and create an [App Password](https://myaccount.google.com/apppasswords)
-
-#### Build and Run Backend
-
-```bash
-# Install dependencies and build
-mvn clean install
-
-# Run the Spring Boot application
-mvn spring-boot:run
-```
-
-The backend will start on `http://localhost:8080`
-
-### 3. Frontend Setup
-
-#### Navigate to Frontend Directory
-
-```bash
-cd frontend
-```
-
-#### Environment Variables
-
-Create a `.env` file in the **frontend directory**:
+**Frontend `.env` (frontend directory):**
 
 ```env
 REACT_APP_API_BASE_URL=http://localhost:8080
 ```
 
-#### Install Dependencies and Run
+> **Note**: For Gmail, enable 2FA and create an [App Password](https://myaccount.google.com/apppasswords)
 
-```bash
-# Install npm packages
-npm install
+</details>
 
-# Start the React development server
-npm start
+<details>
+<summary><b>🎛️ Configuration Details</b> (Click to expand)</summary>
+
+**Parking Configuration:**
+
+- Mini Spots: 50 | Compact Spots: 75 | Large Spots: 25
+- Pricing: Mini (₹20/hr) | Compact (₹35/hr) | Large (₹50/hr)
+- First 30 minutes: Free
+
+**Security:**
+
+- JWT Token: 24-hour expiration
+- Password: 6-15 chars, uppercase, lowercase, number, special char (@$!%\*?&)
+- OTP: 10-minute validity
+
+</details>
+
+<details>
+<summary><b>📁 Project Structure</b> (Click to expand)</summary>
+
+```
+ParkingLot/
+├── frontend/                    # React application
+│   ├── public/                  # Static assets
+│   ├── src/
+│   │   ├── components/          # Navbar, Footer, ErrorBoundary, LoadingSpinner, NotFound
+│   │   ├── context/             # AuthContext
+│   │   ├── pages/               # Home, SignIn, SignUp, Profile, Park, Unpark, Status, History
+│   │   │                        # ChangePassword, ChangeContact, ForgotPassword, About
+│   │   ├── services/            # axiosConfig, UserAPI, ParkingAPI, validation
+│   │   ├── App.js & index.js
+│   ├── package.json & tailwind.config.js
+│
+├── src/main/java/com/quickpark/parkinglot/
+│   ├── config/                  # Security, JWT, MongoDB, CORS config
+│   ├── controller/              # User, Parking, Admin controllers
+│   ├── entities/                # User, Ticket, ParkingSpot, Gate entities
+│   ├── repository/              # MongoDB repositories
+│   ├── service/                 # Business logic layer
+│   └── ParkinglotApplication.java
+│
+├── pom.xml, mvnw, .env, README.md
 ```
 
-The frontend will start on `http://localhost:3000` and automatically open in your browser.
+</details>
 
-### 4. Verify Installation
+## 📡 API Endpoints
 
-1. **Backend Health Check**: Visit `http://localhost:8080/quickpark/home`
-2. **Frontend**: Visit `http://localhost:3000`
-3. **Test Registration**: Create a new user account
-4. **Test Parking**: Park a vehicle and verify ticket generation
+<details>
+<summary><b>🔐 Authentication Endpoints</b></summary>
 
-## ⚙️ Configuration
+| Method | Endpoint                | Description              | Auth |
+| ------ | ----------------------- | ------------------------ | ---- |
+| POST   | `/auth/register`        | Register new user        | No   |
+| POST   | `/auth/login`           | User login (returns JWT) | No   |
+| POST   | `/auth/otp/generate`    | Generate OTP for email   | No   |
+| POST   | `/auth/otp/verify`      | Verify OTP code          | No   |
+| PUT    | `/auth/reset-password`  | Reset password with OTP  | No   |
+| PUT    | `/auth/change-password` | Change password          | Yes  |
+| PUT    | `/auth/reset-contact`   | Update contact number    | Yes  |
 
-### Application Properties
+</details>
 
-Edit `src/main/resources/application.properties`:
+<details>
+<summary><b>🅿️ Parking Operations</b></summary>
 
-```properties
-# Application name
-spring.application.name=parkinglot
+| Method | Endpoint                        | Description            | Auth |
+| ------ | ------------------------------- | ---------------------- | ---- |
+| GET    | `/quickpark/free-parking-spots` | Get available spots    | Yes  |
+| POST   | `/quickpark/park`               | Park vehicle           | Yes  |
+| DELETE | `/quickpark/unpark`             | Unpark & generate bill | Yes  |
+| GET    | `/quickpark/ticket/{id}`        | Get ticket details     | Yes  |
+| PUT    | `/quickpark/update-ticket/{id}` | Update vehicle info    | Yes  |
 
-# MongoDB connection (loaded from .env)
-spring.data.mongodb.uri=${MONGODB_URI}
-
-# JWT configuration
-jwt.secret=${JWT_SECRET}
-jwt.expiration=${JWT_EXPIRATION_MS}
-
-# Email configuration (loaded from .env)
-spring.mail.host=${SPRING_MAIL_HOST}
-spring.mail.port=${SPRING_MAIL_PORT}
-spring.mail.username=${SPRING_MAIL_USERNAME}
-spring.mail.password=${SPRING_MAIL_PASSWORD}
-spring.mail.properties.mail.smtp.auth=${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH}
-spring.mail.properties.mail.smtp.starttls.enable=${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}
-
-# JSON serialization settings
-spring.jackson.date-format=yyyy-MM-dd HH:mm:ss
-spring.jackson.time-zone=UTC
-```
-
-### Parking Lot Configuration
-
-Default parking spot allocation (configurable in code):
-
-- **Mini Spots**: 50 (motorcycles, scooters, compact cars)
-- **Compact Spots**: 75 (standard cars, sedans)
-- **Large Spots**: 25 (SUVs, trucks, vans)
-- **Total Capacity**: 150 vehicles
-
-### Pricing Structure
-
-Hourly rates (configurable in backend):
-
-- **Mini vehicles**: ₹20/hour
-- **Compact vehicles**: ₹35/hour
-- **Large vehicles**: ₹50/hour
-- **First 30 minutes**: Free (grace period)
-
-### Security Configuration
-
-- **JWT Token Expiration**: 24 hours (86400000 ms)
-- **Password Requirements**: 6-15 characters, uppercase, lowercase, number, special character (@$!%\*?&)
-- **OTP Validity**: 10 minutes
-- **Session Management**: Automatic logout on token expiration
-
-## 🔌 API Endpoints
-
-### Authentication Endpoints
-
-| Method | Endpoint                | Description                        | Auth Required |
-| ------ | ----------------------- | ---------------------------------- | ------------- |
-| POST   | `/auth/register`        | Register new user                  | No            |
-| POST   | `/auth/login`           | User login (returns JWT token)     | No            |
-| POST   | `/auth/otp/generate`    | Generate OTP for password reset    | No            |
-| POST   | `/auth/otp/verify`      | Verify OTP code                    | No            |
-| PUT    | `/auth/reset-password`  | Reset password with OTP            | No            |
-| PUT    | `/auth/change-password` | Change password (requires current) | Yes           |
-| PUT    | `/auth/reset-contact`   | Update contact number              | Yes           |
-
-### User Management Endpoints
-
-| Method | Endpoint                | Description                | Auth Required |
-| ------ | ----------------------- | -------------------------- | ------------- |
-| GET    | `/user/profile`         | Get user profile           | Yes           |
-| PUT    | `/user/update`          | Update user profile        | Yes           |
-| GET    | `/user/parking-history` | Get user's parking history | Yes           |
-
-### Parking Operations Endpoints
-
-| Method | Endpoint                        | Description                      | Auth Required |
-| ------ | ------------------------------- | -------------------------------- | ------------- |
-| GET    | `/quickpark/home`               | Welcome message                  | No            |
-| GET    | `/quickpark/free-parking-spots` | Get available spots by type      | Yes           |
-| POST   | `/quickpark/park`               | Park a vehicle                   | Yes           |
-| DELETE | `/quickpark/unpark`             | Unpark vehicle and generate bill | Yes           |
-| PUT    | `/quickpark/update-ticket/{id}` | Update vehicle details           | Yes           |
-| GET    | `/quickpark/ticket/{id}`        | Get ticket details               | Yes           |
-
-### Admin Endpoints
-
-| Method | Endpoint                              | Description                      | Auth Required |
-| ------ | ------------------------------------- | -------------------------------- | ------------- |
-| POST   | `/admin/login`                        | Admin authentication             | No            |
-| GET    | `/quickpark/admin/active-vehicles`    | Get currently parked vehicles    | Yes (Admin)   |
-| GET    | `/quickpark/admin/completed-vehicles` | Get completed parking sessions   | Yes (Admin)   |
-| GET    | `/quickpark/admin/all-vehicles`       | Get all parking history          | Yes (Admin)   |
-| GET    | `/quickpark/admin/all-users`          | Get all registered users         | Yes (Admin)   |
-| GET    | `/quickpark/admin/unparked-today`     | Count of vehicles unparked today | Yes (Admin)   |
-| GET    | `/quickpark/admin/revenue-today`      | Today's total revenue            | Yes (Admin)   |
-| GET    | `/quickpark/admin/revenue-week`       | Weekly revenue                   | Yes (Admin)   |
-| GET    | `/quickpark/admin/revenue-month`      | Monthly revenue                  | Yes (Admin)   |
-| GET    | `/quickpark/admin/parking-statistics` | Parking utilization statistics   | Yes (Admin)   |
-
-### Request/Response Examples
-
-#### Register User
-
-```json
-POST /auth/register
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john@example.com",
-  "password": "SecurePass@123",
-  "contact": "9876543210",
-  "address": "123 Main St, City"
-}
-```
-
-#### Park Vehicle
+**Example Request (Park):**
 
 ```json
 POST /quickpark/park
@@ -443,562 +291,276 @@ Headers: { "Authorization": "Bearer <jwt_token>" }
 }
 ```
 
-#### Response
+</details>
 
-```json
-{
-  "ticketId": "1234567890",
-  "vehicleNo": "KA01AB1234",
-  "spotLocation": "C-42",
-  "entryTime": "14:30",
-  "entryDate": "2025-11-14",
-  "costPerHour": 35.0
-}
-```
+<details>
+<summary><b>👤 User Management</b></summary>
 
-## 🌐 Frontend Pages
+| Method | Endpoint                | Description         | Auth |
+| ------ | ----------------------- | ------------------- | ---- |
+| GET    | `/user/profile`         | Get user profile    | Yes  |
+| PUT    | `/user/update`          | Update profile      | Yes  |
+| GET    | `/user/parking-history` | Get parking history | Yes  |
 
-### Public Pages (Accessible to all)
+</details>
 
-- **🏠 Home (`/`)**:
+<details>
+<summary><b>👨‍💼 Admin Endpoints</b></summary>
 
-  - Landing page with feature overview
-  - Quick access to parking operations
-  - System status and availability
+| Method | Endpoint                              | Description               | Auth  |
+| ------ | ------------------------------------- | ------------------------- | ----- |
+| POST   | `/admin/login`                        | Admin login               | No    |
+| GET    | `/quickpark/admin/active-vehicles`    | Currently parked vehicles | Admin |
+| GET    | `/quickpark/admin/completed-vehicles` | Completed sessions        | Admin |
+| GET    | `/quickpark/admin/all-users`          | All registered users      | Admin |
+| GET    | `/quickpark/admin/revenue-today`      | Today's revenue           | Admin |
+| GET    | `/quickpark/admin/revenue-week`       | Weekly revenue            | Admin |
+| GET    | `/quickpark/admin/revenue-month`      | Monthly revenue           | Admin |
+| GET    | `/quickpark/admin/parking-statistics` | Utilization stats         | Admin |
 
-- **🔐 Sign In (`/signin`)**:
-
-  - User authentication with email/password
-  - JWT token generation
-  - Session expired notifications
-  - Redirect to forgot password
-
-- **📝 Sign Up (`/signup`)**:
-
-  - New user registration
-  - Form validation with real-time feedback
-  - Password strength indicator
-  - Automatic login after registration
-
-- **🔑 Forgot Password (`/forgot-password`)**:
-
-  - Three-step password reset flow
-  - Email-based OTP verification
-  - New password with strength validation
-  - Accessible from anywhere (no auto-logout)
-
-- **ℹ️ About (`/about`)**:
-  - Information about QuickPark
-  - Contact details and features
-
-### Protected Pages (Login required)
-
-- **👤 Profile (`/profile`)**:
-
-  - View and edit user information
-  - Update name, address, contact
-  - Links to password/contact change
-  - Session management
-
-- **🅿️ Park (`/park`)**:
-
-  - Vehicle parking form
-  - Vehicle type selection (Mini/Compact/Large)
-  - Real-time spot availability
-  - Instant ticket generation
-  - Print ticket functionality
-
-- **🚗 Unpark (`/unpark`)**:
-
-  - Ticket ID search
-  - Bill calculation and display
-  - Parking duration tracking
-  - Print bill (PDF export)
-
-- **📊 Status (`/status`)**:
-
-  - Real-time parking availability
-  - Spot distribution by type
-  - Visual occupancy indicators
-  - Current parking statistics
-
-- **📜 History (`/history`)**:
-
-  - Complete parking history
-  - Sortable and searchable records
-  - Date-wise filtering
-  - Total fees calculation
-
-- **� Change Password (`/change-password`)**:
-
-  - Current password verification
-  - New password with validation
-  - Password strength indicator (5 requirements)
-  - Link to forgot password flow
-
-- **� Change Contact (`/change-contact`)**:
-  - Three-step OTP verification
-  - Email-based verification
-  - 60-second resend countdown
-  - 10-digit contact validation
-
-### Special Pages
-
-- **❌ 404 Not Found (`*`)**:
-  - Custom error page
-  - Animated 404 illustration
-  - Quick navigation links
-  - "Go Back" and "Go Home" buttons
-
-### Navigation
-
-- **Navbar**:
-
-  - Responsive design with mobile menu
-  - Fixed positioning on mobile
-  - Authentication-based menu items
-  - Profile dropdown with quick access
-
-- **Footer**:
-  - Contact information
-  - Social media links
-  - Copyright notice
+</details>
 
 ## 🗄️ Database Schema
 
-### User Collection
+<details>
+<summary><b>View Collections & Schema</b> (Click to expand)</summary>
+
+**User Collection**
 
 ```json
 {
   "_id": "ObjectId",
   "firstName": "string",
   "lastName": "string",
-  "email": "string (unique, indexed)",
-  "password": "string (hashed)",
+  "email": "string (unique)",
+  "password": "string (BCrypt hashed)",
   "contact": "string",
   "address": "string",
-  "role": "string (USER/ADMIN)",
-  "createdAt": "timestamp",
-  "updatedAt": "timestamp"
+  "role": "USER/ADMIN",
+  "createdAt": "timestamp"
 }
 ```
 
-### ParkedTicket Collection (Active Tickets)
+**ParkedTicket Collection (Active Tickets)**
 
 ```json
 {
   "_id": "string (10-digit ticket ID)",
-  "userId": "string (reference to User)",
-  "ownerName": "string",
-  "ownerContact": "string",
+  "userId": "string",
   "vehicleNo": "string",
-  "vehicleType": "string (MINI/COMPACT/LARGE)",
-  "entryTime": "string (HH:mm)",
-  "entryDate": "string (yyyy-MM-dd)",
+  "vehicleType": "MINI/COMPACT/LARGE",
+  "entryTime": "HH:mm",
+  "entryDate": "yyyy-MM-dd",
   "parkingSpot": {
     "location": "number",
     "type": "string",
-    "cost": "number (per hour)",
-    "booked": "boolean"
+    "cost": "number"
   },
   "completed": false
 }
 ```
 
-### Ticket Collection (Completed Tickets)
+**Ticket Collection (Completed Tickets)**
 
 ```json
 {
-  "_id": "string (same as ParkedTicket ID)",
+  "_id": "string",
   "userId": "string",
-  "ownerName": "string",
-  "ownerContact": "string",
   "vehicleNo": "string",
-  "vehicleType": "string",
-  "entryTime": "string (HH:mm)",
-  "exitTime": "string (HH:mm)",
-  "entryDate": "string (yyyy-MM-dd)",
-  "exitDate": "string (yyyy-MM-dd)",
+  "entryTime": "HH:mm",
+  "exitTime": "HH:mm",
+  "entryDate": "yyyy-MM-dd",
+  "exitDate": "yyyy-MM-dd",
   "durationMinutes": "number",
   "totalFee": "number",
-  "parkingSpot": {
-    "location": "number",
-    "type": "string",
-    "cost": "number",
-    "booked": false
-  },
   "completed": true
 }
 ```
 
-### Gate Collection
+</details>
 
-```json
-{
-  "_id": "ObjectId",
-  "gateId": "string (unique)",
-  "gateName": "string",
-  "gateType": "string (ENTRY/EXIT/BOTH)",
-  "guardName": "string",
-  "isActive": "boolean"
-}
-```
+## 🔒 Security Features
 
-### OTP Collection (Temporary)
+<table>
+<tr>
+<td width="50%">
 
-```json
-{
-  "_id": "ObjectId",
-  "email": "string",
-  "otp": "string (6-digit)",
-  "createdAt": "timestamp",
-  "expiresAt": "timestamp (10 minutes from creation)",
-  "verified": "boolean"
-}
-```
+**Authentication**
 
-### Indexes
+- JWT tokens (24-hr expiry)
+- BCrypt password hashing
+- OTP verification (10-min validity)
+- Role-based access control
+- Automatic session management
 
-- `User.email`: Unique index for fast authentication lookup
-- `ParkedTicket._id`: Primary key (ticket ID)
-- `Ticket.userId`: Index for user history queries
-- `Ticket.exitDate`: Index for date-based revenue queries
+</td>
+<td width="50%">
 
-## 🔐 Security Features
+**Data Protection**
 
-### Authentication & Authorization
+- CORS configuration
+- Server & client validation
+- XSS protection (React built-in)
+- Environment variables for secrets
+- MongoDB parameterized queries
 
-- **JWT-based Authentication**: Stateless token-based authentication
-- **Token Expiration**: Automatic logout after 24 hours
-- **Password Hashing**: BCrypt encryption for user passwords
-- **Protected Routes**: Frontend route guards for authenticated pages
-- **Role-based Access**: Separate admin and user roles
+</td>
+</tr>
+</table>
 
-### Data Security
+## 📖 Usage Guide
 
-- **CORS Configuration**: Controlled cross-origin resource sharing
-- **Input Validation**: Server-side and client-side validation
-- **SQL Injection Prevention**: MongoDB parameterized queries
-- **XSS Protection**: React's built-in XSS protection
-- **Environment Variables**: Sensitive data stored in .env files
+<details>
+<summary><b>👤 For Users</b> (Click to expand)</summary>
 
-### Session Management
+**1. Register & Login**
 
-- **Automatic Token Refresh**: Seamless session management
-- **Session Expired Notifications**: User-friendly expiration alerts
-- **Logout on All Devices**: Token invalidation on password change
-- **Remember Me**: Persistent authentication (localStorage)
+- Sign up with email, password, name, contact, address
+- Login to receive JWT token (stored automatically)
 
-### OTP Verification
+**2. Park a Vehicle**
 
-- **Email-based OTP**: Secure 6-digit codes
-- **Time-limited Validity**: 10-minute expiration
-- **Rate Limiting**: 60-second cooldown between requests
-- **One-time Use**: OTP invalidated after verification
+- Navigate to Park page
+- Select vehicle type (Mini/Compact/Large)
+- Enter vehicle number
+- Submit → Get 10-digit ticket ID
+- Print/save ticket
 
-### Password Security
+**3. Unpark & Pay**
 
-- **Strong Password Policy**:
-  - 6-15 characters length
-  - At least one uppercase letter
-  - At least one lowercase letter
-  - At least one number
-  - At least one special character (@$!%\*?&)
-- **Password Strength Indicator**: Real-time validation feedback
-- **Current Password Verification**: Required for password changes
+- Go to Unpark page
+- Enter 10-digit ticket ID
+- View calculated bill (duration × rate)
+- Print receipt
 
-## 📖 Usage
+**4. View History**
 
-### For New Users
+- Check complete parking records
+- Filter by date
+- View total fees paid
 
-1. **Create Account**:
+**5. Manage Profile**
 
-   - Click "Sign Up" on the homepage
-   - Fill in personal details (name, email, contact, address)
-   - Create a strong password (see requirements)
-   - Verify email if required
-   - Auto-login after successful registration
+- Update personal information
+- Change password (requires current password)
+- Change contact (OTP verification required)
+- Reset password via email OTP
 
-2. **Sign In**:
-   - Enter registered email and password
-   - Receive JWT token (stored automatically)
-   - Redirected to homepage with authenticated access
+</details>
 
-### For Registered Users
+<details>
+<summary><b>👨‍💼 For Administrators</b> (Click to expand)</summary>
 
-1. **Parking a Vehicle**:
+**1. Login**
 
-   - Navigate to "Park" page from navbar
-   - Select vehicle type (Mini/Compact/Large)
-   - Enter vehicle details:
-     - Vehicle number (e.g., KA01AB1234)
-     - Owner name (auto-filled from profile)
-     - Contact number (auto-filled)
-   - Check real-time spot availability
-   - Submit to generate parking ticket
-   - Print or save ticket (10-digit ticket ID)
+- Use admin credentials (default: admin/admin123)
+- Access admin dashboard
 
-2. **Unparking a Vehicle**:
+**2. Monitor System**
 
-   - Go to "Unpark" page
-   - Enter 10-digit ticket ID
-   - System calculates:
-     - Total parking duration
-     - Applicable charges
-     - Grace period (first 30 minutes free)
-   - Review bill details
-   - Print bill for payment
-   - Complete unparking process
+- View active parking sessions
+- Check completed transactions
+- Monitor real-time statistics
 
-3. **Check Parking Status**:
+**3. Analytics**
 
-   - Visit "Status" page for real-time availability
-   - View parking distribution across categories
-   - Monitor occupancy rates by vehicle type
-   - Check current parking statistics
+- Track daily/weekly/monthly revenue
+- View parking utilization trends
+- Generate reports
 
-4. **View History**:
+**4. User Management**
 
-   - Navigate to "History" page
-   - See complete parking records
-   - Filter by date range
-   - View total fees paid
-   - Download parking receipts
+- View all registered users
+- Check user parking history
+- Monitor user activities
 
-5. **Manage Profile**:
-
-   - Click profile icon in navbar
-   - Update personal information (name, address)
-   - Change password (requires current password)
-   - Change contact number (OTP verification)
-   - View account details
-
-6. **Password Recovery**:
-   - Click "Forgot Password" on signin page
-   - Enter registered email
-   - Receive OTP via email
-   - Verify OTP code
-   - Set new password
-   - Login with new credentials
-
-### For Administrators
-
-1. **Admin Login**:
-
-   - Use admin credentials:
-     - Username: `admin`
-     - Password: `admin123` (change in production!)
-   - Access admin dashboard
-
-2. **Monitor System**:
-
-   - View active parking sessions
-   - Check completed transactions
-   - Monitor system health
-
-3. **Analytics & Reports**:
-
-   - Daily revenue tracking
-   - Weekly/monthly revenue trends
-   - Vehicle count statistics
-   - Parking utilization reports
-   - User registration trends
-
-4. **User Management**:
-
-   - View all registered users
-   - Check user parking history
-   - Monitor user activities
-
-5. **System Configuration**:
-   - Manage parking rates
-   - Configure spot availability
-   - Update system settings
+</details>
 
 ## 🤝 Contributing
 
-We welcome contributions! Here's how you can help improve QuickPark:
+We welcome contributions! Here's how:
 
-### Getting Started
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feature/AmazingFeature`
+3. **Commit** changes: `git commit -m 'feat: Add amazing feature'`
+4. **Push** to branch: `git push origin feature/AmazingFeature`
+5. **Open** a Pull Request
 
-1. **Fork the repository** on GitHub
-2. **Clone your fork** locally:
-   ```bash
-   git clone https://github.com/your-username/ParkingLot.git
-   cd ParkingLot
-   ```
-3. **Create a feature branch**:
-   ```bash
-   git checkout -b feature/AmazingFeature
-   ```
+<details>
+<summary><b>Development Guidelines</b> (Click to expand)</summary>
 
-### Development Workflow
+**Backend (Java/Spring Boot)**
 
-1. **Make your changes**:
-
-   - Follow the existing code style
-   - Write clean, documented code
-   - Add comments for complex logic
-
-2. **Test your changes**:
-
-   - Backend: Run `mvn test`
-   - Frontend: Run `npm test`
-   - Manual testing in browser
-
-3. **Commit your changes**:
-
-   ```bash
-   git add .
-   git commit -m 'Add: Brief description of feature'
-   ```
-
-4. **Push to your fork**:
-
-   ```bash
-   git push origin feature/AmazingFeature
-   ```
-
-5. **Open a Pull Request** on GitHub
-
-### Development Guidelines
-
-#### Backend (Java/Spring Boot)
-
-- Follow Java naming conventions (camelCase for variables, PascalCase for classes)
-- Use meaningful variable and method names
+- Follow Java naming conventions (camelCase, PascalCase)
 - Add JavaDoc comments for public methods
-- Write unit tests for service layer
+- Write unit tests for services
 - Handle exceptions gracefully
-- Use DTOs for request/response objects
 
-#### Frontend (React)
+**Frontend (React)**
 
 - Use functional components with hooks
-- Follow React best practices
 - Keep components small and focused
-- Use PropTypes or TypeScript for type checking
-- Write reusable components
-- Use semantic HTML
+- Write reusable, testable components
 - Ensure mobile responsiveness
 
-#### General
+**Commit Messages**
 
-- Write clear commit messages using conventional commits:
-  - `feat:` for new features
-  - `fix:` for bug fixes
-  - `docs:` for documentation
-  - `refactor:` for code refactoring
-  - `test:` for adding tests
-- Update documentation for API changes
-- Don't commit `.env` files or sensitive data
-- Keep pull requests focused on a single feature/fix
+- `feat:` New features
+- `fix:` Bug fixes
+- `docs:` Documentation
+- `refactor:` Code refactoring
+- `test:` Adding tests
 
-### Code of Conduct
+</details>
 
-- Be respectful and inclusive
-- Provide constructive feedback
-- Help others learn and grow
-- Report bugs and security issues responsibly
-
-### Areas for Contribution
-
-- 🐛 Bug fixes
-- ✨ New features
-- 📝 Documentation improvements
-- 🎨 UI/UX enhancements
-- ⚡ Performance optimizations
-- 🧪 Test coverage
-- 🌐 Internationalization (i18n)
-- ♿ Accessibility improvements
-
-## � License
+## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👨‍💻 Author
+## 👨‍💻 Author & Contact
 
-**Pritam Behera**
+**Pritam Bhattacharjee**
 
 - GitHub: [@pritam1293](https://github.com/pritam1293)
 - Repository: [ParkingLot](https://github.com/pritam1293/ParkingLot)
 
-## 🙏 Acknowledgments
+**Support**
 
-- **Spring Boot** community for excellent documentation and ecosystem
-- **React** team for the amazing frontend framework
-- **MongoDB** for reliable and scalable database solution
-- **TailwindCSS** for utility-first CSS framework
-- **JWT.io** for authentication best practices
-- All contributors and testers who helped improve the system
+- 📧 Email: support@quickpark.com
+- 📱 Phone: +91 86585 35505
+- 🐛 Issues: [GitHub Issues](https://github.com/pritam1293/ParkingLot/issues)
 
-## 📞 Support & Contact
+## 🚀 Roadmap
 
-For questions, support, or feedback:
+Future enhancements planned:
 
-- **GitHub Issues**: [Report a bug or request a feature](https://github.com/pritam1293/ParkingLot/issues)
-- **Email**: beherapritam2003@gmail.com
-- **Phone**: +91 86585 35505
+- [ ] Payment Gateway Integration
+- [ ] Mobile Apps (Android/iOS)
+- [ ] QR Code Tickets
+- [ ] Spot Booking System
+- [ ] Email/SMS Notifications
+- [ ] Multi-location Support
+- [ ] Real-time WebSocket Updates
+- [ ] Advanced Analytics Dashboard
 
-## 🚀 Future Enhancements
+## 📊 Project Stats
 
-Planned features for upcoming versions:
+<div align="center">
 
-- [ ] **Payment Gateway Integration**: Online payment support
-- [ ] **Mobile App**: Native Android/iOS applications
-- [ ] **QR Code Tickets**: Scan-to-park and scan-to-exit
-- [ ] **Booking System**: Pre-book parking spots
-- [ ] **Analytics Dashboard**: Advanced reporting and insights
-- [ ] **Multi-location Support**: Manage multiple parking lots
-- [ ] **Notifications**: Email/SMS alerts for parking events
-- [ ] **Loyalty Program**: Rewards for frequent users
-- [ ] **API Rate Limiting**: Enhanced security and performance
-- [ ] **Microservices Architecture**: Scale individual components
-- [ ] **Real-time WebSocket**: Live updates without refresh
-- [ ] **AI-based Predictions**: Predict parking availability
+![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)
+![Status](https://img.shields.io/badge/Status-Active-success.svg)
+![Updated](https://img.shields.io/badge/Updated-November%202025-orange.svg)
 
-## � Project Status
+**⭐ Star this repo if you find it useful!**
 
-- **Version**: 1.0.0
-- **Status**: Active Development
-- **Last Updated**: November 2025
-- **Stability**: Production Ready
-
-## 🏆 Features Highlights
-
-✨ **Production-Ready Code**
-
-- No duplicate code (shared axios configuration)
-- No unused code or files
-- Consistent validation across all pages
-- Clean error handling (no console exposure)
-- Global error boundary for React errors
-- Custom 404 page with navigation
-- Reusable loading spinner component
-
-🔒 **Security First**
-
-- JWT authentication with automatic expiration
-- BCrypt password hashing
-- OTP-based verification for sensitive operations
-- CORS configuration for API security
-- Environment variables for sensitive data
-
-📱 **Mobile-First Design**
-
-- Responsive design with TailwindCSS
-- Mobile-optimized navigation
-- Touch-friendly UI elements
-- Cross-browser compatibility
+</div>
 
 ---
 
 <div align="center">
 
-**⭐ If you find this project useful, please consider giving it a star on GitHub! ⭐**
+**Built with ❤️ by [Pritam Bhattacharjee](https://github.com/pritam1293)**
 
-_Making parking simple, secure, and efficient for everyone._
-
-**Built with ❤️ by Pritam Behera**
+_Making parking simple, secure, and efficient for everyone_
 
 </div>
