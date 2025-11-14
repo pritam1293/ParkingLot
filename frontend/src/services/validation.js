@@ -28,9 +28,9 @@ export const validatePassword = (password) => {
     }
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,15}$/;
     if (!passwordRegex.test(password)) {
-        return { 
-            isValid: false, 
-            message: 'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character' 
+        return {
+            isValid: false,
+            message: 'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character'
         };
     }
     return { isValid: true, message: '' };
@@ -122,47 +122,6 @@ export const validateSigninForm = (formData) => {
     // Password validation
     if (!formData.password) {
         errors.password = 'Password is required';
-    }
-
-    return errors;
-};
-
-/**
- * Validates update user form data
- * @param {object} formData - Form data object
- * @returns {object} - Object containing validation errors (empty if no errors)
- */
-export const validateUpdateUserForm = (formData) => {
-    const errors = {};
-
-    // Email validation (if provided)
-    if (formData.email && formData.email.trim()) {
-        if (!validateEmail(formData.email)) {
-            errors.email = 'Invalid email format';
-        }
-    }
-
-    // Contact Number validation (if provided)
-    if (formData.contactNo && formData.contactNo.trim()) {
-        if (!validateContactNo(formData.contactNo)) {
-            errors.contactNo = 'Invalid contact number (must be 10 digits starting with 6-9)';
-        }
-    }
-
-    // Password validation (if provided)
-    if (formData.password) {
-        const passwordValidation = validatePassword(formData.password);
-        if (!passwordValidation.isValid) {
-            errors.password = passwordValidation.message;
-        }
-    }
-
-    // Confirm Password validation (if password is being changed)
-    if (formData.password && formData.confirmPassword !== undefined) {
-        const passwordMatchValidation = validatePasswordMatch(formData.password, formData.confirmPassword);
-        if (!passwordMatchValidation.isValid) {
-            errors.confirmPassword = passwordMatchValidation.message;
-        }
     }
 
     return errors;

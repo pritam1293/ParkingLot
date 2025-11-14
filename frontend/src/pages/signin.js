@@ -88,8 +88,6 @@ function Signin() {
             // Redirect to home page
             navigate('/home');
         } catch (error) {
-            console.error('Signin error:', error);
-
             // Handle error and display to user
             if (typeof error === 'string') {
                 setErrors({ general: error });

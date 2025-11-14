@@ -31,7 +31,6 @@ const Status = () => {
             setLastUpdated(new Date());
         } catch (err) {
             setError(err.message || 'Failed to fetch parking status');
-            console.error('Error fetching parking status:', err);
         } finally {
             setIsLoading(false);
         }

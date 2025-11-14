@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 import Navbar from './components/navbar';
 import Footer from './components/footer';
 import Home from './pages/home';
@@ -16,7 +17,7 @@ import Signin from './pages/signin';
 import ForgotPassword from './pages/forgotPassword';
 import ChangeContact from './pages/changeContact';
 import ChangePassword from './pages/changePassword';
-import './App.css';
+import NotFound from './pages/NotFound';
 
 function AppContent() {
   const location = useLocation();
@@ -41,6 +42,8 @@ function AppContent() {
           <Route path="/profile/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
           <Route path="/change-contact" element={<ProtectedRoute><ChangeContact /></ProtectedRoute>} />
           <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
+          {/* 404 Not Found - catch all unmatched routes */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
       <Footer isAuthPage={isAuthPage} />
@@ -50,11 +53,13 @@ function AppContent() {
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

@@ -1,62 +1,9 @@
-import axios from 'axios';
+import { createAxiosInstance } from './axiosConfig';
 
 const PARKING_API_BASE_URL = 'http://localhost:8080/quickpark/api';
 
 // Create axios instance with default config
-const apiClient = axios.create({
-    baseURL: PARKING_API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
-
-// Add request interceptor to include auth token
-apiClient.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
-
-// Add response interceptor to handle expired tokens
-apiClient.interceptors.response.use(
-    (response) => {
-        return response;
-    },
-    (error) => {
-        // Check if error is due to expired/invalid token
-        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-            // Check if the error message indicates token expiration
-            const errorMessage = error.response.data?.message || error.response.data || '';
-            const isTokenExpired =
-                errorMessage.toLowerCase().includes('expired') ||
-                errorMessage.toLowerCase().includes('jwt') ||
-                error.response.status === 401;
-
-            if (isTokenExpired) {
-                // Clear auth data
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('userData');
-
-                // Redirect to signin page
-                window.location.href = '/signin';
-
-                // Return a rejected promise with a user-friendly message
-                return Promise.reject({
-                    message: 'Your session has expired. Please sign in again.',
-                    sessionExpired: true
-                });
-            }
-        }
-        return Promise.reject(error);
-    }
-);
+const apiClient = createAxiosInstance(PARKING_API_BASE_URL);
 
 // Parking APIs
 export const parkingAPI = {

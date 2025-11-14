@@ -46,7 +46,6 @@ function ForgotPassword() {
             setSuccessMessage(typeof response === 'string' ? response : 'OTP sent successfully to your email');
             setStep(2);
         } catch (err) {
-            console.error('Generate OTP error:', err);
             setError(typeof err === 'string' ? err : 'Failed to send OTP. Please try again.');
         } finally {
             setIsLoading(false);
@@ -75,7 +74,6 @@ function ForgotPassword() {
             setSuccessMessage(typeof response === 'string' ? response : 'OTP verified successfully');
             setStep(3);
         } catch (err) {
-            console.error('Verify OTP error:', err);
             setError(typeof err === 'string' ? err : 'Invalid OTP. Please try again.');
         } finally {
             setIsLoading(false);
@@ -113,7 +111,6 @@ function ForgotPassword() {
                 navigate('/signin');
             }, 2000);
         } catch (err) {
-            console.error('Reset password error:', err);
             setError(typeof err === 'string' ? err : 'Failed to reset password. Please try again.');
         } finally {
             setIsLoading(false);
@@ -129,7 +126,6 @@ function ForgotPassword() {
             const response = await authAPI.generateOTP(email);
             setSuccessMessage(typeof response === 'string' ? response : 'OTP resent successfully');
         } catch (err) {
-            console.error('Resend OTP error:', err);
             setError(typeof err === 'string' ? err : 'Failed to resend OTP. Please try again.');
         } finally {
             setIsLoading(false);

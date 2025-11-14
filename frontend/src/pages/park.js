@@ -123,7 +123,6 @@ const Park = () => {
             });
             setDetectedCategory(null);
         } catch (err) {
-            console.error('Parking error:', err);
             setError(typeof err === 'string' ? err : err.message || 'Failed to park vehicle. Please try again.');
         } finally {
             setLoading(false);

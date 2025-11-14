@@ -25,7 +25,6 @@ const History = () => {
                 unparkedTickets: response.unparked || []
             });
         } catch (err) {
-            console.error('Error fetching history:', err);
             setError(typeof err === 'string' ? err : 'Failed to load parking history');
             // If unauthorized, redirect to signin
             if (err === 'Invalid or missing Authorization header' || err?.includes('Unauthorized')) {

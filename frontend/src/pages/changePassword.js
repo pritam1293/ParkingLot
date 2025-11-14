@@ -60,10 +60,10 @@ function ChangePassword() {
         // Validate new password
         if (!formData.newPassword) {
             newErrors.newPassword = 'New password is required';
-        } else if (formData.newPassword.length < 8) {
-            newErrors.newPassword = 'Password must be at least 8 characters';
-        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.newPassword)) {
-            newErrors.newPassword = 'Password must contain uppercase, lowercase, and number';
+        } else if (formData.newPassword.length < 6 || formData.newPassword.length > 15) {
+            newErrors.newPassword = 'Password must be 6-15 characters';
+        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(formData.newPassword)) {
+            newErrors.newPassword = 'Password must contain uppercase, lowercase, number, and special character (@$!%*?&)';
         }
 
         // Check if new password is same as current
@@ -217,7 +217,7 @@ function ChangePassword() {
                                 <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>
                             )}
                             <p className="mt-2 text-sm text-slate-500">
-                                Password must be at least 8 characters with uppercase, lowercase, and number
+                                Password must be 6-15 characters with uppercase, lowercase, number, and special character (@$!%*?&)
                             </p>
                         </div>
 
@@ -256,14 +256,14 @@ function ChangePassword() {
                                 <div className="text-sm font-medium text-slate-700">Password Strength:</div>
                                 <div className="space-y-1">
                                     <div className="flex items-center text-sm">
-                                        <div className={`w-4 h-4 rounded-full mr-2 flex items-center justify-center ${formData.newPassword.length >= 8 ? 'bg-green-500' : 'bg-slate-300'
+                                        <div className={`w-4 h-4 rounded-full mr-2 flex items-center justify-center ${formData.newPassword.length >= 6 && formData.newPassword.length <= 15 ? 'bg-green-500' : 'bg-slate-300'
                                             }`}>
-                                            {formData.newPassword.length >= 8 && (
+                                            {formData.newPassword.length >= 6 && formData.newPassword.length <= 15 && (
                                                 <CheckCircle className="w-3 h-3 text-white" />
                                             )}
                                         </div>
-                                        <span className={formData.newPassword.length >= 8 ? 'text-green-700' : 'text-slate-600'}>
-                                            At least 8 characters
+                                        <span className={formData.newPassword.length >= 6 && formData.newPassword.length <= 15 ? 'text-green-700' : 'text-slate-600'}>
+                                            6-15 characters
                                         </span>
                                     </div>
                                     <div className="flex items-center text-sm">
@@ -297,6 +297,17 @@ function ChangePassword() {
                                         </div>
                                         <span className={/\d/.test(formData.newPassword) ? 'text-green-700' : 'text-slate-600'}>
                                             Contains number
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center text-sm">
+                                        <div className={`w-4 h-4 rounded-full mr-2 flex items-center justify-center ${/[@$!%*?&]/.test(formData.newPassword) ? 'bg-green-500' : 'bg-slate-300'
+                                            }`}>
+                                            {/[@$!%*?&]/.test(formData.newPassword) && (
+                                                <CheckCircle className="w-3 h-3 text-white" />
+                                            )}
+                                        </div>
+                                        <span className={/[@$!%*?&]/.test(formData.newPassword) ? 'text-green-700' : 'text-slate-600'}>
+                                            Contains special character (@$!%*?&)
                                         </span>
                                     </div>
                                 </div>

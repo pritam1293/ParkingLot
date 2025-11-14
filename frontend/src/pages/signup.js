@@ -76,8 +76,6 @@ function Signup() {
             // Redirect to home page
             navigate('/home');
         } catch (error) {
-            console.error('Signup error:', error);
-
             // Handle error and display to user
             if (typeof error === 'string') {
                 setErrors({ general: error });

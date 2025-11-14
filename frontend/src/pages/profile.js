@@ -41,7 +41,6 @@ const Profile = () => {
             setOriginalData(profileData); // Store original data for cancel functionality
             setLastUpdated(new Date());
         } catch (err) {
-            console.error('Error fetching profile:', err);
             setError(typeof err === 'string' ? err : 'Failed to load profile data');
             // If unauthorized, redirect to signin
             if (err === 'Invalid or missing Authorization header' || err?.includes('Unauthorized')) {
@@ -81,7 +80,7 @@ const Profile = () => {
                 return;
             }
 
-            const response = await authAPI.updateUser(updateData);
+            await authAPI.updateUser(updateData);
 
             // Success - refresh profile data to get latest from server
             await fetchProfileData();
@@ -95,7 +94,6 @@ const Profile = () => {
                 setSuccessMessage(null);
             }, 5000);
         } catch (err) {
-            console.error('Error updating profile:', err);
             const errorMessage = typeof err === 'string' ? err : 'Failed to update profile';
             setError(errorMessage);
         } finally {
