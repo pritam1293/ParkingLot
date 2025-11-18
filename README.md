@@ -526,7 +526,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Support**
 
-- 📧 Email: support@quickpark.com
+- 📧 Email: beherapritam2003@gmail.com
 - 📱 Phone: +91 86585 35505
 - 🐛 Issues: [GitHub Issues](https://github.com/pritam1293/ParkingLot/issues)
 
