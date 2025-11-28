@@ -31,89 +31,75 @@ public class ParkingController {
     }
 
     @GetMapping("/status")
-    public ResponseEntity<?> display() {    
+    public ResponseEntity<?> display() {
         try {
             return ResponseEntity.ok(parkingService.getFreeParkingSpots());
         } catch (ParkingLotException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching free parking spots.");
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while fetching free parking spots.");
+            throw new RuntimeException("Error fetching parking status: " + e.getMessage());
         }
     }
 
-    @PostMapping(path = "/park" , consumes = "application/json")
-    public ResponseEntity<?> ParkVehicle(@RequestBody Map<String, String> requestBody, @RequestHeader("Authorization") String authHeader) {
+    @PostMapping(path = "/park", consumes = "application/json")
+    public ResponseEntity<?> ParkVehicle(@RequestBody Map<String, String> requestBody,
+            @RequestHeader("Authorization") String authHeader) {
         try {
             String userEmail = extractEmailFromToken(authHeader);
-            if(userEmail == null || userEmail.isEmpty()) {
+            if (userEmail == null || userEmail.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user token");
             }
             requestBody.put("email", userEmail);
             ParkedTicket ticket = parkingService.ParkVehicle(requestBody);
-            if(ticket != null) {
-                // Send email notification
-                try {
-                    emailService.SendParkingTicketEmail(userEmail, ticket);
-                } catch (Exception e) {
-                    // Log the email sending failure but do not fail the parking operation
-                    System.out.println("");
-                    System.err.println("Failed to send parking ticket email to " + userEmail + ": " + e.getMessage());
-                    System.out.println("");
-                }
-                return ResponseEntity.ok(ticket);
-            } else {
-                // Return the actual error instead of a generic message
-                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Parking failed");
+            // Send email notification (non-blocking)
+            try {
+                emailService.SendParkingTicketEmail(userEmail, ticket);
+            } catch (Exception e) {
+                // Log the email sending failure but do not fail the parking operation
+                System.err.println("Failed to send parking ticket email to " + userEmail + ": " + e.getMessage());
             }
+            return ResponseEntity.ok(ticket);
         } catch (ParkingLotException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while parking the vehicle.");
+            throw new RuntimeException("Error parking vehicle: " + e.getMessage());
         }
     }
 
     @DeleteMapping(path = "/unpark")
-    public ResponseEntity<?> UnparkVehicle(@RequestParam String ticketId, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> UnparkVehicle(@RequestParam String ticketId,
+            @RequestHeader("Authorization") String authHeader) {
         try {
             String userEmail = extractEmailFromToken(authHeader);
-            if(userEmail == null || userEmail.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user token");
+            if (userEmail == null || userEmail.isEmpty()) {
+                throw new RuntimeException("Invalid user token");
             }
             UnparkedTicket unparkedTicket = parkingService.UnparkVehicle(ticketId, userEmail);
-            if (unparkedTicket != null) {
-                // Send email notification
-                try {
-                    emailService.sendUnparkingReceiptEmail(unparkedTicket.getEmail(), unparkedTicket);
-                } catch (Exception e) {
-                    // Log the email sending failure but do not fail the unparking operation
-                    System.out.println("");
-                    System.err.println("Failed to send unparking receipt email to " + unparkedTicket.getEmail() + ": " + e.getMessage());
-                    System.out.println("");
-                }
-                return ResponseEntity.ok(unparkedTicket);
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unparking failed");
+            // Send email notification (non-blocking)
+            try {
+                emailService.sendUnparkingReceiptEmail(unparkedTicket.getEmail(), unparkedTicket);
+            } catch (Exception e) {
+                // Log the email sending failure but do not fail the unparking operation
+                System.err.println("Failed to send unparking receipt email to " + unparkedTicket.getEmail() + ": "
+                        + e.getMessage());
             }
+            return ResponseEntity.ok(unparkedTicket);
         } catch (ParkingLotException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while unparking the vehicle.");
+            throw new RuntimeException("Error unparking vehicle: " + e.getMessage());
         }
     }
 
-    @PutMapping(path = "/update-ticket" , consumes = "application/json")
+    @PutMapping(path = "/update-ticket", consumes = "application/json")
     public ResponseEntity<?> UpdateParkedVehicle(@RequestParam String ticketId, @RequestBody String vehicleNo) {
         try {
             ParkedTicket updatedTicket = parkingService.UpdateParkedVehicle(ticketId, vehicleNo);
-            if (updatedTicket != null) {
-                return ResponseEntity.ok(updatedTicket);
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Update failed");
-            }
+            return ResponseEntity.ok(updatedTicket);
         } catch (ParkingLotException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the parked vehicle.");
+            throw new RuntimeException("Error updating ticket: " + e.getMessage());
         }
     }
 

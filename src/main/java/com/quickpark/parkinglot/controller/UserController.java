@@ -39,18 +39,16 @@ public class UserController {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "User registered successfully");
             response.put("token", result.get("token"));
-            
+
             emailService.sendSignupEmail(
-                result.get("email"),
-                result.get("firstName"), 
-                result.get("lastName")
-                );
+                    result.get("email"),
+                    result.get("firstName"),
+                    result.get("lastName"));
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error during signup: " + e.getMessage());
+            throw new RuntimeException("Error during signup: " + e.getMessage());
         }
     }
 
@@ -69,10 +67,9 @@ public class UserController {
             response.put("token", result.get("token"));
             try {
                 emailService.sendSigninEmail(
-                    result.get("email"),
-                    result.get("firstName"), 
-                    result.get("lastName")
-                );
+                        result.get("email"),
+                        result.get("firstName"),
+                        result.get("lastName"));
             } catch (Exception e) {
                 // Log the email sending failure but do not fail the signin process
                 System.out.println("");
@@ -82,25 +79,24 @@ public class UserController {
             }
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error during signin: " + e.getMessage());
+            throw new RuntimeException("Error during signin: " + e.getMessage());
         }
     }
 
     @PutMapping("/auth/update")
-    public ResponseEntity<?> updateUser(@RequestBody Map<String, String> requestBody, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> updateUser(@RequestBody Map<String, String> requestBody,
+            @RequestHeader("Authorization") String authHeader) {
         try {
             // Extract email from JWT token
             String email = extractEmailFromToken(authHeader);
             User updatedUser = userService.updateUserDetails(email, requestBody);
             try {
                 emailService.sendUpdateEmail(
-                    updatedUser.getEmail(),
-                    updatedUser.getFirstName(),
-                    updatedUser.getLastName()
-                );
+                        updatedUser.getEmail(),
+                        updatedUser.getFirstName(),
+                        updatedUser.getLastName());
             } catch (Exception e) {
                 // Log the email sending failure but do not fail the update process
                 System.out.println("");
@@ -110,10 +106,9 @@ public class UserController {
             }
             return ResponseEntity.ok("User updated successfully");
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error updating user: " + e.getMessage());
+            throw new RuntimeException("Error updating user: " + e.getMessage());
         }
     }
 
@@ -124,13 +119,12 @@ public class UserController {
             if (isOTPSent) {
                 return ResponseEntity.ok("OTP sent successfully to " + email);
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to send OTP");
+                throw new RuntimeException("Failed to send OTP");
             }
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error generating OTP: " + e.getMessage());
+            throw new RuntimeException("Error generating OTP: " + e.getMessage());
         }
     }
 
@@ -143,13 +137,12 @@ public class UserController {
             if (isOTPValid) {
                 return ResponseEntity.ok("OTP verified successfully");
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid OTP");
+                throw new RuntimeException("Invalid OTP");
             }
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error verifying OTP: " + e.getMessage());
+            throw new RuntimeException("Error verifying OTP: " + e.getMessage());
         }
     }
 
@@ -167,18 +160,18 @@ public class UserController {
                 emailService.sendPasswordChangeEmail(toEmail, firstName, lastName);
                 return ResponseEntity.ok("Password reset successfully");
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.get("message"));
+                throw new RuntimeException((String) response.get("message"));
             }
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error resetting password: " + e.getMessage());
+            throw new RuntimeException("Error resetting password: " + e.getMessage());
         }
     }
 
     @PutMapping("/auth/change-password")
-    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> passwordRequest, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> passwordRequest,
+            @RequestHeader("Authorization") String authHeader) {
         try {
             // Extract email from JWT token
             String email = extractEmailFromToken(authHeader);
@@ -188,31 +181,30 @@ public class UserController {
             if (isPasswordChanged) {
                 return ResponseEntity.ok("Password changed successfully");
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to change password");
+                throw new RuntimeException("Failed to change password");
             }
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error changing password: " + e.getMessage());
+            throw new RuntimeException("Error changing password: " + e.getMessage());
         }
     }
 
     @PutMapping("/auth/reset-contact")
-    public ResponseEntity<?> resetContactNumber(@RequestBody String newContactNumber, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> resetContactNumber(@RequestBody String newContactNumber,
+            @RequestHeader("Authorization") String authHeader) {
         try {
             String email = extractEmailFromToken(authHeader);
             boolean isContactReset = userService.resetContactNumber(email, newContactNumber);
             if (isContactReset) {
                 return ResponseEntity.ok("Contact number reset successfully");
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to reset contact number");
+                throw new RuntimeException("Failed to reset contact number");
             }
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error resetting contact number: " + e.getMessage());
+            throw new RuntimeException("Error resetting contact number: " + e.getMessage());
         }
     }
 
@@ -224,11 +216,9 @@ public class UserController {
             User user = userService.getUserByEmail(email);
             return ResponseEntity.ok(user);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Error fetching profile: " + e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error fetching profile: " + e.getMessage());
+            throw new RuntimeException("Error fetching profile: " + e.getMessage());
         }
     }
 
@@ -240,11 +230,9 @@ public class UserController {
             Map<String, List<Object>> history = userService.getUserParkingHistory(email);
             return ResponseEntity.ok(history);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Error fetching history: " + e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error fetching history: " + e.getMessage());
+            throw new RuntimeException("Error fetching history: " + e.getMessage());
         }
     }
 

@@ -2,6 +2,7 @@ package com.quickpark.parkinglot.service;
 
 import org.springframework.stereotype.Service;
 
+import com.quickpark.parkinglot.Exceptions.*;
 import com.quickpark.parkinglot.entities.CompactParkingSpot;
 import com.quickpark.parkinglot.entities.LargeParkingSpot;
 import com.quickpark.parkinglot.entities.MiniParkingSpot;
@@ -38,7 +39,7 @@ public class AdminService implements IAdminService {
     public Map<String, Object> addParkingSpots(Map<String, Integer> parkingSpotRequest) {
         try {
             if (parkingSpotRequest == null || parkingSpotRequest.isEmpty()) {
-                throw new RuntimeException(
+                throw new ValidationException(
                         "Request body cannot be empty. Provide spot types and counts (e.g., {\"mini\": 10, \"compact\": 20})");
             }
             Map<String, Object> response = new HashMap<>();
@@ -52,12 +53,12 @@ public class AdminService implements IAdminService {
 
                 // Validate type
                 if (!validation.isValidVehicleType(type)) {
-                    throw new RuntimeException("Invalid parking spot type: " + type);
+                    throw new ValidationException("Invalid parking spot type: " + type);
                 }
 
                 // Validate count
                 if (count == null || count <= 0) {
-                    throw new RuntimeException("Invalid count for type " + type + ". Count must be greater than 0");
+                    throw new ValidationException("Invalid count for type " + type + ". Count must be greater than 0");
                 }
 
                 // Get the section number based on type
@@ -77,7 +78,8 @@ public class AdminService implements IAdminService {
 
                     // Check if location already exists (safety check)
                     if (parkingSpotRepository.existsByLocation(location)) {
-                        throw new RuntimeException("Location " + location + " already exists. Data integrity issue.");
+                        throw new DuplicateResourceException(
+                                "Location " + location + " already exists. Data integrity issue.");
                     }
 
                     ParkingSpot spot = createParkingSpot(type, location);
@@ -123,7 +125,7 @@ public class AdminService implements IAdminService {
             case "large":
                 return 3;
             default:
-                throw new RuntimeException("Invalid type: " + type);
+                throw new ValidationException("Invalid type: " + type);
         }
     }
 
@@ -181,7 +183,7 @@ public class AdminService implements IAdminService {
             case "large":
                 return new LargeParkingSpot(location);
             default:
-                throw new RuntimeException("Invalid type: " + type);
+                throw new ValidationException("Invalid type: " + type);
         }
     }
 
@@ -199,7 +201,7 @@ public class AdminService implements IAdminService {
     public Map<String, Object> updateParkingSpotStatus(Map<String, Boolean> statusRequest) {
         try {
             if (statusRequest == null || statusRequest.isEmpty()) {
-                throw new RuntimeException("Status request cannot be null or empty");
+                throw new ValidationException("Status request cannot be null or empty");
             }
             Map<String, Object> response = new HashMap<>();
             List<String> updated = new ArrayList<>();
@@ -282,7 +284,8 @@ public class AdminService implements IAdminService {
         try {
             List<Pair> availableSpots = new ArrayList<>();
             List<ParkingSpot> miniSpots = parkingSpotRepository.findByTypeAndIsBookedAndIsActive("mini", false, true);
-            List<ParkingSpot> compactSpots = parkingSpotRepository.findByTypeAndIsBookedAndIsActive("compact", false, true);
+            List<ParkingSpot> compactSpots = parkingSpotRepository.findByTypeAndIsBookedAndIsActive("compact", false,
+                    true);
             List<ParkingSpot> largeSpots = parkingSpotRepository.findByTypeAndIsBookedAndIsActive("large", false, true);
             availableSpots.add(new Pair("mini_count", miniSpots.size()));
             availableSpots.add(new Pair("compact_count", compactSpots.size()));
@@ -326,17 +329,17 @@ public class AdminService implements IAdminService {
             if (endDateStr != null) {
                 endDateStr = endDateStr.trim();
             }
-            if( startDateStr == null || startDateStr.isEmpty()) {
-                throw new RuntimeException("Start date cannot be null or empty");
+            if (startDateStr == null || startDateStr.isEmpty()) {
+                throw new ValidationException("Start date cannot be null or empty");
             }
-            if( endDateStr == null || endDateStr.isEmpty()) {
-                throw new RuntimeException("End date cannot be null or empty");
+            if (endDateStr == null || endDateStr.isEmpty()) {
+                throw new ValidationException("End date cannot be null or empty");
             }
             if (!validation.isValidDateString(startDateStr)) {
-                throw new RuntimeException("Invalid start date format. Expected format: YYYY-MM-DDTHH:MM:SS");
+                throw new ValidationException("Invalid start date format. Expected format: YYYY-MM-DDTHH:MM:SS");
             }
             if (!validation.isValidDateString(endDateStr)) {
-                throw new RuntimeException("Invalid end date format. Expected format: YYYY-MM-DDTHH:MM:SS");
+                throw new ValidationException("Invalid end date format. Expected format: YYYY-MM-DDTHH:MM:SS");
             }
             LocalDateTime startDate = LocalDateTime.parse(startDateStr);
             LocalDateTime endDate = LocalDateTime.parse(endDateStr);

@@ -35,9 +35,9 @@ public class AdminController {
             Map<String, Object> response = adminService.addParkingSpots(parkingSpotRequest);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+            throw new RuntimeException("Error adding parking spots: " + e.getMessage());
         }
     }
 
@@ -47,9 +47,9 @@ public class AdminController {
             Map<String, Object> response = adminService.updateParkingSpotStatus(statusRequest);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+            throw new RuntimeException("Error updating parking spot: " + e.getMessage());
         }
     }
 
@@ -59,9 +59,9 @@ public class AdminController {
             Map<String, Object> response = adminService.getAllParkingSpots();
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+            throw new RuntimeException("Error fetching all parking spots: " + e.getMessage());
         }
     }
 
@@ -71,9 +71,9 @@ public class AdminController {
             List<Pair> response = adminService.getAllParkedSpots();
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+            throw new RuntimeException("Error fetching parked spots: " + e.getMessage());
         }
     }
 
@@ -83,36 +83,36 @@ public class AdminController {
             List<Pair> response = adminService.getAllAvailableSpots();
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+            throw new RuntimeException("Error fetching available spots: " + e.getMessage());
         }
     }
 
     @GetMapping("/spots-by-active-status")
     public ResponseEntity<?> getAllSpotsByActiveStatus(@RequestParam boolean active) {
         try {
-            if(active != true && active != false) {
+            if (active != true && active != false) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid active status parameter");
             }
             List<Pair> response = adminService.getAllSpotsByActiveStatus(active);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+            throw new RuntimeException("Error fetching spots by status: " + e.getMessage());
         }
     }
 
-    @GetMapping("/revenue") 
+    @GetMapping("/revenue")
     public ResponseEntity<?> calculateRevenue(@RequestParam String startDate, @RequestParam String endDate) {
         try {
             long revenue = adminService.calculateRevenueBetweenDates(startDate, endDate);
             return ResponseEntity.ok(Map.of("revenue", revenue));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+            throw e; // Let global exception handler handle it
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+            throw new RuntimeException("Error calculating revenue: " + e.getMessage());
         }
     }
 }

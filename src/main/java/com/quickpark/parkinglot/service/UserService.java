@@ -14,6 +14,7 @@ import com.quickpark.parkinglot.entities.UnparkedTicket;
 import com.quickpark.parkinglot.repository.ParkedTicketRepository;
 import com.quickpark.parkinglot.repository.UnparkedTicketRepository;
 import com.quickpark.parkinglot.repository.UserRepository;
+import com.quickpark.parkinglot.Exceptions.*;
 import jakarta.mail.SendFailedException;
 import org.springframework.dao.DuplicateKeyException;
 
@@ -77,22 +78,22 @@ public class UserService implements IUserService {
             }
             // Mandatory fields check
             if (email == null || email.isEmpty()) {
-                throw new RuntimeException("Email is required");
+                throw new ValidationException("Email is required");
             }
             if (validation.isValidEmail(email) == false) {
-                throw new RuntimeException("Invalid email format");
+                throw new ValidationException("Invalid email format");
             }
             if (contactNo == null || contactNo.isEmpty()) {
-                throw new RuntimeException("Contact number is required");
+                throw new ValidationException("Contact number is required");
             }
             if (validation.isValidContactNo(contactNo) == false) {
-                throw new RuntimeException("Invalid contact number format");
+                throw new ValidationException("Invalid contact number format");
             }
             if (password == null || password.isEmpty()) {
-                throw new RuntimeException("Password is required");
+                throw new ValidationException("Password is required");
             }
             if (validation.isValidPassword(password) == false) {
-                throw new RuntimeException(
+                throw new ValidationException(
                         "Invalid password format, password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character");
             }
             if (secretKey != null && !secretKey.isEmpty()) {
@@ -104,16 +105,16 @@ public class UserService implements IUserService {
                  * The length of the provided secret key should be between 40 to 60 characters
                  */
                 if (!validation.isAdminSecretKeyValid(secretKey)) {
-                    throw new RuntimeException("Invalid admin secret key");
+                    throw new AuthenticationException("Invalid admin secret key");
                 }
                 role = "ADMIN"; // Promote to ADMIN role
             }
             // Check if user with same email or contact number already exists
             if (userRepository.existsByEmail(email)) {
-                throw new RuntimeException("User with this email already exists");
+                throw new DuplicateResourceException("User with this email already exists");
             }
             if (userRepository.existsByContactNo(contactNo)) {
-                throw new RuntimeException("User with this contact number already exists");
+                throw new DuplicateResourceException("User with this contact number already exists");
             }
             if (firstName == null || firstName.isEmpty()) {
                 firstName = email.substring(0, email.indexOf('@'));
@@ -164,35 +165,35 @@ public class UserService implements IUserService {
                 password = password.trim();
             }
             if (password == null || password.isEmpty()) {
-                throw new RuntimeException("Password is required");
+                throw new ValidationException("Password is required");
             }
             User user = null;
 
             // If email is provided, validate using email
             if (email != null && !email.isEmpty()) {
                 if (!validation.isValidEmail(email)) {
-                    throw new RuntimeException("Invalid email format");
+                    throw new ValidationException("Invalid email format");
                 }
                 user = userRepository.findByEmail(email);
                 if (user == null) {
-                    throw new RuntimeException("User with this email does not exist");
+                    throw new ResourceNotFoundException("User with this email does not exist");
                 }
             }
             // If contact number is provided, validate using contact number
             else if (contactNo != null && !contactNo.isEmpty()) {
                 if (!validation.isValidContactNo(contactNo)) {
-                    throw new RuntimeException("Invalid contact number format");
+                    throw new ValidationException("Invalid contact number format");
                 }
                 user = userRepository.findByContactNo(contactNo);
                 if (user == null) {
-                    throw new RuntimeException("User with this contact number does not exist");
+                    throw new ResourceNotFoundException("User with this contact number does not exist");
                 }
             } else {
-                throw new RuntimeException("Either email or contact number must be provided");
+                throw new ValidationException("Either email or contact number must be provided");
             }
             // Validate password
             if (!passwordEncoder.matches(password, user.getPassword())) {
-                throw new RuntimeException("Incorrect password");
+                throw new AuthenticationException("Incorrect password");
             }
             // Validated, generate and return JWT token with roles
             String token = jwtUtil.generateToken(email, user.getRole());
@@ -219,15 +220,15 @@ public class UserService implements IUserService {
                 email = email.trim();
             }
             if (email == null || email.isEmpty()) {
-                throw new RuntimeException("Email is required");
+                throw new ValidationException("Email is required");
             }
             if (!validation.isValidEmail(email)) {
-                throw new RuntimeException("Invalid email format");
+                throw new ValidationException("Invalid email format");
             }
 
             User existingUser = userRepository.findByEmail(email);
             if (existingUser == null) {
-                throw new RuntimeException("User with this email does not exist");
+                throw new ResourceNotFoundException("User with this email does not exist");
             }
             String firstName = userDetails.get("firstName");
             String lastName = userDetails.get("lastName");
@@ -242,13 +243,13 @@ public class UserService implements IUserService {
             if (address != null) {
                 address = address.trim();
             }
-            if(firstName != null && !firstName.isEmpty()) {
+            if (firstName != null && !firstName.isEmpty()) {
                 existingUser.setFirstName(firstName);
             }
-            if(lastName != null && !lastName.isEmpty()) {
+            if (lastName != null && !lastName.isEmpty()) {
                 existingUser.setLastName(lastName);
             }
-            if(address != null && !address.isEmpty()) {
+            if (address != null && !address.isEmpty()) {
                 existingUser.setAddress(address);
             }
             userRepository.save(existingUser);
@@ -264,14 +265,14 @@ public class UserService implements IUserService {
             if (email != null)
                 email = email.trim();
             if (email == null || email.isEmpty()) {
-                throw new RuntimeException("Email is required");
+                throw new ValidationException("Email is required");
             }
             if (!validation.isValidEmail(email)) {
-                throw new RuntimeException("Invalid email format");
+                throw new ValidationException("Invalid email format");
             }
             User user = userRepository.findByEmail(email);
             if (user == null) {
-                throw new RuntimeException("User with this email does not exist");
+                throw new ResourceNotFoundException("User with this email does not exist");
             }
             // Generate OTP - a 6 digit random number
             String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
@@ -304,26 +305,26 @@ public class UserService implements IUserService {
             if (otp != null)
                 otp = otp.trim();
             if (email == null || email.isEmpty()) {
-                throw new RuntimeException("Email is required");
+                throw new ValidationException("Email is required");
             }
             if (otp == null || otp.isEmpty()) {
-                throw new RuntimeException("OTP is required");
+                throw new ValidationException("OTP is required");
             }
             if (!validation.isValidEmail(email)) {
-                throw new RuntimeException("Invalid email format");
+                throw new ValidationException("Invalid email format");
             }
             User user = userRepository.findByEmail(email);
             if (user == null) {
-                throw new RuntimeException("User with this email does not exist");
+                throw new ResourceNotFoundException("User with this email does not exist");
             }
             if (user.getOtp() == null || user.getExpiresIn() == null) {
-                throw new RuntimeException("No OTP generated for this user");
+                throw new ValidationException("No OTP generated for this user");
             }
             if (LocalDateTime.now().isAfter(user.getExpiresIn())) {
-                throw new RuntimeException("OTP has expired, please generate a new one");
+                throw new ValidationException("OTP has expired, please generate a new one");
             }
             if (!user.getOtp().equals(otp)) {
-                throw new RuntimeException("Invalid OTP");
+                throw new ValidationException("Invalid OTP");
             }
             // OTP is valid, clear OTP and expiry time
             user.setOtp(null);
@@ -344,25 +345,25 @@ public class UserService implements IUserService {
             if (newPassword != null)
                 newPassword = newPassword.trim();
             if (email == null || email.isEmpty()) {
-                throw new RuntimeException("Email is required");
+                throw new ValidationException("Email is required");
             }
             if (newPassword == null || newPassword.isEmpty()) {
-                throw new RuntimeException("New password is required");
+                throw new ValidationException("New password is required");
             }
             if (!validation.isValidEmail(email)) {
-                throw new RuntimeException("Invalid email format");
+                throw new ValidationException("Invalid email format");
             }
             if (!validation.isValidPassword(newPassword)) {
-                throw new RuntimeException(
+                throw new ValidationException(
                         "Invalid password format, password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character");
             }
             User user = userRepository.findByEmail(email);
             if (user == null) {
-                throw new RuntimeException("User with this email does not exist");
+                throw new ResourceNotFoundException("User with this email does not exist");
             }
             // Password should be different from the old password
             if (passwordEncoder.matches(newPassword, user.getPassword())) {
-                throw new RuntimeException("New password must be different from the old password");
+                throw new ValidationException("New password must be different from the old password");
             }
             user.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(user);
@@ -370,13 +371,11 @@ public class UserService implements IUserService {
                     "success", true,
                     "email", email,
                     "firstName", user.getFirstName(),
-                    "lastName", user.getLastName()
-            );
+                    "lastName", user.getLastName());
         } catch (Exception e) {
             return Map.of(
                     "success", false,
-                    "message", e.getMessage()
-            );
+                    "message", e.getMessage());
         }
     }
 
@@ -390,31 +389,31 @@ public class UserService implements IUserService {
             if (newPassword != null)
                 newPassword = newPassword.trim();
             if (email == null || email.isEmpty()) {
-                throw new RuntimeException("Email is required");
+                throw new ValidationException("Email is required");
             }
             if (currentPassword == null || currentPassword.isEmpty()) {
-                throw new RuntimeException("Current password is required");
+                throw new ValidationException("Current password is required");
             }
             if (newPassword == null || newPassword.isEmpty()) {
-                throw new RuntimeException("New password is required");
+                throw new ValidationException("New password is required");
             }
             if (!validation.isValidEmail(email)) {
-                throw new RuntimeException("Invalid email format");
+                throw new ValidationException("Invalid email format");
             }
             User user = userRepository.findByEmail(email);
             if (user == null) {
-                throw new RuntimeException("User with this email does not exist");
+                throw new ResourceNotFoundException("User with this email does not exist");
             }
             // Validate current password
             if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-                throw new RuntimeException("Incorrect current password");
+                throw new AuthenticationException("Incorrect current password");
             }
             // New password should be different from the old password
             if (passwordEncoder.matches(newPassword, user.getPassword())) {
-                throw new RuntimeException("New password must be different from the old password");
+                throw new ValidationException("New password must be different from the old password");
             }
             if (!validation.isValidPassword(newPassword)) {
-                throw new RuntimeException(
+                throw new ValidationException(
                         "Invalid password format, password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character");
             }
             user.setPassword(passwordEncoder.encode(newPassword));
@@ -438,28 +437,28 @@ public class UserService implements IUserService {
             if (newContactNo != null)
                 newContactNo = newContactNo.trim();
             if (email == null || email.isEmpty()) {
-                throw new RuntimeException("Email is required");
+                throw new ValidationException("Email is required");
             }
             if (newContactNo == null || newContactNo.isEmpty()) {
-                throw new RuntimeException("New contact number is required");
+                throw new ValidationException("New contact number is required");
             }
             if (!validation.isValidEmail(email)) {
-                throw new RuntimeException("Invalid email format");
+                throw new ValidationException("Invalid email format");
             }
             if (!validation.isValidContactNo(newContactNo)) {
-                throw new RuntimeException("Invalid contact number format");
+                throw new ValidationException("Invalid contact number format");
             }
             User user = userRepository.findByEmail(email);
             if (user == null) {
-                throw new RuntimeException("User with this email does not exist");
+                throw new ResourceNotFoundException("User with this email does not exist");
             }
             // Contact number should be different from the old contact number
             if (newContactNo.equals(user.getContactNo())) {
-                throw new RuntimeException("New contact number must be different from the old contact number");
+                throw new ValidationException("New contact number must be different from the old contact number");
             }
             // Check if new contact number already exists
             if (userRepository.existsByContactNo(newContactNo)) {
-                throw new RuntimeException("User with this contact number already exists");
+                throw new DuplicateResourceException("User with this contact number already exists");
             }
 
             // Update contact number
@@ -468,7 +467,7 @@ public class UserService implements IUserService {
                 userRepository.save(user);
             } catch (DuplicateKeyException e) {
                 // Handle race condition: another thread inserted the same contact number
-                throw new RuntimeException("User with this contact number already exists");
+                throw new DuplicateResourceException("User with this contact number already exists");
             }
             return true;
         } catch (Exception e) {
@@ -483,14 +482,14 @@ public class UserService implements IUserService {
                 email = email.trim();
             }
             if (email == null || email.isEmpty()) {
-                throw new RuntimeException("Email is required");
+                throw new ValidationException("Email is required");
             }
             if (!validation.isValidEmail(email)) {
-                throw new RuntimeException("Invalid email format");
+                throw new ValidationException("Invalid email format");
             }
             User user = userRepository.findByEmail(email);
             if (user == null) {
-                throw new RuntimeException("User with this email does not exist");
+                throw new ResourceNotFoundException("User with this email does not exist");
             }
             // Make the password empty before returning the user object
             user.setPassword("");
@@ -507,13 +506,13 @@ public class UserService implements IUserService {
                 email = email.trim();
             }
             if (email == null || email.isEmpty()) {
-                throw new RuntimeException("Email is required");
+                throw new ValidationException("Email is required");
             }
             if (!validation.isValidEmail(email)) {
-                throw new RuntimeException("Invalid email format");
+                throw new ValidationException("Invalid email format");
             }
             if (!userRepository.existsByEmail(email)) {
-                throw new RuntimeException("User with this email does not exist");
+                throw new ResourceNotFoundException("User with this email does not exist");
             }
             List<ParkedTicket> parkedTickets = parkedTicketRepository.findByEmail(email);
             List<UnparkedTicket> unparkedTickets = unparkedTicketRepository.findByEmail(email);
