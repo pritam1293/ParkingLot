@@ -5,6 +5,7 @@ import PublicRoute from './components/PublicRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import Navbar from './components/navbar';
 import Footer from './components/footer';
+import Landing from './pages/landing';
 import Home from './pages/home';
 import Park from './pages/park';
 import Unpark from './pages/unpark';
@@ -21,14 +22,14 @@ import NotFound from './pages/NotFound';
 
 function AppContent() {
   const location = useLocation();
-  const isAuthPage = location.pathname === '/signup' || location.pathname === '/signin' || location.pathname === '/forgot-password';
+  const isAuthPage = location.pathname === '/signup' || location.pathname === '/signin' || location.pathname === '/forgot-password' || location.pathname === '/';
 
   return (
     <div className="App min-h-screen bg-gray-100 flex flex-col">
       {!isAuthPage && <Navbar />}
       <div className="flex-grow">
         <Routes>
-          <Route path="/" element={<PublicRoute><Signin /></PublicRoute>} />
+          <Route path="/" element={<Landing />} />
           <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
           <Route path="/signin" element={<PublicRoute><Signin /></PublicRoute>} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
