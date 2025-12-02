@@ -11,6 +11,7 @@ import com.quickpark.parkinglot.entities.ParkingSpot;
 import com.quickpark.parkinglot.entities.UnparkedTicket;
 import com.quickpark.parkinglot.repository.ParkingSpotRepository;
 import com.quickpark.parkinglot.repository.UnparkedTicketRepository;
+import com.quickpark.parkinglot.repository.UserRepository;
 import com.quickpark.parkinglot.repository.ParkedTicketRepository;
 import com.quickpark.parkinglot.custom.Pair;
 import java.time.LocalDateTime;
@@ -25,13 +26,15 @@ public class AdminService implements IAdminService {
     private final ParkingSpotRepository parkingSpotRepository;
     private final UnparkedTicketRepository unparkedTicketRepository;
     private final ParkedTicketRepository parkedTicketRepository;
+    private final UserRepository userRepository;
     private final Validation validation;
 
     public AdminService(ParkingSpotRepository parkingSpotRepository, UnparkedTicketRepository unparkedTicketRepository,
-            ParkedTicketRepository parkedTicketRepository, Validation validation) {
+            ParkedTicketRepository parkedTicketRepository, UserRepository userRepository, Validation validation) {
         this.parkingSpotRepository = parkingSpotRepository;
         this.unparkedTicketRepository = unparkedTicketRepository;
         this.parkedTicketRepository = parkedTicketRepository;
+        this.userRepository = userRepository;
         this.validation = validation;
     }
 
@@ -351,6 +354,31 @@ public class AdminService implements IAdminService {
             return totalRevenue;
         } catch (Exception e) {
             throw new RuntimeException("Error calculating revenue: " + e.getMessage());
+        }
+    }
+
+    public Map<String, Object> getUserParkingHistory(String email) {
+        try {
+            if (email != null) {
+                email = email.trim();
+            }
+            if (email == null || email.isEmpty()) {
+                throw new ValidationException("Email cannot be null or empty");
+            }
+            if(!validation.isValidEmail(email)) {
+                throw new ValidationException("Invalid email format: " + email);
+            }
+            if(!userRepository.existsByEmail(email)) {
+                throw new ResourceNotFoundException("User with email " + email + " not found");
+            }
+            List<ParkedTicket> parkedTickets = parkedTicketRepository.findByEmail(email);
+            List<UnparkedTicket> unparkedTickets = unparkedTicketRepository.findByEmail(email);
+            return Map.of(
+                    "parked_tickets", parkedTickets,
+                    "unparked_tickets", unparkedTickets
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching user parking history: " + e.getMessage());
         }
     }
 }
