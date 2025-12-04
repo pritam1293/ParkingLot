@@ -15,14 +15,20 @@ import Profile from './pages/profile';
 import History from './pages/history';
 import Signup from './pages/signup';
 import Signin from './pages/signin';
+import AdminSignup from './pages/adminSignup';
 import ForgotPassword from './pages/forgotPassword';
 import ChangeContact from './pages/changeContact';
 import ChangePassword from './pages/changePassword';
 import NotFound from './pages/NotFound';
+import Admin from './pages/admin';
 
 function AppContent() {
   const location = useLocation();
-  const isAuthPage = location.pathname === '/signup' || location.pathname === '/signin' || location.pathname === '/forgot-password' || location.pathname === '/';
+  const isAuthPage = location.pathname === '/signup' ||
+    location.pathname === '/signin' ||
+    location.pathname === '/forgot-password' ||
+    location.pathname === '/' ||
+    location.pathname === '/admin/signup';
 
   return (
     <div className="App min-h-screen bg-gray-100 flex flex-col">
@@ -30,6 +36,8 @@ function AppContent() {
       <div className="flex-grow">
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+          <Route path="/admin/signup" element={<PublicRoute><AdminSignup /></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
           <Route path="/signin" element={<PublicRoute><Signin /></PublicRoute>} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

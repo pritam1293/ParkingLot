@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.quickpark.parkinglot.entities.ParkedTicket;
@@ -26,6 +27,7 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
+    @Async
     public void sendSignupEmail(String toEmail, String firstName, String lastName) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -47,6 +49,7 @@ public class EmailService {
         }
     }
 
+    @Async
     public void sendSigninEmail(String toEmail, String firstName, String lastName) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -69,6 +72,7 @@ public class EmailService {
         }
     }
 
+    @Async
     public void sendUpdateEmail(String toEmail, String firstName, String lastName) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -88,6 +92,7 @@ public class EmailService {
         }
     }
 
+    @Async
     public void sendPasswordChangeEmail(String toEmail, String firstName, String lastName) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -107,6 +112,7 @@ public class EmailService {
         }
     }
 
+    @Async
     public void sendOtpEmail(String toEmail, String firstName, String lastName, String otp, int expiryMinutes) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -127,6 +133,7 @@ public class EmailService {
     }
 
     // Send Parking Ticket Email with all the details
+    @Async
     public void SendParkingTicketEmail(String toEmail, ParkedTicket ticket) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -148,6 +155,7 @@ public class EmailService {
     }
 
     // Send Unparking Receipt Email with payment details
+    @Async
     public void sendUnparkingReceiptEmail(String toEmail, UnparkedTicket ticket) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -168,6 +176,7 @@ public class EmailService {
         }
     }
 
+    @Async
     public void sendSimpleEmail(String toEmail, String subject, String text) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();

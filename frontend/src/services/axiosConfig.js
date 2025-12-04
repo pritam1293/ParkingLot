@@ -33,8 +33,18 @@ export const createAxiosInstance = (baseURL) => {
             return response;
         },
         (error) => {
-            // Check if error is due to expired/invalid token
+            // Check if error is due to expired/invalid token (but NOT from signin/signup endpoints)
             if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+                const requestUrl = error.config?.url || '';
+
+                // Don't intercept auth endpoint errors - let them be handled by the component
+                if (requestUrl.includes('/auth/signin') ||
+                    requestUrl.includes('/auth/signup') ||
+                    requestUrl.includes('/auth/otp') ||
+                    requestUrl.includes('/auth/reset-password')) {
+                    return Promise.reject(error);
+                }
+
                 // Check if the error message indicates token expiration
                 const errorMessage = error.response.data?.message || error.response.data || '';
                 const isTokenExpired =
@@ -47,8 +57,12 @@ export const createAxiosInstance = (baseURL) => {
                     localStorage.removeItem('authToken');
                     localStorage.removeItem('userData');
 
-                    // Redirect to signin page
-                    window.location.href = '/signin';
+                    // Only redirect if not already on a signin page
+                    const currentPath = window.location.pathname;
+                    if (!currentPath.includes('/signin') && !currentPath.includes('/signup') && currentPath !== '/') {
+                        // Redirect to signin page with state
+                        window.location.href = '/signin';
+                    }
 
                     // Return a rejected promise with a user-friendly message
                     return Promise.reject({

@@ -52,8 +52,7 @@ public class UserService implements IUserService {
             String password = signupRequest.get("password");
             String address = signupRequest.get("address");
             String secretKey = signupRequest.get("secretKey");
-            String role = "USER"; // Default role is USER, will be changed to ADMIN if valid secret key is
-                                  // provided
+            String role = "USER"; // Default role is USER, will be changed to ADMIN if valid secret key is provided
             // Trim the trailing and leading spaces from all string fields
             if (firstName != null) {
                 firstName = firstName.trim();
@@ -145,7 +144,9 @@ public class UserService implements IUserService {
                     "email", email,
                     "token", token,
                     "firstName", newUser.getFirstName(),
-                    "lastName", newUser.getLastName());
+                    "lastName", newUser.getLastName(),
+                    "role", role
+                );
         } catch (Exception e) {
             throw new RuntimeException("Error registering user: " + e.getMessage());
         }
@@ -201,7 +202,9 @@ public class UserService implements IUserService {
                     "email", email,
                     "token", token,
                     "firstName", user.getFirstName(),
-                    "lastName", user.getLastName());
+                    "lastName", user.getLastName(),
+                    "role", user.getRole()
+                );
         } catch (Exception e) {
             throw new RuntimeException("Error validating user: " + e.getMessage());
         }

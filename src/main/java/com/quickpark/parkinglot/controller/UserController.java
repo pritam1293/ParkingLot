@@ -39,6 +39,8 @@ public class UserController {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "User registered successfully");
             response.put("token", result.get("token"));
+            response.put("email", result.get("email"));
+            response.put("role", result.get("role"));
 
             emailService.sendSignupEmail(
                     result.get("email"),
@@ -63,8 +65,9 @@ public class UserController {
             // Prepare response
             Map<String, Object> response = new HashMap<>();
             response.put("message", "User signed in successfully");
-            response.put("email", email);
+            response.put("email", result.get("email"));
             response.put("token", result.get("token"));
+            response.put("role", result.get("role"));
             try {
                 emailService.sendSigninEmail(
                         result.get("email"),
