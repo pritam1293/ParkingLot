@@ -2,14 +2,23 @@ package com.quickpark.parkinglot.entities;
 
 import java.time.LocalDateTime;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Version;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
-@Document(collection = "parking_spots")
+@Entity
+@Table(name = "parking_spots")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class ParkingSpot {
     @Id
-    private String id; // unique identifier for the parking spot
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // unique identifier for the parking spot
     @Version
     private Long version; // for optimistic locking
     private String type; // Mini, Compact, Large
@@ -24,6 +33,7 @@ public abstract class ParkingSpot {
      * rows are numbered from 1 to n (number of rows per section)
      * columns are numbered from 1 to m (number of columns per row)
      */
+    @Column(unique = true, nullable = false, length = 50)
     private String location; // defination above ↑
     /*
      * isActive indicates if the spot is active or deactivated, does not affect
@@ -84,11 +94,16 @@ public abstract class ParkingSpot {
     }
 
     public String getId() {
-        return id;
+        if (id == null) {
+            return null;
+        }
+        return String.valueOf(id);
     }
 
     public void setId(String id) {
-        this.id = id;
+        if (id != null && !id.isEmpty()) {
+            this.id = Long.parseLong(id);
+        }
     }
 
     public Long getVersion() {

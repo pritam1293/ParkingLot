@@ -1,17 +1,18 @@
 package com.quickpark.parkinglot.entities;
 
 import java.time.LocalDateTime;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.Entity;
 
-@Document(collection = "ParkedTickets")
+@Entity
 public class ParkedTicket extends Ticket {
 
     public ParkedTicket() {
         super();
     }
 
-    public ParkedTicket(String id, String firstName, String lastName, String email,
-        String ownerContact, LocalDateTime entryTime, String vehicleNo, String vehicleModel, ParkingSpot parkingSpot) {
+    public ParkedTicket(Long id, String firstName, String lastName, String email,
+            String ownerContact, LocalDateTime entryTime, String vehicleNo, String vehicleModel,
+            ParkingSpot parkingSpot) {
         super(id, firstName, lastName, email, ownerContact, entryTime, vehicleNo, vehicleModel, parkingSpot);
     }
 }

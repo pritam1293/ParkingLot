@@ -1,15 +1,5 @@
 package com.quickpark.parkinglot.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.MongoDatabaseFactory;
-import org.springframework.data.mongodb.MongoTransactionManager;
-
-@Configuration
-public class MongoConfig {
-
-    @Bean
-    public MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
-        return new MongoTransactionManager(dbFactory);
-    }
-}
+// This file is no longer needed for JPA/MySQL configuration
+// JPA transaction management is handled automatically by Spring Boot
+// Keep this file for backward compatibility or delete it

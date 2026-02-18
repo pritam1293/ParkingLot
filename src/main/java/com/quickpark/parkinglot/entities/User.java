@@ -2,17 +2,20 @@ package com.quickpark.parkinglot.entities;
 
 import java.time.LocalDateTime;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
-@Document(collection = "users")
+@Entity
+@Table(name = "users")
 public class User {
     private String firstName;
     private String lastName;
     @Id
+    @Column(length = 255)
     private String email;
-    @Indexed(unique = true)
+    @Column(unique = true, length = 20)
     private String contactNo;
     private String password;
     private String address;
@@ -24,8 +27,8 @@ public class User {
     public User() {
     }
 
-    public User(String firstName, String lastName, String email, String contactNo, String password, 
-                String address, String role, LocalDateTime createdAt, String otp, LocalDateTime expiresIn) {
+    public User(String firstName, String lastName, String email, String contactNo, String password,
+            String address, String role, LocalDateTime createdAt, String otp, LocalDateTime expiresIn) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;

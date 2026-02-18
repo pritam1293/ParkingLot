@@ -2,9 +2,9 @@ package com.quickpark.parkinglot.entities;
 
 import java.time.LocalDateTime;
 
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.Entity;
 
-@Document(collection = "UnparkedTickets")
+@Entity
 public class UnparkedTicket extends Ticket {
     private LocalDateTime exitTime;
     private long totalDuration;
@@ -14,9 +14,9 @@ public class UnparkedTicket extends Ticket {
         super();
     }
 
-    public UnparkedTicket(String id, String firstName, String lastName, String email, 
-            String ownerContact, LocalDateTime entryTime, LocalDateTime exitTime, 
-            long totalDuration, long totalCost, String vehicleNo, String vehicleModel, 
+    public UnparkedTicket(Long id, String firstName, String lastName, String email,
+            String ownerContact, LocalDateTime entryTime, LocalDateTime exitTime,
+            long totalDuration, long totalCost, String vehicleNo, String vehicleModel,
             ParkingSpot parkingSpot) {
         super(id, firstName, lastName, email, ownerContact, entryTime, vehicleNo, vehicleModel, parkingSpot);
         this.exitTime = exitTime;

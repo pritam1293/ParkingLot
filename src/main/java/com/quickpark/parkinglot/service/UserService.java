@@ -76,6 +76,15 @@ public class UserService implements IUserService {
                 secretKey = secretKey.trim();
             }
             // Mandatory fields check
+            if(firstName == null || firstName.isEmpty()) {
+                throw new ValidationException("First name is required");
+            }
+            if(lastName == null || lastName.isEmpty()) {
+                lastName = ""; // Set last name to empty string if not provided
+            }
+            if(address == null || address.isEmpty()) {
+                throw new ValidationException("Address is required");
+            }
             if (email == null || email.isEmpty()) {
                 throw new ValidationException("Email is required");
             }
@@ -95,11 +104,11 @@ public class UserService implements IUserService {
                 throw new ValidationException(
                         "Invalid password format, password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character");
             }
+            
             if (secretKey != null && !secretKey.isEmpty()) {
                 /*
                  * If secret key is provided, check if it is valid for admin user creation
-                 * The provided secret key should also contain extra characters to avoid easy
-                 * guessing
+                 * The provided secret key should also contain extra characters to avoid easy guessing
                  * So the actual admin secret key is subsequence of the provided secret key
                  * The length of the provided secret key should be between 40 to 60 characters
                  */
@@ -114,15 +123,6 @@ public class UserService implements IUserService {
             }
             if (userRepository.existsByContactNo(contactNo)) {
                 throw new DuplicateResourceException("User with this contact number already exists");
-            }
-            if (firstName == null || firstName.isEmpty()) {
-                firstName = email.substring(0, email.indexOf('@'));
-            }
-            if (lastName == null) {
-                lastName = "";
-            }
-            if (address == null) {
-                address = "";
             }
             // Create new user
             User newUser = new User(

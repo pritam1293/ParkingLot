@@ -1,19 +1,17 @@
 package com.quickpark.parkinglot.repository;
 
 import com.quickpark.parkinglot.entities.ParkedTicket;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.lang.NonNull;
 import java.util.List;
 
 @Repository
-public interface ParkedTicketRepository extends MongoRepository<ParkedTicket, String> {
+public interface ParkedTicketRepository extends JpaRepository<ParkedTicket, Long> {
 
     ParkedTicket findByVehicleNo(String vehicleNo);
 
     boolean existsByVehicleNo(String vehicleNo);
-
-    boolean existsById(@NonNull String id);
 
     @NonNull
     List<ParkedTicket> findAll();

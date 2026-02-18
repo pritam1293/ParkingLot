@@ -1,14 +1,14 @@
 package com.quickpark.parkinglot.repository;
 
 import com.quickpark.parkinglot.entities.ParkingSpot;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ParkingSpotRepository extends MongoRepository<ParkingSpot, String> {
+public interface ParkingSpotRepository extends JpaRepository<ParkingSpot, Long> {
 
     // Find all spots by type
     List<ParkingSpot> findByType(String type);

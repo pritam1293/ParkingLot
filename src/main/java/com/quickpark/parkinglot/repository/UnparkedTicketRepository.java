@@ -1,6 +1,6 @@
 package com.quickpark.parkinglot.repository;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.quickpark.parkinglot.entities.UnparkedTicket;
@@ -9,12 +9,10 @@ import java.time.LocalDateTime;
 import org.springframework.lang.NonNull;
 
 @Repository
-public interface UnparkedTicketRepository extends MongoRepository<UnparkedTicket, String> {
+public interface UnparkedTicketRepository extends JpaRepository<UnparkedTicket, Long> {
     UnparkedTicket findByVehicleNo(String vehicleNo);
 
     boolean existsByVehicleNo(String vehicleNo);
-
-    boolean existsById(@NonNull String id);
 
     List<UnparkedTicket> findByExitTime(LocalDateTime exitTime);
 
