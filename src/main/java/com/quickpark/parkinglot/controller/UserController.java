@@ -68,18 +68,6 @@ public class UserController {
             response.put("email", result.get("email"));
             response.put("token", result.get("token"));
             response.put("role", result.get("role"));
-            try {
-                emailService.sendSigninEmail(
-                        result.get("email"),
-                        result.get("firstName"),
-                        result.get("lastName"));
-            } catch (Exception e) {
-                // Log the email sending failure but do not fail the signin process
-                System.out.println("");
-                System.err.println("Failed to send signin email: " + e.getMessage());
-                System.err.println("email: " + result.get("email"));
-                System.out.println("");
-            }
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             throw e; // Let global exception handler handle it
