@@ -365,18 +365,17 @@ public class AdminService implements IAdminService {
             if (email == null || email.isEmpty()) {
                 throw new ValidationException("Email cannot be null or empty");
             }
-            if(!validation.isValidEmail(email)) {
+            if (!validation.isValidEmail(email)) {
                 throw new ValidationException("Invalid email format: " + email);
             }
-            if(!userRepository.existsByEmail(email)) {
+            if (!userRepository.existsByEmail(email)) {
                 throw new ResourceNotFoundException("User with email " + email + " not found");
             }
             List<ParkedTicket> parkedTickets = parkedTicketRepository.findByEmail(email);
             List<UnparkedTicket> unparkedTickets = unparkedTicketRepository.findByEmail(email);
             return Map.of(
                     "parked_tickets", parkedTickets,
-                    "unparked_tickets", unparkedTickets
-            );
+                    "unparked_tickets", unparkedTickets);
         } catch (Exception e) {
             throw new RuntimeException("Error fetching user parking history: " + e.getMessage());
         }

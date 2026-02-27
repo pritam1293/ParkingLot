@@ -33,19 +33,14 @@ public class UserController {
     @PostMapping("/auth/signup")
     public ResponseEntity<?> signup(@RequestBody Map<String, String> signupRequest) {
         try {
-            // Register user and get JWT token
+            // Register user - no JWT token until email is verified
             Map<String, String> result = userService.registerUser(signupRequest);
             // Prepare response
             Map<String, Object> response = new HashMap<>();
-            response.put("message", "User registered successfully");
-            response.put("token", result.get("token"));
+            response.put("message", "User registered successfully. Please check your email to verify your account.");
             response.put("email", result.get("email"));
             response.put("role", result.get("role"));
 
-            emailService.sendSignupEmail(
-                    result.get("email"),
-                    result.get("firstName"),
-                    result.get("lastName"));
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
             throw e; // Let global exception handler handle it
@@ -73,6 +68,31 @@ public class UserController {
             throw e; // Let global exception handler handle it
         } catch (Exception e) {
             throw new RuntimeException("Error during signin: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/auth/verify-email")
+    public ResponseEntity<?> verifyEmail(@org.springframework.web.bind.annotation.RequestParam("token") String token) {
+        try {
+            Map<String, String> result = userService.verifyEmail(token);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            throw e; // Let global exception handler handle it
+        } catch (Exception e) {
+            throw new RuntimeException("Error verifying email: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/auth/resend-verification")
+    public ResponseEntity<?> resendVerification(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            Map<String, String> result = userService.resendVerificationEmail(email);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            throw e; // Let global exception handler handle it
+        } catch (Exception e) {
+            throw new RuntimeException("Error resending verification email: " + e.getMessage());
         }
     }
 

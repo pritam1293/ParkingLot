@@ -2,6 +2,7 @@ package com.quickpark.parkinglot.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.time.LocalDateTime;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -52,7 +53,8 @@ public class UserService implements IUserService {
             String password = signupRequest.get("password");
             String address = signupRequest.get("address");
             String secretKey = signupRequest.get("secretKey");
-            String role = "USER"; // Default role is USER, will be changed to ADMIN if valid secret key is provided
+            String role = "USER"; // Default role is USER, will be changed to ADMIN if valid secret key is
+                                  // provided
             // Trim the trailing and leading spaces from all string fields
             if (firstName != null) {
                 firstName = firstName.trim();
@@ -76,13 +78,13 @@ public class UserService implements IUserService {
                 secretKey = secretKey.trim();
             }
             // Mandatory fields check
-            if(firstName == null || firstName.isEmpty()) {
+            if (firstName == null || firstName.isEmpty()) {
                 throw new ValidationException("First name is required");
             }
-            if(lastName == null || lastName.isEmpty()) {
+            if (lastName == null || lastName.isEmpty()) {
                 lastName = ""; // Set last name to empty string if not provided
             }
-            if(address == null || address.isEmpty()) {
+            if (address == null || address.isEmpty()) {
                 throw new ValidationException("Address is required");
             }
             if (email == null || email.isEmpty()) {
@@ -104,11 +106,12 @@ public class UserService implements IUserService {
                 throw new ValidationException(
                         "Invalid password format, password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character");
             }
-            
+
             if (secretKey != null && !secretKey.isEmpty()) {
                 /*
                  * If secret key is provided, check if it is valid for admin user creation
-                 * The provided secret key should also contain extra characters to avoid easy guessing
+                 * The provided secret key should also contain extra characters to avoid easy
+                 * guessing
                  * So the actual admin secret key is subsequence of the provided secret key
                  * The length of the provided secret key should be between 40 to 60 characters
                  */
@@ -124,6 +127,11 @@ public class UserService implements IUserService {
             if (userRepository.existsByContactNo(contactNo)) {
                 throw new DuplicateResourceException("User with this contact number already exists");
             }
+
+            // Generate email verification token
+            String verificationToken = UUID.randomUUID().toString();
+            LocalDateTime tokenExpiry = LocalDateTime.now().plusHours(12); // Token valid for 12 hours
+
             // Create new user
             User newUser = new User(
                     firstName,
@@ -137,16 +145,22 @@ public class UserService implements IUserService {
                     null,
                     null);
 
+            // Set email verification fields
+            newUser.setEmailVerified(false);
+            newUser.setEmailVerificationToken(verificationToken);
+            newUser.setTokenExpiresAt(tokenExpiry);
+
             userRepository.save(newUser);
-            // Generate JWT token with roles
-            String token = jwtUtil.generateToken(email, role);
+
+            // Send verification email asynchronously
+            emailService.sendEmailVerificationEmail(email, firstName, lastName, verificationToken);
+
+            // No JWT token until email is verified
             return Map.of(
                     "email", email,
-                    "token", token,
                     "firstName", newUser.getFirstName(),
                     "lastName", newUser.getLastName(),
-                    "role", role
-                );
+                    "role", role);
         } catch (Exception e) {
             throw new RuntimeException("Error registering user: " + e.getMessage());
         }
@@ -196,6 +210,13 @@ public class UserService implements IUserService {
             if (!passwordEncoder.matches(password, user.getPassword())) {
                 throw new AuthenticationException("Incorrect password");
             }
+
+            // Check if email is verified
+            if (!user.isEmailVerified()) {
+                throw new EmailNotVerifiedException(
+                        "Please verify your email before signing in. Check your inbox for the verification link.");
+            }
+
             // Validated, generate and return JWT token with roles
             String token = jwtUtil.generateToken(email, user.getRole());
             return Map.of(
@@ -203,8 +224,7 @@ public class UserService implements IUserService {
                     "token", token,
                     "firstName", user.getFirstName(),
                     "lastName", user.getLastName(),
-                    "role", user.getRole()
-                );
+                    "role", user.getRole());
         } catch (Exception e) {
             throw new RuntimeException("Error validating user: " + e.getMessage());
         }
@@ -524,6 +544,89 @@ public class UserService implements IUserService {
                     "unparked", List.copyOf(unparkedTickets));
         } catch (Exception e) {
             throw new RuntimeException("Error fetching user parking history: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Map<String, String> verifyEmail(String token) {
+        try {
+            if (token == null || token.trim().isEmpty()) {
+                throw new ValidationException("Verification token is required");
+            }
+
+            token = token.trim();
+
+            // Find user by verification token
+            User user = userRepository.findByEmailVerificationToken(token);
+            if (user == null) {
+                throw new ValidationException("Invalid verification token");
+            }
+
+            // Check if already verified
+            if (user.isEmailVerified()) {
+                return Map.of(
+                        "message", "Email is already verified",
+                        "email", user.getEmail());
+            }
+
+            // Check if token is expired
+            if (user.getTokenExpiresAt() != null && LocalDateTime.now().isAfter(user.getTokenExpiresAt())) {
+                throw new ValidationException(
+                        "Verification token has expired. Please request a new verification email.");
+            }
+
+            // Verify the email
+            user.setEmailVerified(true);
+            user.setEmailVerificationToken(null);
+            user.setTokenExpiresAt(null);
+            userRepository.save(user);
+
+            return Map.of(
+                    "message", "Email verified successfully! You can now sign in.",
+                    "email", user.getEmail());
+        } catch (Exception e) {
+            throw new RuntimeException("Error verifying email: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Map<String, String> resendVerificationEmail(String email) {
+        try {
+            if (email != null) {
+                email = email.trim();
+            }
+            if (email == null || email.isEmpty()) {
+                throw new ValidationException("Email is required");
+            }
+            if (!validation.isValidEmail(email)) {
+                throw new ValidationException("Invalid email format");
+            }
+
+            User user = userRepository.findByEmail(email);
+            if (user == null) {
+                throw new ResourceNotFoundException("User with this email does not exist");
+            }
+
+            // Check if already verified
+            if (user.isEmailVerified()) {
+                throw new ValidationException("Email is already verified");
+            }
+
+            // Generate new verification token
+            String newToken = UUID.randomUUID().toString();
+            LocalDateTime newExpiry = LocalDateTime.now().plusHours(24);
+
+            user.setEmailVerificationToken(newToken);
+            user.setTokenExpiresAt(newExpiry);
+            userRepository.save(user);
+
+            // Send new verification email
+            emailService.sendEmailVerificationEmail(email, user.getFirstName(), user.getLastName(), newToken);
+
+            return Map.of(
+                    "message", "Verification email has been resent. Please check your inbox.");
+        } catch (Exception e) {
+            throw new RuntimeException("Error resending verification email: " + e.getMessage());
         }
     }
 }

@@ -37,6 +37,8 @@ public class SecurityConfig {
                                                 // Public endpoints - signup, signin, and password reset
                                                 .requestMatchers("/quickpark/api/user/auth/signup",
                                                                 "/quickpark/api/user/auth/signin",
+                                                                "/quickpark/api/user/auth/verify-email",
+                                                                "/quickpark/api/user/auth/resend-verification",
                                                                 "/quickpark/api/user/auth/otp/generate",
                                                                 "/quickpark/api/user/auth/otp/verify",
                                                                 "/quickpark/api/user/auth/reset-password")

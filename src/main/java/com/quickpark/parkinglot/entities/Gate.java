@@ -25,6 +25,9 @@ public class Gate {
         this.status = status;
     }
 
+    // Note: rowNumber is set automatically in the service layer after persistence
+    // to copy the auto-generated ID value, or via database trigger
+
     public String getId() {
         if (id == null) {
             return null;

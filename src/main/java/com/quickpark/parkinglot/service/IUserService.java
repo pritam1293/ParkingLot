@@ -25,4 +25,8 @@ public interface IUserService {
     User getUserByEmail(String email);
 
     Map<String, List<Object>> getUserParkingHistory(String email);
+
+    Map<String, String> verifyEmail(String token);
+
+    Map<String, String> resendVerificationEmail(String email);
 }

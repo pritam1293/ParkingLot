@@ -19,6 +19,9 @@ public class User {
     private String contactNo;
     private String password;
     private String address;
+    private boolean isEmailVerified;
+    private String emailVerificationToken;
+    private LocalDateTime tokenExpiresAt;
     private String role;
     private LocalDateTime createdAt;
     private String otp;
@@ -39,6 +42,7 @@ public class User {
         this.createdAt = createdAt;
         this.otp = otp;
         this.expiresIn = expiresIn;
+        this.isEmailVerified = false;
     }
 
     public String getFirstName() {
@@ -119,6 +123,30 @@ public class User {
 
     public void setExpiresIn(LocalDateTime expiresIn) {
         this.expiresIn = expiresIn;
+    }
+
+    public boolean isEmailVerified() {
+        return isEmailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        isEmailVerified = emailVerified;
+    }
+
+    public String getEmailVerificationToken() {
+        return emailVerificationToken;
+    }
+
+    public void setEmailVerificationToken(String emailVerificationToken) {
+        this.emailVerificationToken = emailVerificationToken;
+    }
+
+    public LocalDateTime getTokenExpiresAt() {
+        return tokenExpiresAt;
+    }
+
+    public void setTokenExpiresAt(LocalDateTime tokenExpiresAt) {
+        this.tokenExpiresAt = tokenExpiresAt;
     }
 
     @Override
