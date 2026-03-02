@@ -134,6 +134,28 @@ export const authAPI = {
         } catch (error) {
             throw error.response?.data || error.message;
         }
+    },
+
+    // Verify email with token
+    verifyEmail: async (token) => {
+        try {
+            const response = await apiClient.get(`/auth/verify-email?token=${token}`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error.message;
+        }
+    },
+
+    // Resend verification email
+    resendVerification: async (email) => {
+        try {
+            const response = await apiClient.post('/auth/resend-verification', {
+                email: email || ''
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error.message;
+        }
     }
 };
 

@@ -11,13 +11,6 @@ const Navbar = () => {
 
     const isAdmin = user?.role === 'ADMIN';
 
-    // Debug logging
-    useEffect(() => {
-        console.log('Navbar - User object:', user);
-        console.log('Navbar - User role:', user?.role);
-        console.log('Navbar - Is Admin:', isAdmin);
-    }, [user, isAdmin]);
-
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {

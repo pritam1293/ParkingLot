@@ -21,12 +21,14 @@ import ChangeContact from './pages/changeContact';
 import ChangePassword from './pages/changePassword';
 import NotFound from './pages/NotFound';
 import Admin from './pages/admin';
+import VerifyEmail from './pages/verifyEmail';
 
 function AppContent() {
   const location = useLocation();
   const isAuthPage = location.pathname === '/signup' ||
     location.pathname === '/signin' ||
     location.pathname === '/forgot-password' ||
+    location.pathname === '/verify-email' ||
     location.pathname === '/' ||
     location.pathname === '/admin/signup';
 
@@ -40,6 +42,7 @@ function AppContent() {
           <Route path="/admin/signup" element={<PublicRoute><AdminSignup /></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
           <Route path="/signin" element={<PublicRoute><Signin /></PublicRoute>} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/park" element={<ProtectedRoute><Park /></ProtectedRoute>} />

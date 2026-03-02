@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.quickpark.parkinglot.config.JWT;
@@ -72,14 +73,16 @@ public class UserController {
     }
 
     @GetMapping("/auth/verify-email")
-    public ResponseEntity<?> verifyEmail(@org.springframework.web.bind.annotation.RequestParam("token") String token) {
+    public RedirectView verifyEmail(@org.springframework.web.bind.annotation.RequestParam("token") String token) {
         try {
-            Map<String, String> result = userService.verifyEmail(token);
-            return ResponseEntity.ok(result);
+            userService.verifyEmail(token);
+            // Redirect to frontend signin page after successful verification
+            return new RedirectView("http://localhost:3000/signin");
         } catch (RuntimeException e) {
-            throw e; // Let global exception handler handle it
+            // Redirect to signin with error parameter
+            return new RedirectView("http://localhost:3000/signin?error=verification_failed");
         } catch (Exception e) {
-            throw new RuntimeException("Error verifying email: " + e.getMessage());
+            return new RedirectView("http://localhost:3000/signin?error=verification_failed");
         }
     }
 

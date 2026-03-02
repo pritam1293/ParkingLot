@@ -32,7 +32,6 @@ function Admin() {
 
     const handleAddSpot = (e) => {
         e.preventDefault();
-        console.log('Adding spot:', addSpotForm);
         // TODO: API call to add parking spot
         alert('Parking spot added successfully!');
         setAddSpotForm({ spotId: '', spotType: 'COMPACT', floor: '', section: '' });
@@ -40,7 +39,6 @@ function Admin() {
 
     const handleUpdateSpotStatus = (e) => {
         e.preventDefault();
-        console.log('Updating spot status:', updateSpotForm);
         // TODO: API call to update spot status
         alert('Parking spot status updated successfully!');
         setUpdateSpotForm({ spotId: '', isActive: true });
@@ -48,7 +46,6 @@ function Admin() {
 
     const handleRevenueQuery = (e) => {
         e.preventDefault();
-        console.log('Querying revenue:', revenueForm);
         // TODO: API call to get revenue between dates
         alert(`Revenue query: ${revenueForm.startDate} to ${revenueForm.endDate}`);
     };

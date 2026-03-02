@@ -25,6 +25,9 @@ function AuthForm({ type = 'signin', isAdmin = false }) {
     const [showSecretKey, setShowSecretKey] = useState(false);
     const [loginMethod, setLoginMethod] = useState('email');
     const [isLoading, setIsLoading] = useState(false);
+    const [signupSuccess, setSignupSuccess] = useState(false);
+    const [signupEmail, setSignupEmail] = useState('');
+    const [resendingEmail, setResendingEmail] = useState(false);
 
     const isSignup = type === 'signup';
     const colorScheme = isAdmin ? 'blue' : 'slate';
@@ -101,6 +104,10 @@ function AuthForm({ type = 'signin', isAdmin = false }) {
                 }
 
                 response = await authAPI.signup(signupData);
+
+                // For signup, show success message instead of logging in
+                setSignupSuccess(true);
+                setSignupEmail(response.email || formData.email);
             } else {
                 // Call signin API
                 response = await authAPI.signin({
@@ -108,32 +115,63 @@ function AuthForm({ type = 'signin', isAdmin = false }) {
                     contactNo: formData.contactNo.trim() || null,
                     password: formData.password
                 });
+
+                // Extract token and user data from response
+                const token = response.token;
+
+                const userData = {
+                    email: response.email || formData.email || formData.contactNo,
+                    role: response.role || 'USER'
+                };
+
+                // Store authentication data
+                login(userData, token);
+
+                // Redirect to home page
+                navigate('/home');
             }
-
-            // Extract token and user data from response
-            const token = response.token;
-
-            const userData = {
-                email: response.email || formData.email || formData.contactNo,
-                role: response.role || 'USER'
-            };
-
-            // Store authentication data
-            login(userData, token);
-
-            // Redirect to home page
-            navigate('/home');
         } catch (error) {
             // Handle error and display to user
+            let errorMessage = '';
+
+            if (typeof error === 'string') {
+                errorMessage = error;
+            } else if (error.message) {
+                errorMessage = error.message;
+            } else {
+                errorMessage = `${isSignup ? 'Registration' : 'Login'} failed. Please try again.`;
+            }
+
+            // Check if error is email verification related
+            if (!isSignup && errorMessage.toLowerCase().includes('email not verified')) {
+                setSignupSuccess(true);
+                setSignupEmail(formData.email || '');
+                setErrors({ general: 'Email not verified. Please check your inbox for the verification email.' });
+            } else {
+                setErrors({ general: errorMessage });
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleResendEmail = async () => {
+        setResendingEmail(true);
+        setErrors({});
+
+        try {
+            await authAPI.resendVerification(signupEmail);
+            setErrors({ success: 'Verification email has been resent. Please check your inbox.' });
+        } catch (error) {
             if (typeof error === 'string') {
                 setErrors({ general: error });
             } else if (error.message) {
                 setErrors({ general: error.message });
             } else {
-                setErrors({ general: `${isSignup ? 'Registration' : 'Login'} failed. Please try again.` });
+                setErrors({ general: 'Failed to resend verification email. Please try again.' });
             }
         } finally {
-            setIsLoading(false);
+            setResendingEmail(false);
         }
     };
 
@@ -587,6 +625,66 @@ function AuthForm({ type = 'signin', isAdmin = false }) {
                                 )}
                             </div>
                         </form>
+
+                        {/* Success Message - After Signup */}
+                        {signupSuccess && (
+                            <div className="mt-6 bg-green-50 border-2 border-green-200 rounded-xl p-6">
+                                <div className="flex items-start">
+                                    <svg className="w-6 h-6 text-green-500 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                    </svg>
+                                    <div className="flex-1">
+                                        <h3 className="text-green-800 font-semibold mb-2">Account Created Successfully!</h3>
+                                        <p className="text-green-700 text-sm mb-3">
+                                            A verification email has been sent to <span className="font-medium">{signupEmail}</span>.
+                                            Please check your inbox and click the verification link to activate your account.
+                                        </p>
+                                        <p className="text-green-600 text-xs mb-4">
+                                            The verification link will expire in 24 hours.
+                                        </p>
+
+                                        {/* Success Message from Resend */}
+                                        {errors.success && (
+                                            <div className="bg-green-100 border border-green-300 rounded-lg p-3 mb-3">
+                                                <p className="text-green-800 text-sm">{errors.success}</p>
+                                            </div>
+                                        )}
+
+                                        <div className="flex flex-col sm:flex-row gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={handleResendEmail}
+                                                disabled={resendingEmail}
+                                                className={`flex-1 py-2.5 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-green-300 disabled:bg-green-400 disabled:cursor-not-allowed flex items-center justify-center`}
+                                            >
+                                                {resendingEmail ? (
+                                                    <>
+                                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                        </svg>
+                                                        Resending...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                        </svg>
+                                                        Resend Email
+                                                    </>
+                                                )}
+                                            </button>
+                                            <Link
+                                                to={isAdmin ? "/admin/signin" : "/signin"}
+                                                className={`flex-1 py-2.5 px-4 bg-white border-2 border-green-600 text-green-700 font-medium rounded-lg hover:bg-green-50 transition-all duration-200 text-center`}
+                                            >
+                                                Go to Sign In
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
