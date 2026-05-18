@@ -52,7 +52,6 @@ function Admin() {
 
     const getAvailableSpots = () => mockParkingSpots.filter(spot => !spot.isOccupied && spot.isActive);
     const getActiveSpots = () => mockParkingSpots.filter(spot => spot.isActive);
-    const getInactiveSpots = () => mockParkingSpots.filter(spot => !spot.isActive);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4">
